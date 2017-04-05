@@ -463,74 +463,74 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
    * one is defined.
    * </p>
    * 
-   * @param u
-   * @param cc
+   * @param userSecurityInfo
+   * @param callingContext
    * @return
    * @throws ODKDatastoreException
    */
-  public static RegisteredUsersTable assertActiveUserByUserSecurityInfo(UserSecurityInfo u,
-      CallingContext cc) throws ODKDatastoreException {
-    Datastore ds = cc.getDatastore();
-    User user = cc.getCurrentUser();
+  public static RegisteredUsersTable assertActiveUserByUserSecurityInfo(UserSecurityInfo userSecurityInfo,
+      CallingContext callingContext) throws ODKDatastoreException {
+    Datastore ds = callingContext.getDatastore();
+    User user = callingContext.getCurrentUser();
     RegisteredUsersTable prototype = RegisteredUsersTable.assertRelation(ds, user);
-    RegisteredUsersTable t;
-    if (u.getUsername() == null) {
-      t = RegisteredUsersTable.getUserByEmail(u.getEmail(), cc.getUserService(), ds);
+    RegisteredUsersTable registeredUsersTable;
+    if (userSecurityInfo.getUsername() == null) {
+      registeredUsersTable = RegisteredUsersTable.getUserByEmail(userSecurityInfo.getEmail(), callingContext.getUserService(), ds);
     } else {
-      t = RegisteredUsersTable.getUserByUsername(u.getUsername(), cc.getUserService(), ds);
+      registeredUsersTable = RegisteredUsersTable.getUserByUsername(userSecurityInfo.getUsername(), callingContext.getUserService(), ds);
     }
-    if (t == null) {
+    if (registeredUsersTable == null) {
       // new user
-      RegisteredUsersTable r = ds.createEntityUsingRelation(prototype, user);
-      String uri = generateUniqueUri(u.getUsername(), u.getEmail());
-      r.setStringField(prototype.primaryKey, uri);
-      r.setUsername(u.getUsername());
-      r.setEmail(u.getEmail());
-      r.setFullName(u.getFullName());
-      r.setIsRemoved(false);
-      r.setOfficeId(u.getOfficeId());
-      ds.putEntity(r, user);
-      return r;
+      RegisteredUsersTable newUserTable = ds.createEntityUsingRelation(prototype, user);
+      String uri = generateUniqueUri(userSecurityInfo.getUsername(), userSecurityInfo.getEmail());
+      newUserTable.setStringField(prototype.primaryKey, uri);
+      newUserTable.setUsername(userSecurityInfo.getUsername());
+      newUserTable.setEmail(userSecurityInfo.getEmail());
+      newUserTable.setFullName(userSecurityInfo.getFullName());
+      newUserTable.setIsRemoved(false);
+      newUserTable.setOfficeId(userSecurityInfo.getOfficeId());
+      ds.putEntity(newUserTable, user);
+      return newUserTable;
     } else {
-      t.setFullName(u.getFullName());
-      t.setOfficeId(u.getOfficeId());
-      ds.putEntity(t, user);
-      return t;
+      registeredUsersTable.setFullName(userSecurityInfo.getFullName());
+      registeredUsersTable.setOfficeId(userSecurityInfo.getOfficeId());
+      ds.putEntity(registeredUsersTable, user);
+      return registeredUsersTable;
     }
   }
 
-  private static final boolean resetSuperUserPasswordIfNecessary(RegisteredUsersTable t,
-      boolean newUser, MessageDigestPasswordEncoder mde, CallingContext cc)
+  private static final boolean resetSuperUserPasswordIfNecessary(RegisteredUsersTable registeredUsersTable,
+      boolean newUser, MessageDigestPasswordEncoder digester, CallingContext callingContext)
       throws ODKEntityPersistException, ODKOverQuotaException, ODKEntityNotFoundException {
-    String localSuperUser = t.getUsername();
-    String currentRealmString = cc.getUserService().getCurrentRealm().getRealmString();
-    String lastKnownRealmString = ServerPreferencesProperties.getLastKnownRealmString(cc);
+    String localSuperUser = registeredUsersTable.getUsername();
+    String currentRealmString = callingContext.getUserService().getCurrentRealm().getRealmString();
+    String lastKnownRealmString = ServerPreferencesProperties.getLastKnownRealmString(callingContext);
     if (!newUser && lastKnownRealmString != null && lastKnownRealmString.equals(currentRealmString)) {
       // no need to reset the passwords
       return false;
     }
     // The realm string has changed, so we need to reset the password.
-    RealmSecurityInfo r = new RealmSecurityInfo();
-    r.setRealmString(currentRealmString);
-    r.setBasicAuthHashEncoding(mde.getAlgorithm());
+    RealmSecurityInfo realmSecurityInfo = new RealmSecurityInfo();
+    realmSecurityInfo.setRealmString(currentRealmString);
+    realmSecurityInfo.setBasicAuthHashEncoding(digester.getAlgorithm());
 
     CredentialsInfo credential;
     try {
-      credential = CredentialsInfoBuilder.build(localSuperUser, r, "aggregate");
+      credential = CredentialsInfoBuilder.build(localSuperUser, realmSecurityInfo, "aggregate");
     } catch (NoSuchAlgorithmException e) {
       e.printStackTrace();
       throw new IllegalStateException("unrecognized algorithm");
     }
-    t.setDigestAuthPassword(credential.getDigestAuthHash());
-    t.setBasicAuthPassword(credential.getBasicAuthHash());
-    t.setBasicAuthSalt(credential.getBasicAuthSalt());
+    registeredUsersTable.setDigestAuthPassword(credential.getDigestAuthHash());
+    registeredUsersTable.setBasicAuthPassword(credential.getBasicAuthHash());
+    registeredUsersTable.setBasicAuthSalt(credential.getBasicAuthSalt());
     // done setting the password...persist it...
-    t.setIsRemoved(false);
-    cc.getDatastore().putEntity(t, cc.getCurrentUser());
+    registeredUsersTable.setIsRemoved(false);
+    callingContext.getDatastore().putEntity(registeredUsersTable, callingContext.getCurrentUser());
     // remember the current realm string
-    ServerPreferencesProperties.setLastKnownRealmString(cc, currentRealmString);
-    logger.warn("Reset password of the local superuser record: " + t.getUri() + " identified by: "
-        + t.getUsername());
+    ServerPreferencesProperties.setLastKnownRealmString(callingContext, currentRealmString);
+    logger.warn("Reset password of the local superuser record: " + registeredUsersTable.getUri() + " identified by: "
+        + registeredUsersTable.getUsername());
     return true;
   }
 
@@ -551,7 +551,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
    * @return list of the superUsers of record.
    * @throws ODKDatastoreException
    */
-  public static final List<RegisteredUsersTable> assertSuperUsers(MessageDigestPasswordEncoder mde,
+  public static final List<RegisteredUsersTable> assertSuperUsers(MessageDigestPasswordEncoder digester,
       CallingContext cc) throws ODKDatastoreException {
     List<RegisteredUsersTable> tList = new ArrayList<RegisteredUsersTable>();
 
@@ -559,30 +559,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
     Datastore datastore = cc.getDatastore();
     boolean changesMade = false;
     try {
-      // deal with the superUserEmail...
-      String superUserEmail = userService.getSuperUserEmail();
-      if (superUserEmail != null && superUserEmail.length() != 0) {
-        User user = userService.getDaemonAccountUser();
-        RegisteredUsersTable t = getUserByEmail(superUserEmail, userService, datastore);
-        if (t != null) {
-          tList.add(t);
-        } else {
-          RegisteredUsersTable prototype = assertRelation(datastore, user);
 
-          Email e = new Email(null, superUserEmail);
-          t = datastore.createEntityUsingRelation(prototype, user);
-          String uri = generateUniqueUri(null, e.getEmail());
-          t.setStringField(prototype.primaryKey, uri);
-          t.setUsername(null);
-          t.setFullName(e.getFullName());
-          t.setEmail(e.getEmail());
-          datastore.putEntity(t, user);
-          logger.warn("Created a new superuser email record: " + t.getUri() + " identified by: "
-              + t.getEmail());
-          changesMade = true;
-          tList.add(t);
-        }
-      }
       // deal with the superUserUsername...
       String localSuperUser = userService.getSuperUserUsername();
       if (localSuperUser != null && localSuperUser.length() != 0) {
@@ -590,7 +567,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
         RegisteredUsersTable t = RegisteredUsersTable.getUserByUsername(localSuperUser,
             userService, datastore);
         if (t != null) {
-          changesMade = resetSuperUserPasswordIfNecessary(t, false, mde, cc);
+          changesMade = resetSuperUserPasswordIfNecessary(t, false, digester, cc);
           tList.add(t);
         } else {
           RegisteredUsersTable prototype = assertRelation(datastore, user);
@@ -605,7 +582,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
           datastore.putEntity(t, user);
           logger.warn("Created a new local superuser record: " + t.getUri() + " identified by: "
               + t.getUsername());
-          changesMade = resetSuperUserPasswordIfNecessary(t, true, mde, cc);
+          changesMade = resetSuperUserPasswordIfNecessary(t, true, digester, cc);
           tList.add(t);
         }
       }

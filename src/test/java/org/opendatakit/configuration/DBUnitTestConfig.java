@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestDataConfiguration.class,TestUserServiceConfiguration.class})
+@ContextConfiguration(classes = {TestDataConfiguration.class,UserServiceConfiguration.class})
 @ActiveProfiles("unittest")
 @TestExecutionListeners(listeners = {SetupTeardown.class}, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 @Retention(RetentionPolicy.RUNTIME) 

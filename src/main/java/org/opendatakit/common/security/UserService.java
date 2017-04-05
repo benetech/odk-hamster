@@ -51,11 +51,6 @@ public interface UserService {
   public boolean isUserLoggedIn();
 
   /**
-   * @return the configured super user email address.
-   */
-  public String getSuperUserEmail();
-
-  /**
    * @return the configured ODK Aggregate super-user username.
    */
   public String getSuperUserUsername();

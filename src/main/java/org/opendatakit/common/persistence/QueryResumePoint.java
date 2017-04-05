@@ -13,7 +13,6 @@
  */
 package org.opendatakit.common.persistence;
 
-import org.opendatakit.common.persistence.client.UIQueryResumePoint;
 import org.opendatakit.common.utils.WebCursorUtils;
 
 /**
@@ -70,22 +69,8 @@ public class QueryResumePoint {
     return isForwardCursor;
   }
 
-  public UIQueryResumePoint transform() {
-    UIQueryResumePoint qrp = new UIQueryResumePoint();
-    qrp.setAttributeName(attributeName);
-    qrp.setValue(value);
-    qrp.setUriLastReturnedValue(uriLastReturnedValue);
-    qrp.setIsForwardCursor(isForwardCursor);
-    return qrp;
-  }
-
   public String asWebsafeCursor() {
     return WebCursorUtils.formatCursorParameter(this);
-  }
-
-  public static final QueryResumePoint transform(UIQueryResumePoint qrp) {
-    return new QueryResumePoint(qrp.getAttributeName(), qrp.getValue(),
-        qrp.getUriLastReturnedValue(), qrp.getIsForwardCursor());
   }
 
   public static final QueryResumePoint fromWebsafeCursor(String cursor) {

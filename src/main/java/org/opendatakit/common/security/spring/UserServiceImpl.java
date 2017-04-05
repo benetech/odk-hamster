@@ -53,7 +53,6 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
   // configured by bean definition...
   Datastore datastore;
   Realm realm;
-  String superUserEmail;
   String superUserUsername;
   RegisteredUsersTable superUserUsernameRecord;
   
@@ -70,21 +69,10 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
     if (datastore == null) {
       throw new IllegalStateException("datastore must be configured");
     }
-    if (superUserEmail == null) {
-      throw new IllegalStateException("superUserEmail must be configured");
-    }
-    if ( superUserEmail.length() == 0 ) {
-      superUserEmail = null;
-    }
-    if ( superUserEmail != null &&
-        (!superUserEmail.startsWith(SecurityUtils.MAILTO_COLON)
-          || !superUserEmail.contains(SecurityUtils.AT_SIGN))) {
-      throw new IllegalStateException("superUserEmail is malformed. "
-          + "Must be of the form 'mailto:user@gmail.com' or other supported OAuth2 provider.");
-    }
+
     Log log = LogFactory.getLog(UserServiceImpl.class);
-    log.info("superUserEmail: " + superUserEmail);
     log.info("superUserUsername: " + superUserUsername);
+    log.info("Executing UserServiceImpl.afterPropertiesSet");
 
     reloadPermissions();
   }
@@ -103,14 +91,6 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
 
   public void setRealm(Realm realm) {
     this.realm = realm;
-  }
-
-  public String getSuperUserEmail() {
-    return superUserEmail;
-  }
-
-  public void setSuperUserEmail(String superUserEmail) {
-    this.superUserEmail = superUserEmail;
   }
 
   public String getSuperUserUsername() {

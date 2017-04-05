@@ -26,7 +26,9 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.configuration.TestDataConfiguration;
+import org.opendatakit.configuration.UserServiceConfiguration;
 import org.postgresql.util.PSQLException;
+import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestContext;
@@ -75,7 +77,7 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
  * stub scripts. In the meantime, it is nice not to have to worry about where to put SQL files in
  * the classpath.
  */
-@ContextConfiguration(classes = {TestDataConfiguration.class})
+@ContextConfiguration(classes = {TestDataConfiguration.class},initializers = ConfigFileApplicationContextInitializer.class)
 @ActiveProfiles("unittest")
 public class SetupTeardown extends AbstractTestExecutionListener {
 

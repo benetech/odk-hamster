@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -25,16 +26,16 @@ public class TestDataConfiguration {
   @Value("${jdbc.driverClassName:org.postgresql.Driver}")
   String driverClassName;
 
-  @Value("${jdbc.url:jdbc:postgresql://127.0.0.1/hamster_unit?autoDeserialize=true}")
+  @Value("${jdbc.url}")
   String url;
 
-  @Value("${jdbc.username:hamster_unit}")
+  @Value("${jdbc.username}")
   String username;
 
-  @Value("${jdbc.password:hamster_unit}")
+  @Value("${jdbc.password}")
   String password;
 
-  @Value("${jdbc.schema:hamster_unit}")
+  @Value("${jdbc.schema}")
   String schemaName;
 
   @Value("10")
@@ -77,8 +78,7 @@ public class TestDataConfiguration {
     return properties;
   }
 
-  @Bean(name = "dataSource")
-  @Qualifier("dataSource")
+  @Bean
   public DataSource dataSource() throws PropertyVetoException {
     ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
     comboPooledDataSource.setUser(username);
@@ -96,7 +96,6 @@ public class TestDataConfiguration {
   }
 
   @Bean(name = "datastore")
-  @Qualifier("datastore")
   public Datastore datastore() throws ODKDatastoreException, PropertyVetoException {
     DatastoreImpl datastoreImpl = new DatastoreImpl();
     datastoreImpl.setDataSource(dataSource());

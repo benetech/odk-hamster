@@ -11,16 +11,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
 @Profile("default")
-@ComponentScan(basePackages = {"org.opendatakit.common","org.benetech"})
+@ComponentScan(basePackages = {"org.opendatakit","org.benetech"})
 public class DataConfiguration {
   
-  @Value("${jdbc.driverClassName:'org.postgresql.Driver'}")
+  @Value("${jdbc.driverClassName:org.postgresql.Driver}")
   String driverClassName;
   
   @Value("${jdbc.url}")
@@ -62,6 +64,8 @@ public class DataConfiguration {
 
   @Value("select 1")
   String validationQuery;
+
+  @Primary
   @Bean
   public DataSource dataSource() throws PropertyVetoException {
     ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
@@ -76,16 +80,23 @@ public class DataConfiguration {
     comboPooledDataSource.setMaxIdleTime(maxIdle);
     comboPooledDataSource.setMaxIdleTimeExcessConnections(maxIdleTimeExcessConnections);
     comboPooledDataSource.setPreferredTestQuery(validationQuery);
-
     return comboPooledDataSource;
   }
 
-  @Bean
+  @Bean(name = "datastore")
   public Datastore datastore() throws ODKDatastoreException, PropertyVetoException {
     DatastoreImpl datastoreImpl = new DatastoreImpl();
     datastoreImpl.setDataSource(dataSource());
     datastoreImpl.setSchemaName(schemaName);
     return datastoreImpl;
   }
+  
+  @Bean(name = "transactionManager")
+  public DataSourceTransactionManager transactionManager() throws PropertyVetoException {
+    DataSourceTransactionManager txManager = new DataSourceTransactionManager();
+    txManager.setDataSource(dataSource());
+    return txManager;
+  }
+  
 
 }

@@ -2,12 +2,12 @@ package org.opendatakit.configuration;
 
 import java.beans.PropertyVetoException;
 
+import org.opendatakit.common.persistence.Datastore;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.security.Realm;
 import org.opendatakit.common.security.UserService;
+import org.opendatakit.common.security.spring.RoleHierarchyImpl;
 import org.opendatakit.common.security.spring.UserServiceImpl;
-import org.opendatakit.common.web.CallingContext;
-import org.opendatakit.context.TestCallingContextImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,12 +18,12 @@ import org.springframework.security.authentication.encoding.MessageDigestPasswor
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 @Configuration
-@Profile("unittest")
+@Profile("default")
 @ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
-public class TestUserServiceConfiguration {
- 
-  @Autowired
-  TestDataConfiguration testDataConfiguration;
+public class UserServiceConfiguration {
+  
+  @Autowired DataConfiguration dataConfiguration;
+
 
   @Value("${security.server.realm.realmString:opendatakit.org RC1 Aggregate 1.0 realm}")
   private String realmString;
@@ -69,27 +69,31 @@ public class TestUserServiceConfiguration {
   public UserService userService() throws ODKDatastoreException, PropertyVetoException {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
     userServiceImpl.setRealm(realm());
-    userServiceImpl.setDatastore(testDataConfiguration.datastore());
+    userServiceImpl.setDatastore(dataConfiguration.datastore());
     userServiceImpl.setSuperUserUsername(superUserUsername);
     return userServiceImpl;
   }
 
-  @Bean
-  public CallingContext callingContext() throws ODKDatastoreException, PropertyVetoException {
-    TestCallingContextImpl callingContextImpl = new TestCallingContextImpl();
-    callingContextImpl.setUserService(userService());
-    callingContextImpl.setDatastore(testDataConfiguration.datastore());
-    callingContextImpl.setServerUrl("http://" + hostname + ":" + port + webApplicationBase);
-    callingContextImpl
-        .setSecureServerUrl("https://" + hostname + ":" + securePort + webApplicationBase);
-    callingContextImpl.setWebApplicationBase(webApplicationBase);
-    callingContextImpl.setAsDaemon(true);
-    return callingContextImpl;
-  }
   
   @Bean 
   public MessageDigestPasswordEncoder passwordEncoder() {
     return new ShaPasswordEncoder();
   }
+  
+  @Bean
+  public RoleHierarchyImpl hierarchicalRoleRelationships() throws ODKDatastoreException, PropertyVetoException {
+    try {
+      Class.forName("org.postgresql.Driver");
+      //on classpath
+    } catch(ClassNotFoundException e) {
+      // not on classpath
+    }
+    RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+    roleHierarchyImpl.setDatastore(dataConfiguration.datastore());
+    roleHierarchyImpl.setUserService(userService());
+    roleHierarchyImpl.setPasswordEncoder(passwordEncoder());
+    return roleHierarchyImpl;
+  }
+
 
 }

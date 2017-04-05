@@ -395,20 +395,6 @@ public class SecurityServiceUtil {
         || authority.startsWith(GrantedAuthorityName.ROLE_PREFIX);
   }
 
-  /**
-   * Construct and return the Email object for the superUser.
-   *
-   * @param cc
-   * @return
-   */
-  public static final EmailParser.Email getSuperUserEmail(CallingContext cc) {
-    String suEmail = cc.getUserService().getSuperUserEmail();
-    if ( suEmail == null ) {
-      return null;
-    }
-    return new EmailParser.Email(suEmail.substring(SecurityUtils.MAILTO_COLON.length(),
-        suEmail.indexOf(SecurityUtils.AT_SIGN)), suEmail);
-  }
 
   /**
    * Given a collection of users, ensure that each user is a registered user
@@ -611,15 +597,11 @@ public class SecurityServiceUtil {
     }
 
     // find the entry(entries) for the designated super-user(s)
-    String superUserEmail = cc.getUserService().getSuperUserEmail();
     String superUserUsername = cc.getUserService().getSuperUserUsername();
-    int expectedSize = ((superUserEmail != null) ? 1 : 0) + ((superUserUsername != null) ? 1 : 0);
+    int expectedSize =((superUserUsername != null) ? 1 : 0);
     ArrayList<UserSecurityInfo> superUsers = new ArrayList<UserSecurityInfo>();
     for ( UserSecurityInfo i : users ) {
       if ( i.getType() == UserType.REGISTERED ) {
-        if ( i.getEmail() != null && superUserEmail != null && i.getEmail().equals(superUserEmail)) {
-          superUsers.add(i);
-        }
         if ( i.getUsername() != null && superUserUsername != null && i.getUsername().equals(superUserUsername)) {
           superUsers.add(i);
         }

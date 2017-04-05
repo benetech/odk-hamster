@@ -38,9 +38,10 @@ import org.opendatakit.common.utils.WebUtils;
 import org.opendatakit.common.web.CallingContext;
 import org.opendatakit.configuration.DBUnitTestConfig;
 import org.opendatakit.configuration.TestDataConfiguration;
-import org.opendatakit.configuration.TestUserServiceConfiguration;
+import org.opendatakit.configuration.UserServiceConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -50,7 +51,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestDataConfiguration.class,TestUserServiceConfiguration.class})
+@ContextConfiguration(classes = {TestDataConfiguration.class,UserServiceConfiguration.class},initializers = ConfigFileApplicationContextInitializer.class)
 @ActiveProfiles("unittest")
 @TestExecutionListeners(listeners = {SetupTeardown.class}, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 public class QueryResultTest {
