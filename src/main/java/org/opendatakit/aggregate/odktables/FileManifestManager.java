@@ -90,7 +90,7 @@ public class FileManifestManager {
   /**
    * Get the manifest entries for the application-level files--i.e. those that
    * are not associated with a certain table. This will return those with the
-   * {@link FileServiceImpl#NO_TABLE_ID}.
+   * {@link FileService#NO_TABLE_ID}.
    *
    * @return
    * @throws ODKDatastoreException

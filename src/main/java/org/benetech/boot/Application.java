@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Profile;
 //@EnableAutoConfiguration
 @Profile("default")
 //@ComponentScan(basePackages = {"org.opendatakit","org.benetech"})
-
 @SpringBootApplication(scanBasePackages = {"org.opendatakit","org.benetech"})
 public class Application extends SpringBootServletInitializer{
   private static Log logger = LogFactory.getLog(Application.class);

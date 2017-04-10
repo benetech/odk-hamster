@@ -1,6 +1,9 @@
 package org.opendatakit.configuration;
 
+import javax.ws.rs.ApplicationPath;
+
 import org.glassfish.jersey.server.ResourceConfig;
+import org.opendatakit.aggregate.odktables.api.OdkTables;
 import org.opendatakit.aggregate.odktables.entity.serialization.SimpleHTMLMessageWriter;
 import org.opendatakit.aggregate.odktables.entity.serialization.SimpleJSONMessageReaderWriter;
 import org.opendatakit.aggregate.odktables.entity.serialization.SimpleXMLMessageReaderWriter;
@@ -16,20 +19,20 @@ import org.opendatakit.aggregate.odktables.impl.api.ODKTablesExceptionTextXmlMap
 import org.opendatakit.aggregate.odktables.impl.api.ODKTaskLockExceptionApplicationXmlMapper;
 import org.opendatakit.aggregate.odktables.impl.api.ODKTaskLockExceptionJsonMapper;
 import org.opendatakit.aggregate.odktables.impl.api.ODKTaskLockExceptionTextXmlMapper;
-import org.opendatakit.aggregate.odktables.impl.api.OdkTablesImpl;
 import org.opendatakit.aggregate.odktables.impl.api.RuntimeExceptionApplicationXmlMapper;
 import org.opendatakit.aggregate.odktables.impl.api.RuntimeExceptionJsonMapper;
 import org.opendatakit.aggregate.odktables.impl.api.RuntimeExceptionTextXmlMapper;
 import org.springframework.stereotype.Component;
 
 @Component
+@ApplicationPath("odktables")
 public class JerseyConfiguration extends ResourceConfig {
   public JerseyConfiguration() {
     registerEndpoints();
   }
 
   private void registerEndpoints() {
-    register(OdkTablesImpl.class);
+    register(OdkTables.class);
     register(SimpleHTMLMessageWriter.class);
     register(SimpleJSONMessageReaderWriter.class);
     register(SimpleXMLMessageReaderWriter.class);

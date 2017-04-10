@@ -1,13 +1,7 @@
 package org.opendatakit.aggregate.odktables.api;
 
-import org.opendatakit.aggregate.odktables.exception.AppNameMismatchException;
-import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
-import org.opendatakit.aggregate.odktables.impl.api.FileManifestServiceImpl;
-import org.opendatakit.aggregate.odktables.impl.api.FileServiceImpl;
-import org.opendatakit.aggregate.odktables.impl.api.TableServiceImpl;
-import org.opendatakit.aggregate.odktables.rest.ApiConstants;
-import org.opendatakit.common.persistence.exception.ODKDatastoreException;
-import org.opendatakit.common.persistence.exception.ODKTaskLockException;
+import java.util.Collections;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -20,54 +14,185 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-public interface OdkTables {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opendatakit.aggregate.ContextUtils;
+import org.opendatakit.aggregate.odktables.exception.AppNameMismatchException;
+import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
+import org.opendatakit.aggregate.odktables.impl.api.ServiceUtils;
+import org.opendatakit.aggregate.odktables.relation.DbTableFileInfo;
+import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.aggregate.odktables.rest.entity.AppNameList;
+import org.opendatakit.aggregate.odktables.rest.entity.ClientVersionList;
+import org.opendatakit.common.persistence.exception.ODKDatastoreException;
+import org.opendatakit.common.persistence.exception.ODKTaskLockException;
+import org.opendatakit.common.web.CallingContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Path("")
+@Component
+public class OdkTables {
 
   public static final String CURSOR_PARAMETER = "cursor";
   public static final String FETCH_LIMIT = "fetchLimit";
   public static final String OFFICE_ID = "officeId";
-  
-  /**
-   * Return the JSON serialized list of appNames that this server supports.
-   * For ODK Aggregate, this will be a single-element list.
-   * 
-   * @param sc
-   * @param req
-   * @param httpHeaders
-   * @return
-   * @throws AppNameMismatchException
-   * @throws PermissionDeniedException
-   * @throws ODKDatastoreException
-   */
+
+  @Autowired
+  CallingContext callingContext;
+
   @GET
-  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response /*AppNameList*/ getAppNames(@Context ServletContext sc, @Context HttpServletRequest req, @Context HttpHeaders httpHeaders) throws AppNameMismatchException,
-      PermissionDeniedException, ODKDatastoreException;
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  public Response getAppNames(@Context ServletContext sc, @Context HttpServletRequest req,
+      @Context HttpHeaders httpHeaders) throws ODKDatastoreException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    AppNameList appNames = new AppNameList(Collections.singletonList(preferencesAppId));
+    return Response.ok(appNames)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
+  }
 
   @GET
   @Path("{appId}/clientVersions")
-  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response /*ClientVersionList*/ getOdkClientVersions(@Context ServletContext sc, @Context HttpServletRequest req, @Context HttpHeaders httpHeaders,
-      @Context UriInfo info, @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException, ODKTaskLockException;
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  public Response /* ClientVersionList */ getOdkClientVersions(@Context ServletContext sc,
+      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
+      @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException,
+      ODKDatastoreException, ODKTaskLockException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    if (!preferencesAppId.equals(appId)) {
+      throw new AppNameMismatchException("AppName (" + appId + ") differs");
+    }
+
+    List<String> distinctOdkClientVersions = null;
+    String eTagOdkClientVersions = null;
+
+    // retrieve the incoming if-none-match eTag...
+    List<String> eTags = httpHeaders.getRequestHeader(HttpHeaders.IF_NONE_MATCH);
+    String eTag = (eTags == null || eTags.isEmpty()) ? null : eTags.get(0);
+    try {
+      distinctOdkClientVersions = DbTableFileInfo.queryForAllOdkClientVersions(callingContext);
+      eTagOdkClientVersions = Integer.toHexString(
+          (distinctOdkClientVersions == null) ? -1 : distinctOdkClientVersions.hashCode());
+
+      if (eTag != null && distinctOdkClientVersions != null && eTag.equals(eTagOdkClientVersions)) {
+        return Response.status(Status.NOT_MODIFIED).header(HttpHeaders.ETAG, eTag)
+            .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+            .header("Access-Control-Allow-Origin", "*")
+            .header("Access-Control-Allow-Credentials", "true").build();
+      }
+    } catch (ODKDatastoreException e) {
+      Log log = LogFactory.getLog(FileManifestService.class);
+      log.error("Datastore exception in getting the file manifest");
+      e.printStackTrace();
+    }
+
+    if (distinctOdkClientVersions == null) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR)
+          .entity("Unable to retrieve odkClientVersions.")
+          .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+          .header("Access-Control-Allow-Origin", "*")
+          .header("Access-Control-Allow-Credentials", "true").build();
+    } else {
+      UriBuilder ub = info.getBaseUriBuilder();
+      ub.path(OdkTables.class, "getOdkClientVersions");
+
+      ClientVersionList clientVersions = new ClientVersionList(distinctOdkClientVersions);
+      return Response.ok(clientVersions).header(HttpHeaders.ETAG, eTagOdkClientVersions)
+          .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+          .header("Access-Control-Allow-Origin", "*")
+          .header("Access-Control-Allow-Credentials", "true").build();
+    }
+  }
 
   @Path("{appId}/manifest")
-  public FileManifestServiceImpl getFileManifestService(@Context ServletContext sc, @Context HttpServletRequest req, @Context HttpHeaders httpHeaders,
-      @Context UriInfo info, @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException, ODKTaskLockException;
+  public FileManifestService getFileManifestService(@Context ServletContext sc,
+      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
+      @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException,
+      ODKDatastoreException, ODKTaskLockException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    if (!preferencesAppId.equals(appId)) {
+      throw new AppNameMismatchException("AppName (" + appId + ") differs");
+    }
+
+    return new FileManifestService(info, appId, callingContext);
+  }
 
   @Path("{appId}/files")
-  public FileServiceImpl getFilesService(@Context ServletContext sc, @Context HttpServletRequest req, @Context HttpHeaders httpHeaders,
-      @Context UriInfo info, @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException, ODKTaskLockException;
+  public FileService getFilesService(@Context ServletContext sc,
+      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
+      @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException,
+      ODKDatastoreException, ODKTaskLockException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    if (!preferencesAppId.equals(appId)) {
+      throw new AppNameMismatchException("AppName (" + appId + ") differs");
+    }
+
+    return new FileService(sc, req, httpHeaders, info, appId, callingContext);
+  }
 
   @GET
   @Path("{appId}/tables")
-  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response /*TableResourceList*/ getTables(@Context ServletContext sc, @Context HttpServletRequest req, @Context HttpHeaders httpHeaders,
-      @Context UriInfo info, @PathParam("appId") String appId, @QueryParam(CURSOR_PARAMETER) String cursor, @QueryParam(FETCH_LIMIT) String fetchLimit, @QueryParam(OFFICE_ID) String officeId) throws AppNameMismatchException,
-      PermissionDeniedException, ODKDatastoreException, ODKTaskLockException;
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  public Response /* TableResourceList */ getTables(@Context ServletContext sc,
+      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
+      @PathParam("appId") String appId, @QueryParam(CURSOR_PARAMETER) String cursor,
+      @QueryParam(FETCH_LIMIT) String fetchLimit, @QueryParam(OFFICE_ID) String officeId)
+      throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException,
+      ODKTaskLockException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    if (!preferencesAppId.equals(appId)) {
+      throw new AppNameMismatchException("AppName (" + appId + ") differs");
+    }
+
+    TableService ts = new TableService(sc, req, httpHeaders, info, appId, callingContext);
+    return ts.getTables(cursor, fetchLimit, officeId);
+  }
 
   @Path("{appId}/tables/{tableId}")
-  public TableServiceImpl getTablesService(@Context ServletContext sc, @Context HttpServletRequest req, @Context HttpHeaders httpHeaders,
-      @Context UriInfo info, @PathParam("appId") String appId, @PathParam("tableId") String tableId) throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException, ODKTaskLockException;
+  public TableService getTablesService(@Context ServletContext sc,
+      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
+      @PathParam("appId") String appId, @PathParam("tableId") String tableId)
+      throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException,
+      ODKTaskLockException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    if (!preferencesAppId.equals(appId)) {
+      throw new AppNameMismatchException("AppName (" + appId + ") differs");
+    }
+
+    return new TableService(sc, req, httpHeaders, info, appId, tableId, callingContext);
+  }
 
 }

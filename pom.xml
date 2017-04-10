@@ -43,6 +43,13 @@
             <groupId>org.opendatakit</groupId>
             <artifactId>odk-tables-api</artifactId>
             <version>1.0.2</version>
+            <exclusions>
+            <!--  Spring boot includes jcl-over-slf4j (conflicts) by default -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- SPRING BOOT -->
         <dependency>
@@ -53,12 +60,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-          
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jersey</artifactId>
