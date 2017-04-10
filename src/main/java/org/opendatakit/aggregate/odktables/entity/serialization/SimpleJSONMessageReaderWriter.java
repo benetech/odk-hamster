@@ -1,16 +1,14 @@
 /*
  * Copyright (C) 2012-2013 University of Washington
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -37,7 +35,6 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.opendatakit.aggregate.odktables.impl.api.wink.AppEngineHandlersFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,19 +42,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 @Provider
-public class SimpleJSONMessageReaderWriter<T> implements MessageBodyReader<T>,
-    MessageBodyWriter<T> {
+public class SimpleJSONMessageReaderWriter<T>
+    implements MessageBodyReader<T>, MessageBodyWriter<T> {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final String DEFAULT_ENCODING = "utf-8";
 
   public static class JSONWrapper {
     byte[] buffer;
+
     public JSONWrapper(byte[] buffer) {
       this.buffer = buffer;
     }
   };
-  
+
   @Context
   ServletContext context;
 
@@ -84,8 +82,8 @@ public class SimpleJSONMessageReaderWriter<T> implements MessageBodyReader<T>,
       if (!encoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
         throw new IllegalArgumentException("charset for the request is not utf-8");
       }
-      InputStreamReader r = new InputStreamReader(stream,
-          Charset.forName(ApiConstants.UTF8_ENCODE));
+      InputStreamReader r =
+          new InputStreamReader(stream, Charset.forName(ApiConstants.UTF8_ENCODE));
       return mapper.readValue(r, aClass);
     } catch (Exception e) {
       throw new IOException(e);
@@ -103,27 +101,19 @@ public class SimpleJSONMessageReaderWriter<T> implements MessageBodyReader<T>,
       }
 
       /**
-       * This is an optimization because of the weird way Wink handles request/response
-       * processing. I'd like to do post-processing on the constructed response, but 
-       * am forced to do pre-processing. We only do this for JSON response path.
+       * This is an optimization because of the weird way Wink handles request/response processing.
+       * I'd like to do post-processing on the constructed response, but am forced to do
+       * pre-processing. We only do this for JSON response path.
        */
       byte[] bytes = null;
-      {
-        Object obj = context.getAttribute(AppEngineHandlersFactory.NotModifiedHandler.jsonBufferKey);
-        if ( obj != null && obj instanceof JSONWrapper ) {
-          JSONWrapper wrapper = (JSONWrapper) obj;
-          bytes = wrapper.buffer;
-        }
-      }
-      if ( bytes == null ) {
-        // write object to a byte array
-        ByteArrayOutputStream bas = new ByteArrayOutputStream(8192);
-        OutputStreamWriter w = new OutputStreamWriter(bas,
-            Charset.forName(ApiConstants.UTF8_ENCODE));
-        mapper.writeValue(w, o);
-        // get the array
-        bytes = bas.toByteArray();
-      }
+
+      // write object to a byte array
+      ByteArrayOutputStream bas = new ByteArrayOutputStream(8192);
+      OutputStreamWriter w = new OutputStreamWriter(bas, Charset.forName(ApiConstants.UTF8_ENCODE));
+      mapper.writeValue(w, o);
+      // get the array
+      bytes = bas.toByteArray();
+
       /**
        * OK. At this point, bytes[] holds the serialized response entity.
        */

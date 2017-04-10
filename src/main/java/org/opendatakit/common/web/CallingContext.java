@@ -20,6 +20,8 @@ import javax.servlet.ServletContext;
 import org.opendatakit.common.persistence.Datastore;
 import org.opendatakit.common.security.User;
 import org.opendatakit.common.security.UserService;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 
 /**
  * Context in which the call occurs.  
@@ -37,7 +39,7 @@ public interface CallingContext {
     * @param beanName
     * @return the bean or an exception
     */
-   public Object getBean(String beanName);
+//   public Object getBean(String beanName);
    
    /**
     * @return the datastore
@@ -48,6 +50,16 @@ public interface CallingContext {
     * @return the user identity service
     */
    public UserService getUserService();
+   
+   /**
+    * @return the role hierarchy service
+    */
+   public RoleHierarchy getHierarchicalRoleRelationships();
+   
+   /**
+    *  @return the encoder for passwords
+    */
+   public MessageDigestPasswordEncoder getMessageDigestPasswordEncoder();
    
    /**
     * Set whether or not we should act as the daemon user.
@@ -67,11 +79,6 @@ public interface CallingContext {
     * @return the logged-in user, anonymous user, or the daemon user.
     */
    public User getCurrentUser();
-   
-   /** 
-    * @return the servlet context
-    */
-   public ServletContext getServletContext();
    
    /**
     * @return the slash-rooted path of this web application

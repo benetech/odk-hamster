@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.opendatakit.aggregate.ContextFactory;
+import org.opendatakit.aggregate.ContextUtils;
 import org.opendatakit.aggregate.odktables.ConfigFileChangeDetail;
 import org.opendatakit.aggregate.odktables.FileContentInfo;
 import org.opendatakit.aggregate.odktables.FileManager;
@@ -52,7 +52,7 @@ import org.opendatakit.common.security.common.GrantedAuthorityName;
 import org.opendatakit.common.security.server.SecurityServiceUtil;
 import org.opendatakit.common.web.CallingContext;
 import org.opendatakit.common.web.constants.BasicConsts;
-import org.opendatakit.common.web.constants.HtmlConsts;
+import org.opendatakit.common.web.constants.ServletConsts;
 
 public class FileServiceImpl implements FileService {
 
@@ -73,7 +73,7 @@ public class FileServiceImpl implements FileService {
     this.cc = cc;
     this.appId = appId;
     this.info = info;
-    this.userPermissions = ContextFactory.getTablesUserPermissions(cc);
+    this.userPermissions = ContextUtils.getTablesUserPermissions(cc);
 
   }
 
@@ -136,7 +136,7 @@ public class FileServiceImpl implements FileService {
 
       if (asAttachment != null && !"".equals(asAttachment)) {
         // Set the filename we're downloading to the disk.
-        rBuild.header(HtmlConsts.CONTENT_DISPOSITION,
+        rBuild.header(ServletConsts.CONTENT_DISPOSITION,
             "attachment; " + "filename=\"" + appRelativePath + "\"");
       }
       return rBuild.build();

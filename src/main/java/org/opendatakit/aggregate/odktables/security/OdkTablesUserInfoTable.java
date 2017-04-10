@@ -23,8 +23,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.FileManifestManager;
-import org.opendatakit.aggregate.odktables.OdkTablesLockTemplate;
 import org.opendatakit.aggregate.odktables.ODKTablesTaskLockType;
+import org.opendatakit.aggregate.odktables.OdkTablesLockTemplate;
 import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
 import org.opendatakit.common.persistence.CommonFieldsBase;
 import org.opendatakit.common.persistence.DataField;
@@ -35,7 +35,6 @@ import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.common.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.common.persistence.exception.ODKTaskLockException;
-import org.opendatakit.common.security.SecurityBeanDefs;
 import org.opendatakit.common.security.SecurityUtils;
 import org.opendatakit.common.security.User;
 import org.opendatakit.common.security.common.GrantedAuthorityName;
@@ -225,7 +224,7 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
 
     log.info("TablesUserPermissionsImpl: " + uriUser);
 
-    RoleHierarchy rh = (RoleHierarchy) cc.getBean(SecurityBeanDefs.ROLE_HIERARCHY_MANAGER);
+    RoleHierarchy rh = (RoleHierarchy) cc.getHierarchicalRoleRelationships();
     Collection<? extends GrantedAuthority> roles = rh.getReachableGrantedAuthorities(grants);
     boolean hasSynchronize = roles.contains(new SimpleGrantedAuthority(
         GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name()));

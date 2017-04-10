@@ -4,9 +4,12 @@ import java.beans.PropertyVetoException;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opendatakit.common.persistence.Datastore;
 import org.opendatakit.common.persistence.engine.pgres.DatastoreImpl;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
+import org.opendatakit.common.security.spring.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,6 +25,8 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @ComponentScan(basePackages = {"org.opendatakit","org.benetech"})
 public class DataConfiguration {
   
+  private static final Log logger = LogFactory.getLog(DataConfiguration.class);
+
   @Value("${jdbc.driverClassName:org.postgresql.Driver}")
   String driverClassName;
   
@@ -49,6 +54,9 @@ public class DataConfiguration {
 
   @Value("5")
   int minPoolSize;
+  
+  @Value("20")
+  int initialPoolSize;
 
   @Value("100")
   int maxPoolSize;
@@ -74,6 +82,7 @@ public class DataConfiguration {
     comboPooledDataSource.setJdbcUrl(url);
     comboPooledDataSource.setDriverClass(driverClassName);
     comboPooledDataSource.setMinPoolSize(minPoolSize);
+    comboPooledDataSource.setInitialPoolSize(initialPoolSize);
     comboPooledDataSource.setAcquireIncrement(acquireIncrement);
     comboPooledDataSource.setAcquireRetryAttempts(acquireRetryAttempts);
     comboPooledDataSource.setMaxPoolSize(maxPoolSize);

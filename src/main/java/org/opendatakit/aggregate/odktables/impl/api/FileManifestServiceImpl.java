@@ -28,7 +28,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opendatakit.aggregate.ContextFactory;
+import org.opendatakit.aggregate.ContextUtils;
 import org.opendatakit.aggregate.odktables.FileManifestManager;
 import org.opendatakit.aggregate.odktables.api.FileManifestService;
 import org.opendatakit.aggregate.odktables.api.FileService;
@@ -56,7 +56,6 @@ public class FileManifestServiceImpl implements FileManifestService {
   private final CallingContext cc;
   private final String appId;
   private final UriInfo info;
-  private TablesUserPermissions userPermissions;
 
   public FileManifestServiceImpl(UriInfo info, String appId, CallingContext cc)
       throws ODKEntityNotFoundException, ODKDatastoreException, PermissionDeniedException,
@@ -64,7 +63,6 @@ public class FileManifestServiceImpl implements FileManifestService {
     this.cc = cc;
     this.appId = appId;
     this.info = info;
-    this.userPermissions = ContextFactory.getTablesUserPermissions(cc);
   }
 
   public static String getAppLevelManifestETag(CallingContext cc) throws ODKDatastoreException {

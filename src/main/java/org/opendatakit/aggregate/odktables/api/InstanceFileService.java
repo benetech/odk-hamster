@@ -32,7 +32,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 
-import org.apache.wink.common.model.multipart.InMultiPart;
 import org.opendatakit.aggregate.odktables.exception.ODKTablesException;
 import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
@@ -119,11 +118,11 @@ public interface InstanceFileService {
    * @throws ODKTablesException 
    * @throws ODKDatastoreException 
    */
-  @POST
-  @Path("upload")
-  @Consumes({MediaType.MULTIPART_FORM_DATA})
-  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response postFiles(@Context HttpServletRequest req, InMultiPart inMP) throws IOException, ODKTaskLockException, ODKTablesException, ODKDatastoreException;
+//  @POST
+//  @Path("upload")
+//  @Consumes({MediaType.MULTIPART_FORM_DATA})
+//  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+//  public Response postFiles(@Context HttpServletRequest req, InMultiPart inMP) throws IOException, ODKTaskLockException, ODKTablesException, ODKDatastoreException;
   
   @GET
   @Path("file/{filePath:.*}")

@@ -31,11 +31,12 @@ import java.util.Map;
  */
 public final class ServletConsts {
 
-  // TODO: remove temporary debug variable
-  /**
-   * TEMPORARY: used for turning on and off debug code
-   */
-  public final static boolean DEBUG = false;
+  
+  
+  public static final int WEB_PORT = 80;
+  public static final int SECURE_WEB_PORT = 443;
+  public static final String CONTENT_DISPOSITION = "Content-Disposition";
+  public static final String CONTENT_TYPE_CSV_UTF8 = "text/csv; charset=utf-8";
 
   // system constants
   public static final String APPLICATION_NAME = "ODK AGGREGATE";

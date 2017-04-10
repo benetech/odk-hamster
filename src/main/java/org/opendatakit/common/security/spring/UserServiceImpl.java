@@ -30,7 +30,6 @@ import org.opendatakit.common.persistence.Query;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.common.security.Realm;
-import org.opendatakit.common.security.SecurityBeanDefs;
 import org.opendatakit.common.security.SecurityUtils;
 import org.opendatakit.common.security.User;
 import org.opendatakit.common.security.client.CredentialsInfo;
@@ -55,6 +54,7 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
   Realm realm;
   String superUserUsername;
   RegisteredUsersTable superUserUsernameRecord;
+  MessageDigestPasswordEncoder messageDigestPasswordEncoder;
   
   final Map<String, User> activeUsers = new HashMap<String, User>();
 
@@ -114,19 +114,11 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
     }
     
     if ( superUserUsernameRecord != null ) {
-      MessageDigestPasswordEncoder mde = null;
-      try {
-        Object obj = cc.getBean(SecurityBeanDefs.BASIC_AUTH_PASSWORD_ENCODER);
-        if (obj != null) {
-          mde = (MessageDigestPasswordEncoder) obj;
-        }
-      } catch (Exception e) {
-        mde = null;
-      }
+
 
       RealmSecurityInfo r = new RealmSecurityInfo();
       r.setRealmString(this.getCurrentRealm().getRealmString());
-      r.setBasicAuthHashEncoding(mde.getAlgorithm());
+      r.setBasicAuthHashEncoding(messageDigestPasswordEncoder.getAlgorithm());
 
       CredentialsInfo credential;
       try {
@@ -142,16 +134,8 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
 
   @Override
   public synchronized boolean isSuperUser(CallingContext cc) throws ODKDatastoreException {
-    MessageDigestPasswordEncoder mde = null;
-    try {
-      Object obj = cc.getBean(SecurityBeanDefs.BASIC_AUTH_PASSWORD_ENCODER);
-      if (obj != null) {
-        mde = (MessageDigestPasswordEncoder) obj;
-      }
-    } catch (Exception e) {
-      mde = null;
-    }
-    List<RegisteredUsersTable> tList = RegisteredUsersTable.assertSuperUsers(mde, cc);
+
+    List<RegisteredUsersTable> tList = RegisteredUsersTable.assertSuperUsers(messageDigestPasswordEncoder, cc);
 
     String uriUser = cc.getCurrentUser().getUriUser();
     for (RegisteredUsersTable t : tList) {
@@ -311,4 +295,13 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
     }
     return null;
   }
+
+  public void setMessageDigestPasswordEncoder(
+      MessageDigestPasswordEncoder messageDigestPasswordEncoder) {
+    this.messageDigestPasswordEncoder = messageDigestPasswordEncoder;
+  }
+
+
+  
+  
 }

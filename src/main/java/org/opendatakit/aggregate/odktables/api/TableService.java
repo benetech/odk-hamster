@@ -158,7 +158,7 @@ public interface TableService {
       PermissionDeniedException, ODKTaskLockException, TableNotFoundException;
 
   /**
-   * Get the realized verison of this table.
+   * Get the realized version of this table.
    *
    * @param schemaETag
    * @return

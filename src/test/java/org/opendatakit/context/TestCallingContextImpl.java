@@ -7,20 +7,25 @@ import org.opendatakit.common.security.User;
 import org.opendatakit.common.security.UserService;
 import org.opendatakit.common.web.CallingContext;
 import org.opendatakit.common.web.constants.BasicConsts;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 
 public class TestCallingContextImpl implements CallingContext {
   String serverUrl;
   String secureServerUrl;
   String webApplicationBase;
-  ServletContext servletContext;
   Datastore datastore;
   UserService userService;
+  RoleHierarchy hierarchicalRoleRelationships;
+  MessageDigestPasswordEncoder messageDigestPasswordEncoder;
+
+
   boolean asDaemon = false;
 
-  @Override
-  public Object getBean(String beanName) {
-    return null;
-  }
+//  @Override
+//  public Object getBean(String beanName) {
+//    return null;
+//  }
 
   @Override
   public Datastore getDatastore() {
@@ -30,6 +35,17 @@ public class TestCallingContextImpl implements CallingContext {
   @Override
   public UserService getUserService() {
     return userService;
+  }
+
+  @Override
+  public RoleHierarchy getHierarchicalRoleRelationships() {
+    return hierarchicalRoleRelationships;
+  }
+  
+  @Override
+  public MessageDigestPasswordEncoder getMessageDigestPasswordEncoder() {
+    // TODO Auto-generated method stub
+    return messageDigestPasswordEncoder;
   }
 
   @Override
@@ -45,11 +61,6 @@ public class TestCallingContextImpl implements CallingContext {
   @Override
   public User getCurrentUser() {
     return asDaemon ? userService.getDaemonAccountUser() : userService.getCurrentUser();
-  }
-
-  @Override
-  public ServletContext getServletContext() {
-    return servletContext;
   }
 
   @Override
@@ -97,16 +108,21 @@ public class TestCallingContextImpl implements CallingContext {
     this.webApplicationBase = webApplicationBase;
   }
 
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
-  }
-
   public void setDatastore(Datastore datastore) {
     this.datastore = datastore;
   }
 
   public void setUserService(UserService userService) {
     this.userService = userService;
+  }
+
+  public void setHierarchicalRoleRelationships(RoleHierarchy hierarchicalRoleRelationships) {
+    this.hierarchicalRoleRelationships = hierarchicalRoleRelationships;
+  }
+
+  public void setMessageDigestPasswordEncoder(
+      MessageDigestPasswordEncoder messageDigestPasswordEncoder) {
+    this.messageDigestPasswordEncoder = messageDigestPasswordEncoder;
   }
   
   

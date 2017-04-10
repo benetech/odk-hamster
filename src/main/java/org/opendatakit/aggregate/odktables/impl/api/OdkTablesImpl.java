@@ -5,10 +5,13 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
@@ -16,7 +19,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opendatakit.aggregate.ContextFactory;
+import org.opendatakit.aggregate.ContextUtils;
 import org.opendatakit.aggregate.odktables.api.OdkTables;
 import org.opendatakit.aggregate.odktables.exception.AppNameMismatchException;
 import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
@@ -27,17 +30,23 @@ import org.opendatakit.aggregate.odktables.rest.entity.ClientVersionList;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.persistence.exception.ODKTaskLockException;
 import org.opendatakit.common.web.CallingContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Path("")
+@Component
 public class OdkTablesImpl implements OdkTables {
 
+  @Autowired
+  CallingContext callingContext;
+
   @Override
-  public Response getAppNames(@Context ServletContext sc, @Context HttpServletRequest req,
-      @Context HttpHeaders httpHeaders) throws ODKDatastoreException {
+  public Response getAppNames(ServletContext sc,  HttpServletRequest req,
+       HttpHeaders httpHeaders) throws ODKDatastoreException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    CallingContext cc = ContextFactory.getCallingContext(sc, req);
-    String preferencesAppId = ContextFactory.getOdkTablesAppId(cc);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     AppNameList appNames = new AppNameList(Collections.singletonList(preferencesAppId));
     return Response.ok(appNames)
@@ -52,8 +61,8 @@ public class OdkTablesImpl implements OdkTables {
       PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    CallingContext cc = ContextFactory.getCallingContext(sc, req);
-    String preferencesAppId = ContextFactory.getOdkTablesAppId(cc);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
@@ -66,7 +75,7 @@ public class OdkTablesImpl implements OdkTables {
     List<String> eTags = httpHeaders.getRequestHeader(HttpHeaders.IF_NONE_MATCH);
     String eTag = (eTags == null || eTags.isEmpty()) ? null : eTags.get(0);
     try {
-      distinctOdkClientVersions = DbTableFileInfo.queryForAllOdkClientVersions(cc);
+      distinctOdkClientVersions = DbTableFileInfo.queryForAllOdkClientVersions(callingContext);
       eTagOdkClientVersions = Integer.toHexString(
           (distinctOdkClientVersions == null) ? -1 : distinctOdkClientVersions.hashCode());
 
@@ -106,14 +115,14 @@ public class OdkTablesImpl implements OdkTables {
       PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    CallingContext cc = ContextFactory.getCallingContext(sc, req);
-    String preferencesAppId = ContextFactory.getOdkTablesAppId(cc);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
 
-    return new FileManifestServiceImpl(info, appId, cc);
+    return new FileManifestServiceImpl(info, appId, callingContext);
   }
 
   @Override
@@ -122,32 +131,32 @@ public class OdkTablesImpl implements OdkTables {
       PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    CallingContext cc = ContextFactory.getCallingContext(sc, req);
-    String preferencesAppId = ContextFactory.getOdkTablesAppId(cc);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
 
-    return new FileServiceImpl(sc, req, httpHeaders, info, appId, cc);
+    return new FileServiceImpl(sc, req, httpHeaders, info, appId, callingContext);
   }
 
   @Override
   public Response /* TableResourceList */ getTables(ServletContext sc, HttpServletRequest req,
       HttpHeaders httpHeaders, UriInfo info, String appId,
-      @QueryParam(CURSOR_PARAMETER) String cursor, @QueryParam(FETCH_LIMIT) String fetchLimit, @QueryParam(OFFICE_ID) String officeId)
-      throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException,
-      ODKTaskLockException {
+      @QueryParam(CURSOR_PARAMETER) String cursor, @QueryParam(FETCH_LIMIT) String fetchLimit,
+      @QueryParam(OFFICE_ID) String officeId) throws AppNameMismatchException,
+      PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    CallingContext cc = ContextFactory.getCallingContext(sc, req);
-    String preferencesAppId = ContextFactory.getOdkTablesAppId(cc);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
 
-    TableServiceImpl ts = new TableServiceImpl(sc, req, httpHeaders, info, appId, cc);
+    TableServiceImpl ts = new TableServiceImpl(sc, req, httpHeaders, info, appId, callingContext);
     return ts.getTables(cursor, fetchLimit, officeId);
   }
 
@@ -158,14 +167,14 @@ public class OdkTablesImpl implements OdkTables {
       ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    CallingContext cc = ContextFactory.getCallingContext(sc, req);
-    String preferencesAppId = ContextFactory.getOdkTablesAppId(cc);
+    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
 
-    return new TableServiceImpl(sc, req, httpHeaders, info, appId, tableId, cc);
+    return new TableServiceImpl(sc, req, httpHeaders, info, appId, tableId, callingContext);
   }
 
 }
