@@ -17,7 +17,7 @@
 package org.opendatakit.aggregate.odktables;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opendatakit.aggregate.server.ServerPreferencesProperties;
+import org.opendatakit.common.persistence.ServerPreferencesProperties;
 import org.opendatakit.common.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.common.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.common.web.CallingContext;

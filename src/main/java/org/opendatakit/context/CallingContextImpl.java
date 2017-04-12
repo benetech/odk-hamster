@@ -3,10 +3,13 @@ package org.opendatakit.context;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opendatakit.common.persistence.Datastore;
 import org.opendatakit.common.security.Realm;
 import org.opendatakit.common.security.User;
 import org.opendatakit.common.security.UserService;
+import org.opendatakit.common.security.spring.UserServiceImpl;
 import org.opendatakit.common.web.CallingContext;
 import org.opendatakit.common.web.constants.BasicConsts;
 import org.opendatakit.common.web.constants.ServletConsts;
@@ -26,8 +29,12 @@ public class CallingContextImpl implements CallingContext {
 
   boolean asDaemon = false;
 
-  public CallingContextImpl(Datastore datastore, UserService userService, RoleHierarchy roleHierarchy, MessageDigestPasswordEncoder messageDigestPasswordEncoder, String path,
-      boolean asDaemon) {
+  private static final Log logger = LogFactory.getLog(CallingContextImpl.class);
+
+
+  public CallingContextImpl(Datastore datastore, UserService userService,
+      RoleHierarchy roleHierarchy, MessageDigestPasswordEncoder messageDigestPasswordEncoder,
+      String path, boolean asDaemon) {
 
     path = path == null ? "" : path;
     this.datastore = datastore;
@@ -149,7 +156,13 @@ public class CallingContextImpl implements CallingContext {
 
   @Override
   public User getCurrentUser() {
-    return asDaemon ? userService.getDaemonAccountUser() : userService.getCurrentUser();
+    User currentUser = null;
+    try {
+      userService.getCurrentUser();
+    } catch (NullPointerException e) {
+      logger.info("Can't get current user.  Possibly no security context is set yet.\n" + e.getMessage());
+    }
+    return asDaemon || currentUser == null ? userService.getDaemonAccountUser() : currentUser;
   }
 
 
@@ -222,9 +235,6 @@ public class CallingContextImpl implements CallingContext {
   public void setHierarchicalRoleRelationships(RoleHierarchy roleHierarchy) {
     this.hierarchicalRoleRelationships = roleHierarchy;
   }
-
-
- 
 
 
 
