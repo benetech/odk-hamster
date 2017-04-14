@@ -158,7 +158,7 @@ public class CallingContextImpl implements CallingContext {
   public User getCurrentUser() {
     User currentUser = null;
     try {
-      userService.getCurrentUser();
+      currentUser = userService.getCurrentUser();
     } catch (NullPointerException e) {
       logger.info("Can't get current user.  Possibly no security context is set yet.\n" + e.getMessage());
     }

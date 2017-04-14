@@ -22,10 +22,12 @@ import org.opendatakit.aggregate.odktables.impl.api.ODKTaskLockExceptionTextXmlM
 import org.opendatakit.aggregate.odktables.impl.api.RuntimeExceptionApplicationXmlMapper;
 import org.opendatakit.aggregate.odktables.impl.api.RuntimeExceptionJsonMapper;
 import org.opendatakit.aggregate.odktables.impl.api.RuntimeExceptionTextXmlMapper;
+import org.opendatakit.aggregate.users.api.Roles;
+import org.opendatakit.aggregate.users.api.Users;
 import org.springframework.stereotype.Component;
 
 @Component
-@ApplicationPath("odktables")
+@ApplicationPath("")
 public class JerseyConfiguration extends ResourceConfig {
   public JerseyConfiguration() {
     registerEndpoints();
@@ -51,6 +53,7 @@ public class JerseyConfiguration extends ResourceConfig {
     register(RuntimeExceptionJsonMapper.class);
     register(RuntimeExceptionTextXmlMapper.class);
     register(RuntimeExceptionApplicationXmlMapper.class);
-     
+    register(Roles.class);
+    register(Users.class); 
   }
 }

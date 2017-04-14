@@ -27,10 +27,10 @@ public class UserServiceConfiguration {
   @Autowired
   DataConfiguration dataConfiguration;
 
-  @Value("/odktables")
+  @Value("/")
   private String servletPath;
 
-  @Value("${security.server.realm.realmString:opendatakit.org RC1 Aggregate 1.0 realm}")
+  @Value("${security.server.realm.realmString:opendatakit.org ODK Aggregate}")
   private String realmString;
 
   @Value("${security.server.hostname:localhost}")

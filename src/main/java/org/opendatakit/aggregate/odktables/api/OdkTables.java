@@ -34,7 +34,7 @@ import org.opendatakit.common.web.CallingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Path("")
+@Path("odktables")
 @Component
 public class OdkTables {
 

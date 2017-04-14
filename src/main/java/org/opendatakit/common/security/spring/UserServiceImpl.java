@@ -248,7 +248,6 @@ public class UserServiceImpl implements org.opendatakit.common.security.UserServ
   @Override
   public User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
     return internalGetUser(auth.getName(), auth.getAuthorities());
   }
 
