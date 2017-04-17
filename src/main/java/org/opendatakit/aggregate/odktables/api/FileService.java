@@ -84,7 +84,7 @@ public class FileService {
   private final ServletContext sc;
   private final HttpServletRequest req;
   private final HttpHeaders headers;
-  private final CallingContext cc;
+  private final CallingContext callingContext;
   private final String appId;
   private final UriInfo info;
   private TablesUserPermissions userPermissions;
@@ -95,7 +95,7 @@ public class FileService {
     this.sc = sc;
     this.req = req;
     this.headers = headers;
-    this.cc = cc;
+    this.callingContext = cc;
     this.appId = appId;
     this.info = info;
     this.userPermissions = ContextUtils.getTablesUserPermissions(cc);
@@ -138,7 +138,7 @@ public class FileService {
     List<String> eTags = httpHeaders.getRequestHeader(HttpHeaders.IF_NONE_MATCH);
     String eTag = (eTags == null || eTags.isEmpty()) ? null : eTags.get(0);
 
-    FileManager fm = new FileManager(appId, cc);
+    FileManager fm = new FileManager(appId, callingContext);
     fi = fm.getFile(odkClientVersion, tableId, appRelativePath);
 
     // And now prepare everything to be returned to the caller.
@@ -177,12 +177,11 @@ public class FileService {
 
   @POST
   @Path("{odkClientVersion}/{filePath:.*}")
-  @Consumes({MediaType.MEDIA_TYPE_WILDCARD})
   public Response putFile(@PathParam("odkClientVersion") String odkClientVersion,
       @PathParam("filePath") List<PathSegment> segments, byte[] content)
       throws IOException, ODKTaskLockException, PermissionDeniedException, ODKDatastoreException {
 
-    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(cc);
+    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
       throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
     }
@@ -203,7 +202,7 @@ public class FileService {
       userPermissions.checkPermission(appId, tableId, TablePermission.WRITE_PROPERTIES);
     }
 
-    FileManager fm = new FileManager(appId, cc);
+    FileManager fm = new FileManager(appId, callingContext);
 
     FileContentInfo fi = new FileContentInfo(appRelativePath, contentType,
         Long.valueOf(content.length), null, content);
@@ -245,7 +244,7 @@ public class FileService {
       throws IOException, ODKTaskLockException, ODKEntityNotFoundException, ODKOverQuotaException,
       PermissionDeniedException, ODKDatastoreException {
 
-    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(cc);
+    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
       throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
     }
@@ -265,7 +264,7 @@ public class FileService {
       userPermissions.checkPermission(appId, tableId, TablePermission.WRITE_PROPERTIES);
     }
 
-    FileManager fm = new FileManager(appId, cc);
+    FileManager fm = new FileManager(appId, callingContext);
     fm.deleteFile(odkClientVersion, tableId, appRelativePath);
 
     return Response.ok()

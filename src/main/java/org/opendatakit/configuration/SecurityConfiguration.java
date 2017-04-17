@@ -2,13 +2,15 @@ package org.opendatakit.configuration;
 
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opendatakit.common.persistence.ServerPreferencesProperties;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.common.persistence.exception.ODKOverQuotaException;
-import org.opendatakit.common.security.spring.DigestAuthenticationFilter;
 import org.opendatakit.common.security.spring.UserDetailsServiceImpl;
 import org.opendatakit.common.security.spring.UserDetailsServiceImpl.CredentialType;
 import org.opendatakit.common.security.spring.UserDetailsServiceImpl.PasswordType;
@@ -21,9 +23,15 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @Profile("default")
@@ -40,10 +48,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.authorizeRequests().antMatchers("/**").authenticated().and()
-        .addFilter(digestAuthenticationFilter());
+    http.exceptionHandling().authenticationEntryPoint(delegatingAuthenticationEntryPoint());
     
-    //http.authorizeRequests().antMatchers("/**").permitAll();
+    // We have a choice here; stateless OR enable sessions and use CSRF.
+    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    http.csrf().disable();
+    
+    http.authorizeRequests().antMatchers("/**").authenticated().and()
+    
+        .addFilter(digestAuthenticationFilter());
+
+    // http.authorizeRequests().antMatchers("/**").permitAll();
   }
 
   @Bean
@@ -53,6 +68,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     digestAuthenticationFilter.setPasswordAlreadyEncoded(true);
     digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint());
     digestAuthenticationFilter.setUserDetailsService(digestLoginService());
+    // https://github.com/spring-projects/spring-security/issues/3310
+    digestAuthenticationFilter.setCreateAuthenticatedToken(true);
     return digestAuthenticationFilter;
   }
 
@@ -91,4 +108,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     userDetailsServiceImpl.setAuthorities(authorities);
     return userDetailsServiceImpl;
   }
+
+  @Bean
+  DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint()
+      throws ODKEntityNotFoundException, ODKOverQuotaException, ODKDatastoreException,
+      PropertyVetoException {
+    LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints =
+        new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
+    entryPoints.put(new RequestHeaderRequestMatcher("X-OpenRosa-Version", "1.0"),
+        digestEntryPoint());
+    entryPoints.put(new RequestHeaderRequestMatcher("X-OpenDataKit-Version", "2.0"),
+        digestEntryPoint());
+    DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint =
+        new DelegatingAuthenticationEntryPoint(entryPoints);
+    delegatingAuthenticationEntryPoint.setDefaultEntryPoint(digestEntryPoint());
+    return delegatingAuthenticationEntryPoint;
+  }
+
+
 }

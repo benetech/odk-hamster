@@ -3,6 +3,7 @@ package org.opendatakit.configuration;
 import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.opendatakit.aggregate.odktables.api.FileService;
 import org.opendatakit.aggregate.odktables.api.OdkTables;
 import org.opendatakit.aggregate.odktables.entity.serialization.SimpleHTMLMessageWriter;
 import org.opendatakit.aggregate.odktables.entity.serialization.SimpleJSONMessageReaderWriter;
@@ -35,6 +36,8 @@ public class JerseyConfiguration extends ResourceConfig {
 
   private void registerEndpoints() {
     register(OdkTables.class);
+    register(FileService.class);
+
     register(SimpleHTMLMessageWriter.class);
     register(SimpleJSONMessageReaderWriter.class);
     register(SimpleXMLMessageReaderWriter.class);

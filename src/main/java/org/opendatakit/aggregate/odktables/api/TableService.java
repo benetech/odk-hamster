@@ -111,7 +111,7 @@ public class TableService {
   private final UriInfo info;
   private final String appId;
   private final String tableId;
-  private final CallingContext cc;
+  private final CallingContext callingContext;
 
   public TableService(ServletContext sc, HttpServletRequest req, HttpHeaders headers,
       UriInfo info, String appId, CallingContext cc) throws ODKEntityNotFoundException,
@@ -122,7 +122,7 @@ public class TableService {
     this.info = info;
     this.appId = appId;
     tableId = null;
-    this.cc = cc;
+    this.callingContext = cc;
   }
 
   public TableService(ServletContext sc, HttpServletRequest req, HttpHeaders headers,
@@ -134,7 +134,7 @@ public class TableService {
     this.info = info;
     this.appId = appId;
     this.tableId = tableId;
-    this.cc = cc;
+    this.callingContext = cc;
   }
 
 
@@ -151,9 +151,9 @@ public class TableService {
       @QueryParam(FETCH_LIMIT) String fetchLimit, @QueryParam(OFFICE_ID) String officeId) throws ODKDatastoreException,
       PermissionDeniedException, ODKTaskLockException {
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
-    TableManager tm = new TableManager(appId, userPermissions, cc);
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
 
     int limit = (fetchLimit == null || fetchLimit.length() == 0) ?
     		2000 : Integer.valueOf(fetchLimit);
@@ -168,7 +168,7 @@ public class TableService {
         // set the table-level manifest ETag if known...
         try {
           resource.setTableLevelManifestETag(FileManifestService.getTableLevelManifestETag(
-              entry.getTableId(), cc));
+              entry.getTableId(), callingContext));
         } catch (ODKDatastoreException e) {
           // ignore
         }
@@ -185,7 +185,7 @@ public class TableService {
     // set the app-level manifest ETag if known...
     try {
       tableResourceList
-          .setAppLevelManifestETag(FileManifestService.getAppLevelManifestETag(cc));
+          .setAppLevelManifestETag(FileManifestService.getAppLevelManifestETag(callingContext));
     } catch (ODKDatastoreException e) {
       // ignore
     }
@@ -210,9 +210,9 @@ public class TableService {
   public Response getTable() throws ODKDatastoreException, TableNotFoundException,
       PermissionDeniedException, ODKTaskLockException {
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
-    TableManager tm = new TableManager(appId, userPermissions, cc);
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
     TableEntry entry = tm.getTable(tableId);
     if (entry == null || entry.getSchemaETag() == null) {
       // the table doesn't exist yet (or something is there that is database
@@ -224,7 +224,7 @@ public class TableService {
     // set the table-level manifest ETag if known...
     try {
       resource.setTableLevelManifestETag(FileManifestService.getTableLevelManifestETag(
-          entry.getTableId(), cc));
+          entry.getTableId(), callingContext));
     } catch (ODKDatastoreException e) {
       // ignore
     }
@@ -253,14 +253,14 @@ public class TableService {
   public Response createTable(TableDefinition definition) throws ODKDatastoreException,
       TableAlreadyExistsException, PermissionDeniedException, ODKTaskLockException, IOException {
 
-    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(cc);
+    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
       throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
     }
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
-    TableManager tm = new TableManager(appId, userPermissions, cc);
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
     // NOTE: the only access control restriction for
     // creating the table is the Administer Tables role.
     List<Column> columns = definition.getColumns();
@@ -271,7 +271,7 @@ public class TableService {
     // set the table-level manifest ETag if known...
     try {
       resource.setTableLevelManifestETag(FileManifestService.getTableLevelManifestETag(
-          entry.getTableId(), cc));
+          entry.getTableId(), callingContext));
     } catch (ODKDatastoreException e) {
       // ignore
     }
@@ -301,9 +301,9 @@ public class TableService {
       throws ODKDatastoreException, PermissionDeniedException, SchemaETagMismatchException,
       AppNameMismatchException, ODKTaskLockException, TableNotFoundException {
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
-    TableManager tm = new TableManager(appId, userPermissions, cc);
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
     TableEntry entry = tm.getTable(tableId);
     if (entry == null) {
       // the table doesn't exist yet (or something is there that is database
@@ -314,7 +314,7 @@ public class TableService {
       throw new SchemaETagMismatchException(ERROR_SCHEMA_DIFFERS + "\n" + entry.getSchemaETag());
     }
     RealizedTableService service = new RealizedTableService(sc, req, headers, info, appId,
-        tableId, schemaETag, (entry.getSchemaETag() == null), userPermissions, tm, cc);
+        tableId, schemaETag, (entry.getSchemaETag() == null), userPermissions, tm, callingContext);
     return service;
 
   }
@@ -332,11 +332,11 @@ public class TableService {
   public TableAclService getAcl() throws ODKDatastoreException, AppNameMismatchException,
       PermissionDeniedException, ODKTaskLockException {
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
     // orthogonal to access rights to the table...
     // TableManager tm = new TableManager(appId, userPermissions, cc);
-    TableAclService service = new TableAclService(appId, tableId, info, userPermissions, cc);
+    TableAclService service = new TableAclService(appId, tableId, info, userPermissions, callingContext);
     return service;
   }
 
@@ -394,7 +394,7 @@ public class TableService {
       throws ODKDatastoreException, PermissionDeniedException,
       ODKTaskLockException, TableNotFoundException, FileNotFoundException {
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
     String appRelativePath = FileManager.getPropertiesFilePath(tableId);
 
@@ -402,7 +402,7 @@ public class TableService {
 
     userPermissions.checkPermission(appId, tableId, TablePermission.READ_PROPERTIES);
 
-    FileManager fm = new FileManager(appId, cc);
+    FileManager fm = new FileManager(appId, callingContext);
 
     fi = fm.getFile(odkClientVersion, tableId, appRelativePath);
 
@@ -680,12 +680,12 @@ public class TableService {
       throws ODKDatastoreException, PermissionDeniedException, ODKTaskLockException,
       TableNotFoundException {
 
-    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(cc);
+    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
       throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
     }
 
-    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(cc);
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
 
     String appRelativePath = FileManager.getPropertiesFilePath(tableId);
 
@@ -742,7 +742,7 @@ public class TableService {
 
     byte[] content = bas.toByteArray();
 
-    FileManager fm = new FileManager(appId, cc);
+    FileManager fm = new FileManager(appId, callingContext);
 
     FileContentInfo fi = new FileContentInfo(appRelativePath, contentType, Long.valueOf(content.length), null,
         content);

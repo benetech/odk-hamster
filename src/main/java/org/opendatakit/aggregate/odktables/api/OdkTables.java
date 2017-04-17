@@ -144,7 +144,6 @@ public class OdkTables {
       ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {

@@ -213,19 +213,19 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
   }
 
   
-  public static synchronized final OdkTablesUserInfoTable getOdkTablesUserInfo(String uriUser, Set<GrantedAuthority> grants, CallingContext cc)
+  public static synchronized final OdkTablesUserInfoTable getOdkTablesUserInfo(String uriUser, Set<GrantedAuthority> grants, CallingContext callingContext)
       throws ODKDatastoreException, ODKTaskLockException, ODKEntityPersistException,
       ODKOverQuotaException, PermissionDeniedException {
-    Datastore ds = cc.getDatastore();
+    Datastore ds = callingContext.getDatastore();
 
-    OdkTablesUserInfoTable prototype = OdkTablesUserInfoTable.assertRelation(cc);
+    OdkTablesUserInfoTable prototype = OdkTablesUserInfoTable.assertRelation(callingContext);
 
     Log log = LogFactory.getLog(FileManifestManager.class);
 
     log.info("TablesUserPermissionsImpl: " + uriUser);
 
-    RoleHierarchy rh = (RoleHierarchy) cc.getHierarchicalRoleRelationships();
-    Collection<? extends GrantedAuthority> roles = rh.getReachableGrantedAuthorities(grants);
+    RoleHierarchy roleHierarchy = (RoleHierarchy) callingContext.getHierarchicalRoleRelationships();
+    Collection<? extends GrantedAuthority> roles = roleHierarchy.getReachableGrantedAuthorities(grants);
     boolean hasSynchronize = roles.contains(new SimpleGrantedAuthority(
         GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name()));
     boolean hasSuperUser = roles.contains(new SimpleGrantedAuthority(
@@ -244,7 +244,7 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
       } else {
 
         RegisteredUsersTable user = RegisteredUsersTable.getUserByUri(uriUser, ds,
-            cc.getCurrentUser());
+            callingContext.getCurrentUser());
         // Determine the external UID that will identify this user
         externalUID = null;
         if (user.getEmail() != null) {
@@ -256,26 +256,26 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
       }
 
       OdkTablesUserInfoTable odkTablesUserInfo = null;
-      odkTablesUserInfo = OdkTablesUserInfoTable.getCurrentUserInfo(uriForUser, cc);
+      odkTablesUserInfo = OdkTablesUserInfoTable.getCurrentUserInfo(uriForUser, callingContext);
       if (odkTablesUserInfo == null) {
         //
         // GAIN LOCK
         OdkTablesLockTemplate tablesUserPermissions = new OdkTablesLockTemplate(externalUID,
-            ODKTablesTaskLockType.TABLES_USER_PERMISSION_CREATION, OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
+            ODKTablesTaskLockType.TABLES_USER_PERMISSION_CREATION, OdkTablesLockTemplate.DelayStrategy.SHORT, callingContext);
         try {
           tablesUserPermissions.acquire();
           // attempt to re-fetch the record.
           // If this succeeds, then we had multiple suitors; the other one beat
           // us.
-          odkTablesUserInfo = OdkTablesUserInfoTable.getCurrentUserInfo(uriForUser, cc);
+          odkTablesUserInfo = OdkTablesUserInfoTable.getCurrentUserInfo(uriForUser, callingContext);
           if (odkTablesUserInfo != null) {
             return odkTablesUserInfo;
           }
           // otherwise, create a record
-          odkTablesUserInfo = ds.createEntityUsingRelation(prototype, cc.getCurrentUser());
+          odkTablesUserInfo = ds.createEntityUsingRelation(prototype, callingContext.getCurrentUser());
           odkTablesUserInfo.setUriUser(uriForUser);
           odkTablesUserInfo.setOdkTablesUserId(externalUID);
-          odkTablesUserInfo.persist(cc);
+          odkTablesUserInfo.persist(callingContext);
           return odkTablesUserInfo;
         } finally {
           tablesUserPermissions.release();
