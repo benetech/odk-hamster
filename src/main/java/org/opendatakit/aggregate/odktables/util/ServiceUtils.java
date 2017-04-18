@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.opendatakit.aggregate.odktables.impl.api;
+package org.opendatakit.aggregate.odktables.util;
 
 import java.util.Enumeration;
 import java.util.List;

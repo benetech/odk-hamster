@@ -109,6 +109,7 @@ public class DiffService  {
     String tableId = dm.getTableId();
 
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     URI table = ub.clone().build(appId, tableId);
     try {
@@ -125,6 +126,7 @@ public class DiffService  {
     String rowId = row.getRowId();
 
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     URI self = ub.clone().path(TableService.class, "getRealizedTable")
         .path(RealizedTableService.class, "getData").path(DataService.class, "getRow")

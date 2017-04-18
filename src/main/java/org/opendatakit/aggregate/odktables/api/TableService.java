@@ -344,17 +344,18 @@ public class TableService {
     String tableId = entry.getTableId();
     String schemaETag = entry.getSchemaETag();
 
-    UriBuilder ub = info.getBaseUriBuilder();
-    ub.path(OdkTables.class, "getTablesService");
-    URI self = ub.clone().build(appId, tableId);
-    UriBuilder realized = ub.clone().path(TableService.class, "getRealizedTable");
+    UriBuilder uriBuilder = info.getBaseUriBuilder();
+    uriBuilder.path(OdkTables.class);
+    uriBuilder.path(OdkTables.class, "getTablesService");
+    URI self = uriBuilder.clone().build(appId, tableId);
+    UriBuilder realized = uriBuilder.clone().path(TableService.class, "getRealizedTable");
     URI data = realized.clone().path(RealizedTableService.class, "getData")
         .build(appId, tableId, schemaETag);
     URI instanceFiles = realized.clone().path(RealizedTableService.class, "getInstanceFileService")
         .build(appId, tableId, schemaETag);
     URI diff = realized.clone().path(RealizedTableService.class, "getDiff")
         .build(appId, tableId, schemaETag);
-    URI acl = ub.clone().path(TableService.class, "getAcl").build(appId, tableId);
+    URI acl = uriBuilder.clone().path(TableService.class, "getAcl").build(appId, tableId);
     URI definition = realized.clone().build(appId, tableId, schemaETag);
 
     TableResource resource = new TableResource(entry);

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.opendatakit.aggregate.odktables.impl.api;
+package org.opendatakit.aggregate.odktables.api.mapper;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -24,21 +24,17 @@ import javax.ws.rs.ext.ExceptionMapper;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
 import org.opendatakit.aggregate.odktables.rest.entity.Error;
 import org.opendatakit.aggregate.odktables.rest.entity.Error.ErrorType;
-import org.opendatakit.common.persistence.exception.ODKDatastoreException;
-import org.opendatakit.common.persistence.exception.ODKEntityNotFoundException;
-import org.opendatakit.common.persistence.exception.ODKEntityPersistException;
-import org.opendatakit.common.persistence.exception.ODKOverQuotaException;
 
-public class ODKDatastoreExceptionMapper implements ExceptionMapper<ODKDatastoreException> {
+public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException> {
 
   private final MediaType type;
-  
-  public ODKDatastoreExceptionMapper(MediaType type) {
+
+  public RuntimeExceptionMapper(MediaType type) {
     this.type = type;
   }
 
   @Override
-  public Response toResponse(ODKDatastoreException e) {
+  public Response toResponse(RuntimeException e) {
     e.printStackTrace();
 
     String msg = e.getMessage();
@@ -46,21 +42,15 @@ public class ODKDatastoreExceptionMapper implements ExceptionMapper<ODKDatastore
       msg = e.toString();
     }
 
-    if (e instanceof ODKEntityNotFoundException) {
-      return Response.status(Status.NOT_FOUND).entity(new Error(ErrorType.RESOURCE_NOT_FOUND, msg))
-          .type(type)
+    if (e instanceof IllegalArgumentException) {
+      return Response.status(Status.BAD_REQUEST)
+          .entity(new Error(ErrorType.BAD_REQUEST, "Bad arguments: " + msg)).type(type)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
           .header("Access-Control-Allow-Credentials", "true").build();
-    } else if (e instanceof ODKEntityPersistException) {
+    } else if (e instanceof IllegalStateException) {
       return Response.status(Status.INTERNAL_SERVER_ERROR)
-          .entity(new Error(ErrorType.INTERNAL_ERROR, "Could not save: " + msg)).type(type)
-          .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
-          .header("Access-Control-Allow-Origin", "*")
-          .header("Access-Control-Allow-Credentials", "true").build();
-    } else if (e instanceof ODKOverQuotaException) {
-      return Response.status(Status.INTERNAL_SERVER_ERROR)
-          .entity(new Error(ErrorType.INTERNAL_ERROR, "Over quota: " + msg)).type(type)
+          .entity(new Error(ErrorType.INTERNAL_ERROR, "Illegal state: " + msg)).type(type)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
           .header("Access-Control-Allow-Credentials", "true").build();

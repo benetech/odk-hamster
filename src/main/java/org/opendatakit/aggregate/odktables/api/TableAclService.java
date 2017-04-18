@@ -391,6 +391,7 @@ public class TableAclService {
       value = "null";
 
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     UriBuilder selfBuilder = ub.clone().path(TableService.class, "getAcl");
     URI self;

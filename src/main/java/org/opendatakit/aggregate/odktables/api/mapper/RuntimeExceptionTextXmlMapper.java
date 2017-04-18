@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.opendatakit.aggregate.odktables.impl.api;
+package org.opendatakit.aggregate.odktables.api.mapper;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -22,16 +22,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import org.opendatakit.aggregate.odktables.exception.ODKTablesException;
-
 @Produces({ MediaType.TEXT_XML })
 @Provider
-public class ODKTablesExceptionTextXmlMapper implements ExceptionMapper<ODKTablesException> {
+public class RuntimeExceptionTextXmlMapper implements ExceptionMapper<RuntimeException> {
 
-  ODKTablesExceptionMapper mapper = new ODKTablesExceptionMapper(MediaType.TEXT_XML_TYPE);
+  RuntimeExceptionMapper mapper = new RuntimeExceptionMapper(MediaType.TEXT_XML_TYPE);
 
   @Override
-  public Response toResponse(ODKTablesException e) {
+  public Response toResponse(RuntimeException e) {
     return mapper.toResponse(e);
   }
 

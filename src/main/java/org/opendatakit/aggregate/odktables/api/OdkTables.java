@@ -23,11 +23,11 @@ import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.ContextUtils;
 import org.opendatakit.aggregate.odktables.exception.AppNameMismatchException;
 import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
-import org.opendatakit.aggregate.odktables.impl.api.ServiceUtils;
 import org.opendatakit.aggregate.odktables.relation.DbTableFileInfo;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
 import org.opendatakit.aggregate.odktables.rest.entity.AppNameList;
 import org.opendatakit.aggregate.odktables.rest.entity.ClientVersionList;
+import org.opendatakit.aggregate.odktables.util.ServiceUtils;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.persistence.exception.ODKTaskLockException;
 import org.opendatakit.common.web.CallingContext;
@@ -110,6 +110,7 @@ public class OdkTables {
           .header("Access-Control-Allow-Credentials", "true").build();
     } else {
       UriBuilder ub = info.getBaseUriBuilder();
+      ub.path(OdkTables.class);
       ub.path(OdkTables.class, "getOdkClientVersions");
 
       ClientVersionList clientVersions = new ClientVersionList(distinctOdkClientVersions);

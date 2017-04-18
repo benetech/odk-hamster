@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.opendatakit.aggregate.odktables.impl.api;
+package org.opendatakit.aggregate.odktables.api.mapper;
 
 import java.io.IOException;
 
@@ -24,11 +24,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-@Produces({ MediaType.APPLICATION_XML })
+@Produces({ MediaType.APPLICATION_JSON })
 @Provider
-public class IOExceptionApplicationXmlMapper implements ExceptionMapper<IOException> {
+public class IOExceptionJsonMapper implements ExceptionMapper<IOException> {
 
-  IOExceptionMapper mapper = new IOExceptionMapper(MediaType.APPLICATION_XML_TYPE);
+  IOExceptionMapper mapper = new IOExceptionMapper(MediaType.APPLICATION_JSON_TYPE);
 
   @Override
   public Response toResponse(IOException e) {

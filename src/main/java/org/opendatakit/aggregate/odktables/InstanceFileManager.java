@@ -15,8 +15,24 @@
  */
 package org.opendatakit.aggregate.odktables;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
+import javax.ws.rs.core.MultivaluedMap;
+
+import org.apache.http.HeaderElement;
+import org.apache.http.message.BasicHeaderValueParser;
+import org.apache.http.message.HeaderValueParser;
+import org.glassfish.jersey.media.multipart.BodyPartEntity;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.opendatakit.aggregate.odktables.api.InstanceFileService;
+import org.opendatakit.aggregate.odktables.exception.InstanceFileModificationException;
+import org.opendatakit.aggregate.odktables.exception.ODKTablesException;
 import org.opendatakit.aggregate.odktables.exception.PermissionDeniedException;
 import org.opendatakit.aggregate.odktables.relation.DbTableInstanceFiles;
 import org.opendatakit.aggregate.odktables.relation.DbTableInstanceManifestETags;
@@ -25,6 +41,7 @@ import org.opendatakit.aggregate.odktables.rest.entity.TableRole.TablePermission
 import org.opendatakit.aggregate.odktables.security.TablesUserPermissions;
 import org.opendatakit.common.datamodel.BinaryContentManipulator.BlobSubmissionOutcome;
 import org.opendatakit.common.ermodel.BlobEntitySet;
+import org.opendatakit.common.persistence.PersistenceUtils;
 import org.opendatakit.common.persistence.exception.ODKDatastoreException;
 import org.opendatakit.common.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.common.persistence.exception.ODKTaskLockException;
@@ -327,142 +344,144 @@ public class InstanceFileManager {
     }
   }
 
-//  public void postFiles(String tableId, String rowId, InMultiPart inMP,
-//      TablesUserPermissions userPermissions)
-//      throws IOException, ODKTaskLockException, ODKTablesException, ODKDatastoreException {
-//
-//    try {
-//      if (tableId == null) {
-//        throw new IllegalArgumentException("tableId cannot be null!");
-//      }
-//
-//      if (rowId == null) {
-//        throw new IllegalArgumentException("rowId cannot be null!");
-//      }
-//
-//      userPermissions.checkPermission(appId, tableId, TablePermission.WRITE_ROW);
-//
-//      OdkTablesLockTemplate propsLock = new OdkTablesLockTemplate(tableId, rowId,
-//          ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES, OdkTablesLockTemplate.DelayStrategy.LONG, cc);
-//
-//      try {
-//        propsLock.acquire();
-//
-//        // fetch these once and then continue to re-use them.
-//        DbTableInstanceFiles blobStore = new DbTableInstanceFiles(tableId, cc);
-//        BlobEntitySet instance = blobStore.newBlobEntitySet(rowId, cc);
-//
-//        ODKTablesException e = null;
-//        // Parse the request
-//        while (inMP.hasNext()) {
-//          InPart part = inMP.next();
-//          MultivaluedMap<String, String> headers = part.getHeaders();
-//          String disposition = (headers != null) ? headers.getFirst("Content-Disposition") : null;
-//          if (disposition == null) {
-//            e = new ODKTablesException(InstanceFileService.ERROR_MSG_MULTIPART_FILES_ONLY_EXPECTED);
-//            continue;
-//          }
-//          String partialPath = null;
-//          {
-//            HeaderValueParser parser = new BasicHeaderValueParser();
-//            HeaderElement[] values = BasicHeaderValueParser.parseElements(disposition, parser);
-//            for (HeaderElement v : values) {
-//              if (v.getName().equalsIgnoreCase("file")) {
-//                partialPath = v.getParameterByName("filename").getValue();
-//                break;
-//              }
-//            }
-//          }
-//          if (partialPath == null) {
-//            e = new ODKTablesException(
-//                InstanceFileService.ERROR_MSG_MULTIPART_CONTENT_FILENAME_EXPECTED);
-//            continue;
-//          }
-//
-//          String contentType = (headers != null) ? headers.getFirst("Content-Type") : null;
-//
-//          ByteArrayOutputStream bo = new ByteArrayOutputStream();
-//          InputStream bi = null;
-//          try {
-//            bi = new BufferedInputStream(part.getInputStream());
-//            int length = 1024;
-//            // Transfer bytes from in to out
-//            byte[] data = new byte[length];
-//            int len;
-//            while ((len = bi.read(data, 0, length)) >= 0) {
-//              if (len != 0) {
-//                bo.write(data, 0, len);
-//              }
-//            }
-//          } finally {
-//            bi.close();
-//          }
-//          byte[] content = bo.toByteArray();
-//          String md5Hash = PersistenceUtils.newMD5HashUri(content);
-//
-//          // we are adding one or more files -- delete any cached ETag value for
-//          // this row's attachments manifest
-//          try {
-//            DbTableInstanceManifestETagEntity entity = DbTableInstanceManifestETags
-//                .getRowIdEntry(tableId, rowId, cc);
-//            entity.delete(cc);
-//          } catch (ODKEntityNotFoundException ex) {
-//            // ignore... it might already be deleted or have never existed
-//          }
-//
-//          int count = instance.getAttachmentCount(cc);
-//          boolean found = false;
-//          for (int i = 1; i <= count; ++i) {
-//            String path = instance.getUnrootedFilename(i, cc);
-//            if (path != null && path.equals(partialPath)) {
-//              // we already have this in our store -- check that it is
-//              // identical.
-//              // if not, we have a problem!!!
-//              if (md5Hash.equals(instance.getContentHash(i, cc))) {
-//                // no-op
-//                found = true;
-//              } else {
-//                // this is an error case; indicated by setting exception
-//                found = true;
-//                e = new InstanceFileModificationException(
-//                    ERROR_FILE_VERSION_DIFFERS + "\n" + partialPath);
-//                break;
-//              }
-//            }
-//          }
-//          if (!found) {
-//            BlobSubmissionOutcome outcome = instance.addBlob(content, contentType, partialPath,
-//                false, cc);
-//            if (outcome == BlobSubmissionOutcome.NEW_FILE_VERSION) {
-//              e = new InstanceFileModificationException(
-//                  ERROR_FILE_VERSION_DIFFERS + "\n" + partialPath);
-//            }
-//          }
-//        }
-//        if (e != null) {
-//          throw e;
-//        }
-//      } finally {
-//        propsLock.release();
-//      }
-//    } catch (NullPointerException e) {
-//      e.printStackTrace();
-//      throw e;
-//    } catch (IllegalArgumentException e) {
-//      e.printStackTrace();
-//      throw e;
-//    } catch (IndexOutOfBoundsException e) {
-//      e.printStackTrace();
-//      throw e;
-//    } catch (ODKTaskLockException e) {
-//      e.printStackTrace();
-//      throw e;
-//    } catch (PermissionDeniedException e) {
-//      e.printStackTrace();
-//      throw e;
-//    } catch (ODKDatastoreException e) {
-//      e.printStackTrace();
-//      throw e;
-//    }
-//  }
+  public void postFiles(String tableId, String rowId, List<FormDataBodyPart> bodyParts,
+      FormDataContentDisposition fileDispositions,
+      TablesUserPermissions userPermissions)
+      throws IOException, ODKTaskLockException, ODKTablesException, ODKDatastoreException {
+
+    try {
+      if (tableId == null) {
+        throw new IllegalArgumentException("tableId cannot be null!");
+      }
+
+      if (rowId == null) {
+        throw new IllegalArgumentException("rowId cannot be null!");
+      }
+
+      userPermissions.checkPermission(appId, tableId, TablePermission.WRITE_ROW);
+
+      OdkTablesLockTemplate propsLock = new OdkTablesLockTemplate(tableId, rowId,
+          ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES, OdkTablesLockTemplate.DelayStrategy.LONG, cc);
+
+      try {
+        propsLock.acquire();
+
+        // fetch these once and then continue to re-use them.
+        DbTableInstanceFiles blobStore = new DbTableInstanceFiles(tableId, cc);
+        BlobEntitySet instance = blobStore.newBlobEntitySet(rowId, cc);
+
+        ODKTablesException e = null;
+        // Parse the request
+        for ( FormDataBodyPart bodyPart : bodyParts) {
+
+          MultivaluedMap<String, String> headers = bodyPart.getHeaders();
+          String disposition = (headers != null) ? headers.getFirst("Content-Disposition") : null;
+          if (disposition == null) {
+            e = new ODKTablesException(InstanceFileService.ERROR_MSG_MULTIPART_FILES_ONLY_EXPECTED);
+            continue;
+          }
+          String partialPath = null;
+          {
+            HeaderValueParser parser = new BasicHeaderValueParser();
+            HeaderElement[] values = BasicHeaderValueParser.parseElements(disposition, parser);
+            for (HeaderElement v : values) {
+              if (v.getName().equalsIgnoreCase("file")) {
+                partialPath = v.getParameterByName("filename").getValue();
+                break;
+              }
+            }
+          }
+          if (partialPath == null) {
+            e = new ODKTablesException(
+                InstanceFileService.ERROR_MSG_MULTIPART_CONTENT_FILENAME_EXPECTED);
+            continue;
+          }
+
+          String contentType = (headers != null) ? headers.getFirst("Content-Type") : null;
+
+          ByteArrayOutputStream bo = new ByteArrayOutputStream();
+          InputStream bi = null;
+          BodyPartEntity bodyPartEntity = (BodyPartEntity) bodyPart.getEntity();
+          try {
+            bi = new BufferedInputStream(bodyPartEntity.getInputStream());
+            int length = 1024;
+            // Transfer bytes from in to out
+            byte[] data = new byte[length];
+            int len;
+            while ((len = bi.read(data, 0, length)) >= 0) {
+              if (len != 0) {
+                bo.write(data, 0, len);
+              }
+            }
+          } finally {
+            bi.close();
+          }
+          byte[] content = bo.toByteArray();
+          String md5Hash = PersistenceUtils.newMD5HashUri(content);
+
+          // we are adding one or more files -- delete any cached ETag value for
+          // this row's attachments manifest
+          try {
+            DbTableInstanceManifestETagEntity entity = DbTableInstanceManifestETags
+                .getRowIdEntry(tableId, rowId, cc);
+            entity.delete(cc);
+          } catch (ODKEntityNotFoundException ex) {
+            // ignore... it might already be deleted or have never existed
+          }
+
+          int count = instance.getAttachmentCount(cc);
+          boolean found = false;
+          for (int i = 1; i <= count; ++i) {
+            String path = instance.getUnrootedFilename(i, cc);
+            if (path != null && path.equals(partialPath)) {
+              // we already have this in our store -- check that it is
+              // identical.
+              // if not, we have a problem!!!
+              if (md5Hash.equals(instance.getContentHash(i, cc))) {
+                // no-op
+                found = true;
+              } else {
+                // this is an error case; indicated by setting exception
+                found = true;
+                e = new InstanceFileModificationException(
+                    ERROR_FILE_VERSION_DIFFERS + "\n" + partialPath);
+                break;
+              }
+            }
+          }
+          if (!found) {
+            BlobSubmissionOutcome outcome = instance.addBlob(content, contentType, partialPath,
+                false, cc);
+            if (outcome == BlobSubmissionOutcome.NEW_FILE_VERSION) {
+              e = new InstanceFileModificationException(
+                  ERROR_FILE_VERSION_DIFFERS + "\n" + partialPath);
+            }
+          }
+        }
+        if (e != null) {
+          throw e;
+        }
+      } finally {
+        propsLock.release();
+      }
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+      throw e;
+    } catch (IllegalArgumentException e) {
+      e.printStackTrace();
+      throw e;
+    } catch (IndexOutOfBoundsException e) {
+      e.printStackTrace();
+      throw e;
+    } catch (ODKTaskLockException e) {
+      e.printStackTrace();
+      throw e;
+    } catch (PermissionDeniedException e) {
+      e.printStackTrace();
+      throw e;
+    } catch (ODKDatastoreException e) {
+      e.printStackTrace();
+      throw e;
+    }
+  }
 }

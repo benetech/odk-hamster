@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.opendatakit.aggregate.ContextUtils;
 import org.opendatakit.aggregate.odktables.ConfigFileChangeDetail;
 import org.opendatakit.aggregate.odktables.FileContentInfo;
@@ -212,7 +213,7 @@ public class FileService {
     UriBuilder ub = info.getBaseUriBuilder();
     ub.path(OdkTables.class, "getFilesService");
     URI self =
-        ub.path(FileService.class, "getFile").build(appId, odkClientVersion, appRelativePath);
+        ub.path(FileService.class, "getFile").build(ArrayUtils.toArray(appId, odkClientVersion, appRelativePath),false);
 
     String locationUrl = self.toURL().toExternalForm();
 

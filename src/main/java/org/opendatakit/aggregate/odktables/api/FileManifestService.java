@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.FileManifestManager;
@@ -143,13 +144,14 @@ public class FileManifestService {
       }
       // and whatever the eTag is in that entity is the eTag we should return...
       eTag = eTagEntity.getManifestETag();
-
-      UriBuilder ub = info.getBaseUriBuilder();
-      ub.path(OdkTables.class, "getFilesService");
+      UriBuilder uriBuilder = info.getBaseUriBuilder();
+      uriBuilder.path(OdkTables.class);
+      //UriBuilder uriBuilder = UriBuilder.fromResource(OdkTables.class);
+      uriBuilder.path(OdkTables.class, "getFilesService");
       // now supply the downloadUrl...
       for (OdkTablesFileManifestEntry entry : manifest.getFiles()) {
-        URI self = ub.clone().path(FileService.class, "getFile").build(appId, odkClientVersion,
-            entry.filename);
+        URI self = uriBuilder.clone().path(FileService.class, "getFile").build(ArrayUtils.toArray(appId, odkClientVersion,
+            entry.filename), false);
         try {
           entry.downloadUrl = self.toURL().toExternalForm();
         } catch (MalformedURLException e) {
@@ -233,13 +235,13 @@ public class FileManifestService {
       }
       // and whatever the eTag is in that entity is the eTag we should return...
       eTag = eTagEntity.getManifestETag();
-
       UriBuilder ub = info.getBaseUriBuilder();
+      ub.path(OdkTables.class);
       ub.path(OdkTables.class, "getFilesService");
       // now supply the downloadUrl...
       for (OdkTablesFileManifestEntry entry : manifest.getFiles()) {
-        URI self = ub.clone().path(FileService.class, "getFile").build(appId, odkClientVersion,
-            entry.filename);
+        URI self = ub.clone().path(FileService.class, "getFile").build(ArrayUtils.toArray(appId, odkClientVersion,
+            entry.filename),false);
         try {
           entry.downloadUrl = self.toURL().toExternalForm();
         } catch (MalformedURLException e) {

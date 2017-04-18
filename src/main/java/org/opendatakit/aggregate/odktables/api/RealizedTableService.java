@@ -237,6 +237,7 @@ public class RealizedTableService  {
     TableDefinition definition = tm.getTableDefinition(tableId);
     TableDefinitionResource definitionResource = new TableDefinitionResource(definition);
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     URI selfUri =
         ub.clone().path(TableService.class, "getRealizedTable").build(appId, tableId, schemaETag);

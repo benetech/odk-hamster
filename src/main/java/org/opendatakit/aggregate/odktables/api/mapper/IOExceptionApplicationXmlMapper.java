@@ -14,7 +14,9 @@
  * the License.
  */
 
-package org.opendatakit.aggregate.odktables.impl.api;
+package org.opendatakit.aggregate.odktables.api.mapper;
+
+import java.io.IOException;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -22,16 +24,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import org.opendatakit.common.persistence.exception.ODKTaskLockException;
-
 @Produces({ MediaType.APPLICATION_XML })
 @Provider
-public class ODKTaskLockExceptionApplicationXmlMapper implements ExceptionMapper<ODKTaskLockException> {
+public class IOExceptionApplicationXmlMapper implements ExceptionMapper<IOException> {
 
-  ODKTaskLockExceptionMapper mapper = new ODKTaskLockExceptionMapper(MediaType.APPLICATION_XML_TYPE);
+  IOExceptionMapper mapper = new IOExceptionMapper(MediaType.APPLICATION_XML_TYPE);
 
   @Override
-  public Response toResponse(ODKTaskLockException e) {
+  public Response toResponse(IOException e) {
     return mapper.toResponse(e);
   }
 

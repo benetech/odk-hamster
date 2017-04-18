@@ -36,6 +36,7 @@ import org.opendatakit.common.web.CallingContext;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -125,6 +126,7 @@ public class DataService {
    * @throws InconsistentStateException
    * @throws TableDataETagMismatchException
    */
+  @PUT
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -172,6 +174,7 @@ public class DataService {
     String tableId = dm.getTableId();
 
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     URI table = ub.clone().build(appId, tableId);
     try {
@@ -188,6 +191,7 @@ public class DataService {
     String rowId = row.getRowId();
 
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     URI self = ub.clone().path(TableService.class, "getRealizedTable")
         .path(RealizedTableService.class, "getData").path(DataService.class, "getRow")
@@ -216,6 +220,7 @@ public class DataService {
     // for bandwidth efficiency, do not provide selfUri in response array
 
     UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
     ub.path(OdkTables.class, "getTablesService");
     URI table = ub.clone().build(appId, tableId);
     try {
