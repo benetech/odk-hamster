@@ -127,16 +127,7 @@ public class RoleHierarchyImpl implements RoleHierarchy, InitializingBean {
     refreshReachableGrantedAuthorities();
 
     CallingContext bootstrapCc = new CallingContext() {
-      // @Override
-      // public Object getBean(String beanName) {
-      // if ( beanName.equals(SecurityBeanDefs.ROLE_HIERARCHY_MANAGER)) {
-      // return RoleHierarchyImpl.this;
-      // } else if ( beanName.equals(SecurityBeanDefs.BASIC_AUTH_PASSWORD_ENCODER) ) {
-      // return RoleHierarchyImpl.this.passwordEncoder;
-      // } else {
-      // throw new IllegalStateException("Undefined");
-      // }
-      // }
+
 
       @Override
       public Datastore getDatastore() {
@@ -185,15 +176,6 @@ public class RoleHierarchyImpl implements RoleHierarchy, InitializingBean {
         throw new IllegalStateException("Undefined");
       }
 
-      @Override
-      public String getServerURL() {
-        throw new IllegalStateException("Undefined");
-      }
-
-      @Override
-      public String getSecureServerURL() {
-        throw new IllegalStateException("Undefined");
-      }
 
     };
 

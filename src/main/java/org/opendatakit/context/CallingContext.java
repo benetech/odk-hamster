@@ -15,8 +15,6 @@
  */
 package org.opendatakit.context;
 
-import javax.servlet.ServletContext;
-
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.security.User;
 import org.opendatakit.security.UserService;
@@ -25,21 +23,16 @@ import org.springframework.security.authentication.encoding.MessageDigestPasswor
 
 /**
  * Context in which the call occurs.  
- * The standard implementation is in ContextFactory.
- * An alternative implementation is provided for the Tomcat watchdog executor.
- * An alternative implementation should be provided for test apparatus.
+ * 
+ * This is a legacy wrapper for various context information held over from ODK Aggregate
+ * It's being whittled down and responsibility for dependency injection is moving to Spring
  *
  * @author wbrunette@gmail.com
  * @author mitchellsundt@gmail.com
  * 
  */
 public interface CallingContext {
-   /**
-    * Retrieve the bean with the given name.
-    * @param beanName
-    * @return the bean or an exception
-    */
-//   public Object getBean(String beanName);
+
    
    /**
     * @return the datastore
@@ -93,21 +86,5 @@ public interface CallingContext {
     */
    public String getWebApplicationURL(String servletAddr);
    
-   /**
-    * Return the base of a URL for this server.  
-    * These are of the form: "http://localhost:8080/webApp"
-    * Or, if ssl is required, "https://localhost:8443/webApp"
-    * 
-    * @return the serverURL useful for external links.  
-    */
-   public String getServerURL();
 
-   /**
-    * Return the base of a secure URL for this server.  
-    * If ssl is available, "https://localhost:8443/webApp"
-    * Or, if not, "http://localhost:8080/webApp"
-    * 
-    * @return the serverURL useful for external links.  
-    */
-   public String getSecureServerURL();
 }

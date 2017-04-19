@@ -30,13 +30,9 @@ import org.springframework.stereotype.Component;
  */
 public class Realm implements InitializingBean {
 
-  private boolean sslIsRequired = false;
-  private boolean sslIsAvailable = false;
-  private Integer port;
-  private Integer securePort;
   private String hostname;
   private String realmString;
-  private String changePasswordURL;
+
 
   public Realm() {
   }
@@ -49,50 +45,11 @@ public class Realm implements InitializingBean {
     }
     Log log = LogFactory.getLog(Realm.class);
     log.info("Hostname: " + hostname);
-    log.info("Port: " + Integer.toString(port));
-    log.info("SecurePort: " + Integer.toString(securePort));
-    log.info("SslIsRequired: " + (sslIsRequired ? "yes" : "no"));
-    log.info("SslIsAvailable: " + (sslIsAvailable ? "yes" : "no"));
     log.info("RealmString: " + realmString);
     log.info("java.library.path: " + System.getProperty("java.library.path"));
-    log.info("Change password URL: " + changePasswordURL);
   }
 
-  public void setSecureChannelType(String type) {
-    if (type != null && type.equals("REQUIRES_SECURE_CHANNEL")) {
-      sslIsAvailable = true;
-    }
-  }
 
-  public boolean isSslAvailable() {
-    return sslIsAvailable;
-  }
-
-  public void setChannelType(String type) {
-    if (type != null && type.equals("REQUIRES_SECURE_CHANNEL")) {
-      sslIsRequired = true;
-    }
-  }
-
-  public boolean isSslRequired() {
-    return sslIsRequired;
-  }
-
-  public Integer getPort() {
-    return port;
-  }
-
-  public void setPort(Integer port) {
-    this.port = port;
-  }
-
-  public Integer getSecurePort() {
-    return securePort;
-  }
-
-  public void setSecurePort(Integer securePort) {
-    this.securePort = securePort;
-  }
 
   public String getHostname() {
     return hostname;
@@ -108,14 +65,6 @@ public class Realm implements InitializingBean {
 
   public void setRealmString(String realmString) {
     this.realmString = realmString;
-  }
-
-  public String getChangePasswordURL() {
-    return changePasswordURL;
-  }
-
-  public void setChangePasswordURL(String changePasswordURL) {
-    this.changePasswordURL = changePasswordURL;
   }
 
 }

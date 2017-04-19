@@ -32,21 +32,6 @@ public class TestUserServiceConfiguration {
   @Value("${security.server.hostname:localhost}")
   private String hostname;
 
-  @Value("${security.server.port:8888}")
-  private int port;
-
-  @Value("${security.server.securePort:8443}")
-  private int securePort;
-
-  @Value("${security.server.channelType:ANY_CHANNEL}")
-  private String channelType;
-
-  @Value("${security.server.secureChannelType:ANY_CHANNEL}")
-  private String secureChannelType;
-
-  @Value("${external.root.url:http://localhost:8888}")
-  private String changePasswordUrl;
-
   @Value("${security.server.superUserUsername:admin}")
   private String superUserUsername;
 
@@ -58,11 +43,6 @@ public class TestUserServiceConfiguration {
     Realm realm = new Realm();
     realm.setRealmString(realmString);
     realm.setHostname(hostname);
-    realm.setPort(port);
-    realm.setSecurePort(securePort);
-    realm.setChannelType(channelType);
-    realm.setSecureChannelType(secureChannelType);
-    realm.setChangePasswordURL(changePasswordUrl);
     return realm;
   }
 
@@ -80,9 +60,6 @@ public class TestUserServiceConfiguration {
     TestCallingContextImpl callingContextImpl = new TestCallingContextImpl();
     callingContextImpl.setUserService(userService());
     callingContextImpl.setDatastore(testDataConfiguration.datastore());
-    callingContextImpl.setServerUrl("http://" + hostname + ":" + port + webApplicationBase);
-    callingContextImpl
-        .setSecureServerUrl("https://" + hostname + ":" + securePort + webApplicationBase);
     callingContextImpl.setWebApplicationBase(webApplicationBase);
     callingContextImpl.setAsDaemon(true);
     return callingContextImpl;

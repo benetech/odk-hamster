@@ -246,13 +246,7 @@ public class UserServiceImpl implements org.opendatakit.security.UserService, In
   public User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-    /*
-     * // I'm not crazy about this addition // We're trying to completely remove use of the Session
-     * from this REST service // auth.getAuthorities seems to try to retrieve a (now null) list of
-     * authorities from the session by default if (auth.getPrincipal() instanceof UserDetails) {
-     * UserDetails principal = (UserDetails) auth.getPrincipal(); if (principal.getAuthorities() !=
-     * null) { authorities = principal.getAuthorities(); } }
-     */
+
     return internalGetUser(auth.getName(), authorities);
   }
 

@@ -73,16 +73,6 @@ public class TestCallingContextImpl implements CallingContext {
 
   }
 
-  @Override
-  public String getServerURL() {
-    return serverUrl;
-  }
-
-  @Override
-  public String getSecureServerURL() {
-    return getSecureServerURL();
-  }
-
   public String getServerUrl() {
     return serverUrl;
   }
