@@ -151,7 +151,7 @@ public class OdkTables {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
 
-    return new FileService(sc, req, httpHeaders, info, appId, callingContext);
+    return new FileService(req, info, appId, callingContext);
   }
 
   @GET

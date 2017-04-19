@@ -128,7 +128,7 @@ public class DbTableEntry extends Relation {
   private static final DataField TARGET_ROW_BATCH_SIZE = new DataField("TARGET_ROW_BATCH_SIZE",
       DataType.INTEGER, true);
 
-  public static final DataField CONNECTED_OFFICE_ID = new DataField("CONNECTED_OFFICE_ID", DataType.STRING,
+  private static final DataField CONNECTED_OFFICE_ID = new DataField("CONNECTED_OFFICE_ID", DataType.STRING,
           true);
 
   private static final List<DataField> dataFields;

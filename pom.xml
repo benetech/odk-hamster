@@ -41,8 +41,8 @@
     <dependencies>
         <dependency>
             <groupId>org.opendatakit</groupId>
-            <artifactId>odk-tables-api</artifactId>
-            <version>1.0.2</version>
+            <artifactId>odk-tables-api-hamster</artifactId>
+            <version>1.1</version>
             <exclusions>
                 <!-- Spring boot includes jcl-over-slf4j (conflicts) by default -->
                 <exclusion>
@@ -86,13 +86,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- PROVIDED BY ODK TEAM -->
+        <!-- SPECIAL JAVAROSA PROVIDED BY ODK TEAM -->
         <dependency>
             <groupId>org.javarosa</groupId>
             <artifactId>javarosa-libraries</artifactId>
             <version>1.0.1</version>
         </dependency>
-        <!-- ODK Aggregate Technologies -->
         <dependency>
             <groupId>net.sf.kxml</groupId>
             <artifactId>kxml2</artifactId>
@@ -122,7 +121,6 @@
             <version>0.9.5.2</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

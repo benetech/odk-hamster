@@ -68,8 +68,8 @@ public class DbTableFileInfo extends Relation {
 
   // these are the user-friendly names that are displayed when the user
   // views the contents of this table on the server.
-  public static final String UI_ONLY_FILENAME_HEADING = "_FILENAME";
-  public static final String UI_ONLY_TABLENAME_HEADING = "_TABLE_NAME";
+  private static final String UI_ONLY_FILENAME_HEADING = "_FILENAME";
+  private static final String UI_ONLY_TABLENAME_HEADING = "_TABLE_NAME";
 
   // The column names in the table. If you add any to these,
   // be sure to also add them to the columnNames list via the
@@ -78,31 +78,26 @@ public class DbTableFileInfo extends Relation {
   // be displayed to the user on the server. The underscore will be truncated.
   // Jul 17, 2013--kind of just playing nice with the underscore thing for now
   // as I add in proper file sync support.
-  public static final DataField ODK_CLIENT_VERSION = new DataField("_ODK_CLIENT_VERSION", DataType.STRING, true, 10L);
-  public static final DataField TABLE_ID = new DataField("_TABLE_ID", DataType.STRING, true, 80L);
-  public static final DataField PATH_TO_FILE = new DataField("_PATH_TO_FILE", DataType.STRING,
+  private static final DataField ODK_CLIENT_VERSION = new DataField("_ODK_CLIENT_VERSION", DataType.STRING, true, 10L);
+  private static final DataField TABLE_ID = new DataField("_TABLE_ID", DataType.STRING, true, 80L);
+  private static final DataField PATH_TO_FILE = new DataField("_PATH_TO_FILE", DataType.STRING,
       true, 5120L);
   
-  public static final DataField DELETED = new DataField("_DELETED", DataType.BOOLEAN, false);
+  private static final DataField DELETED = new DataField("_DELETED", DataType.BOOLEAN, false);
 
   // limited to 10 characters
-  public static final DataField FILTER_TYPE = new DataField(TableConstants.FILTER_TYPE.toUpperCase(),
+  static final DataField FILTER_TYPE = new DataField(TableConstants.FILTER_TYPE.toUpperCase(),
       DataType.STRING, true, 10L);
   // limited to 50 characters
-  public static final DataField FILTER_VALUE = new DataField(TableConstants.FILTER_VALUE.toUpperCase(),
+  static final DataField FILTER_VALUE = new DataField(TableConstants.FILTER_VALUE.toUpperCase(),
       DataType.STRING, true, 50L).setIndexable(IndexType.HASH);
 
-  // NOTE: code elsewhere depends upon all these data fields being String
-  // fields.
-  // NOTE: code elsewhere depends upon all these data fields being String
-  // fields.
-  // NOTE: code elsewhere depends upon all these data fields being String
-  // fields.
-  // NOTE: code elsewhere depends upon all these data fields being String
-  // fields.
-  public static final List<DataField> exposedColumnNames;
 
-  public static final String RELATION_NAME = "TABLE_FILE_INFO4";
+  // NOTE: code elsewhere depends upon all these data fields being String
+  // fields.
+  private static final List<DataField> exposedColumnNames;
+
+  private static final String RELATION_NAME = "TABLE_FILE_INFO4";
 
   // the list of the datafields/columns
   private static final List<DataField> dataFields;
@@ -127,7 +122,7 @@ public class DbTableFileInfo extends Relation {
   public static class DbTableFileInfoEntity {
     Entity e;
 
-    DbTableFileInfoEntity(Entity e) {
+    private DbTableFileInfoEntity(Entity e) {
       this.e = e;
     }
 

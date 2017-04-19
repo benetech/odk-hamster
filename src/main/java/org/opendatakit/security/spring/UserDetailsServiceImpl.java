@@ -210,7 +210,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, InitializingB
       throw new TransientDataAccessResourceException("persistence layer problem", e);
     }
 
-    return new AggregateUser(uriUser, password, salt, "-undefined-", isEnabled, true,
+    return new OdkServerUser(uriUser, password, salt, "-undefined-", isEnabled, true,
         isCredentialNonExpired, true, grantedAuthorities);
   }
 }

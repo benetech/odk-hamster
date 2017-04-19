@@ -104,33 +104,32 @@ public class DatastoreImpl implements Datastore, InitializingBean {
     }
   }
 
-  public static final String K_CREATE_TABLE = "CREATE TABLE ";
-  public static final String K_DROP_TABLE = "DROP TABLE ";
+  private static final String K_CREATE_TABLE = "CREATE TABLE ";
+  private static final String K_DROP_TABLE = "DROP TABLE ";
 
-  public static final String K_OPEN_PAREN = " ( ";
-  public static final String K_CLOSE_PAREN = " ) ";
-  public static final String K_SELECT = "SELECT ";
-  public static final String K_SELECT_DISTINCT = "SELECT DISTINCT ";
-  public static final String K_CS = ", ";
-  public static final String K_COLON = ";";
-  public static final String K_BQ = "\"";
-  public static final String K_FROM = " FROM ";
-  public static final String K_WHERE = " WHERE ";
-  public static final String K_AND = " AND ";
-  public static final String K_EQ = " = ";
-  public static final String K_BIND_VALUE = "?";
-  public static final String K_CREATE_INDEX = "CREATE INDEX ";
-  public static final String K_ON = " ON ";
-  public static final String K_USING_HASH = " USING HASH ";
-  public static final String K_INSERT_INTO = "INSERT INTO ";
-  public static final String K_VALUES = " VALUES ";
-  public static final String K_UPDATE = "UPDATE ";
-  public static final String K_SET = " SET ";
-  public static final String K_DELETE_FROM = "DELETE FROM ";
+  private static final String K_OPEN_PAREN = " ( ";
+  private static final String K_CLOSE_PAREN = " ) ";
+  private static final String K_SELECT = "SELECT ";
+  private static final String K_CS = ", ";
+  private static final String K_COLON = ";";
+  private static final String K_BQ = "\"";
+  private static final String K_FROM = " FROM ";
+  private static final String K_WHERE = " WHERE ";
+  private static final String K_AND = " AND ";
+  private static final String K_EQ = " = ";
+  private static final String K_BIND_VALUE = "?";
+  private static final String K_CREATE_INDEX = "CREATE INDEX ";
+  private static final String K_ON = " ON ";
+  private static final String K_USING_HASH = " USING HASH ";
+  private static final String K_INSERT_INTO = "INSERT INTO ";
+  private static final String K_VALUES = " VALUES ";
+  private static final String K_UPDATE = "UPDATE ";
+  private static final String K_SET = " SET ";
+  private static final String K_DELETE_FROM = "DELETE FROM ";
 
-  public static final Integer DEFAULT_DBL_NUMERIC_SCALE = 10;
-  public static final Integer DEFAULT_DBL_NUMERIC_PRECISION = 38;
-  public static final Integer DEFAULT_INT_NUMERIC_PRECISION = 9;
+  private static final Integer DEFAULT_DBL_NUMERIC_SCALE = 10;
+  private static final Integer DEFAULT_DBL_NUMERIC_PRECISION = 38;
+  private static final Integer DEFAULT_INT_NUMERIC_PRECISION = 9;
 
   private static final class TableDefinition {
 
@@ -346,7 +345,7 @@ public class DatastoreImpl implements Datastore, InitializingBean {
     }
   }
 
-  public static void buildArgumentList(List<SqlParameterValue> pv, CommonFieldsBase entity,
+  private static void buildArgumentList(List<SqlParameterValue> pv, CommonFieldsBase entity,
       DataField f) {
     switch (f.getDataType()) {
     case BOOLEAN:

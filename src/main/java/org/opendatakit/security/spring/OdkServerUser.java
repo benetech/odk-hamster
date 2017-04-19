@@ -28,7 +28,7 @@ import org.springframework.security.core.userdetails.User;
  * @author mitchellsundt@gmail.com
  *
  */
-public class AggregateUser extends User {
+public class OdkServerUser extends User {
 
 	private static final long serialVersionUID = 7141261836301276256L;
 
@@ -44,7 +44,7 @@ public class AggregateUser extends User {
 		return salt;
 	}
 
-	public AggregateUser(String username, String password, String salt,
+	public OdkServerUser(String username, String password, String salt,
 			String mailToDomain,
 			boolean enabled,
 			boolean accountNonExpired, boolean credentialsNonExpired,

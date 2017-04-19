@@ -52,13 +52,12 @@ import java.util.List;
 
 public class DataService {
 
-  public static final String QUERY_ROW_ETAG = "row_etag";
-  public static final String CURSOR_PARAMETER = "cursor";
-  public static final String FETCH_LIMIT = "fetchLimit";
-  public static final String DEVICE_ID = "deviceId";
-  public static final String OFFICE_ID = "officeId";
-  public static final String SORT_COLUMN = "sortColumn";
-  public static final String ASCENDING = "ascending";
+  private static final String CURSOR_PARAMETER = "cursor";
+  private static final String FETCH_LIMIT = "fetchLimit";
+  private static final String DEVICE_ID = "deviceId";
+  private static final String OFFICE_ID = "officeId";
+  private static final String SORT_COLUMN = "sortColumn";
+  private static final String ASCENDING = "ascending";
 
   private final String schemaETag;
   private final DataManager dm;

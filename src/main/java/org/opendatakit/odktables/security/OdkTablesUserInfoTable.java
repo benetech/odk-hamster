@@ -1,16 +1,14 @@
 /*
  * Copyright (C) 2014 University of Washington
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -22,6 +20,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opendatakit.constants.BasicConsts;
+import org.opendatakit.constants.SecurityConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.odktables.FileManifestManager;
 import org.opendatakit.odktables.ODKTablesTaskLockType;
@@ -36,7 +36,6 @@ import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
-import org.opendatakit.security.SecurityUtils;
 import org.opendatakit.security.User;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.spring.RegisteredUsersTable;
@@ -47,8 +46,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 /**
  * This table holds the ODK Tables-specific settings for a user.
  * <p>
- * In particular, it holds the mapping between the internal ODK Aggregate
- * uriUser and the external ODK Tables-specific USER_ID_EXTERNAL
+ * In particular, it holds the mapping between the internal ODK Aggregate uriUser and the external
+ * ODK Tables-specific USER_ID_EXTERNAL
  *
  * @author mitchellsundt@gmail.com
  *
@@ -63,44 +62,41 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
   /**
    * URI_USER is the PK of the user in the RegisteredUsersTable
    */
-  private static final DataField URI_USER = new DataField("URI_USER", DataField.DataType.STRING,
-      true);
+  private static final DataField URI_USER =
+      new DataField("URI_USER", DataField.DataType.STRING, true);
 
   /**
-   * This is the either the user's username (with username: prefix) or email
-   * address (with mailto: prefix). (whichever is not null) It is configured as
-   * the synchronizing account on the device (devices never see the internal URI
-   * (PK) held in ODK Aggregate).
+   * This is the either the user's username (with username: prefix) or email address (with mailto:
+   * prefix). (whichever is not null) It is configured as the synchronizing account on the device
+   * (devices never see the internal URI (PK) held in ODK Aggregate).
    */
 
-  private static final DataField ODK_TABLES_USER_ID = new DataField("ODK_TABLES_USER_ID",
-      DataField.DataType.STRING, true);
+  private static final DataField ODK_TABLES_USER_ID =
+      new DataField("ODK_TABLES_USER_ID", DataField.DataType.STRING, true);
 
   /**
    * This is the phone number of for user's phone.
    */
 
-  private static final DataField PHONE_NUMBER = new DataField("PHONE_NUMBER",
-      DataField.DataType.STRING, true);
+  private static final DataField PHONE_NUMBER =
+      new DataField("PHONE_NUMBER", DataField.DataType.STRING, true);
 
   /**
-   * Additional bearer code that should be sent on authentication line to
-   * confirm that the user is still allowed to access the server. This enables
-   * alternative authentication for email accounts when the internet is not
-   * reachable.
+   * Additional bearer code that should be sent on authentication line to confirm that the user is
+   * still allowed to access the server. This enables alternative authentication for email accounts
+   * when the internet is not reachable.
    *
    * TODO: wire this up
    */
-  private static final DataField X_BEARER_CODE = new DataField("X_BEARER_CODE",
-      DataField.DataType.STRING, true);
+  private static final DataField X_BEARER_CODE =
+      new DataField("X_BEARER_CODE", DataField.DataType.STRING, true);
 
   /**
    * TODO: permissions and permission groups granted to this user
    */
 
   /**
-   * Construct a relation prototype. It will load a table into the data store
-   * layer.
+   * Construct a relation prototype. It will load a table into the data store layer.
    *
    * @param databaseSchema
    * @param tableName
@@ -133,11 +129,10 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
   }
 
   /**
-   * I copied this from ServerPreferences. I believe this is how you actually
-   * add the data into the table, making it "persist."
+   * I copied this from ServerPreferences. I believe this is how you actually add the data into the
+   * table, making it "persist."
    *
-   * @param cc
-   *          so you have information about the call
+   * @param cc so you have information about the call
    * @throws ODKEntityPersistException
    * @throws ODKOverQuotaException
    */
@@ -149,23 +144,19 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
   }
 
   /**
-   * This is the actual prototype. This is the canonical empty row for this
-   * table that essentially serves as the schema. Therefore the table is nothing
-   * without this relation being initiated.
+   * This is the actual prototype. This is the canonical empty row for this table that essentially
+   * serves as the schema. Therefore the table is nothing without this relation being initiated.
    *
-   * For that reason, it is important to always access the prototype by calling
-   * assertRelation() before trying to manipulate the table. Otherwise you might
-   * end up with a table that is empty and shapeless.
+   * For that reason, it is important to always access the prototype by calling assertRelation()
+   * before trying to manipulate the table. Otherwise you might end up with a table that is empty
+   * and shapeless.
    */
   private static OdkTablesUserInfoTable relation = null;
 
   /**
-   * This must be called to ensure that the datamodel for the table has been
-   * initiated.
+   * This must be called to ensure that the datamodel for the table has been initiated.
    *
-   * @param cc
-   *          calling context that allows the datastore and user to be
-   *          determined
+   * @param cc calling context that allows the datastore and user to be determined
    * @return the prototype, eg the canonical empty row for the table
    * @throws ODKDatastoreException
    */
@@ -188,8 +179,8 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
     OdkTablesUserInfoTable prototype = OdkTablesUserInfoTable.assertRelation(cc);
     Datastore ds = cc.getDatastore();
     // query for the users
-    Query query = ds.createQuery(prototype, "OdkTablesUserInfoTable.getUserData",
-        cc.getCurrentUser());
+    Query query =
+        ds.createQuery(prototype, "OdkTablesUserInfoTable.getUserData", cc.getCurrentUser());
     query.addFilter(URI_USER, FilterOperation.EQUAL, uriUser);
     List<? extends CommonFieldsBase> results = query.executeQuery();
 
@@ -212,8 +203,9 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
     return true;
   }
 
-  
-  public static synchronized final OdkTablesUserInfoTable getOdkTablesUserInfo(String uriUser, Set<GrantedAuthority> grants, CallingContext callingContext)
+
+  public static synchronized final OdkTablesUserInfoTable getOdkTablesUserInfo(String uriUser,
+      Set<GrantedAuthority> grants, CallingContext callingContext)
       throws ODKDatastoreException, ODKTaskLockException, ODKEntityPersistException,
       ODKOverQuotaException, PermissionDeniedException {
     Datastore ds = callingContext.getDatastore();
@@ -225,13 +217,14 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
     log.info("TablesUserPermissionsImpl: " + uriUser);
 
     RoleHierarchy roleHierarchy = (RoleHierarchy) callingContext.getHierarchicalRoleRelationships();
-    Collection<? extends GrantedAuthority> roles = roleHierarchy.getReachableGrantedAuthorities(grants);
-    boolean hasSynchronize = roles.contains(new SimpleGrantedAuthority(
-        GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name()));
-    boolean hasSuperUser = roles.contains(new SimpleGrantedAuthority(
-        GrantedAuthorityName.ROLE_SUPER_USER_TABLES.name()));
-    boolean hasAdminister = roles.contains(new SimpleGrantedAuthority(
-        GrantedAuthorityName.ROLE_ADMINISTER_TABLES.name()));
+    Collection<? extends GrantedAuthority> roles =
+        roleHierarchy.getReachableGrantedAuthorities(grants);
+    boolean hasSynchronize = roles
+        .contains(new SimpleGrantedAuthority(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name()));
+    boolean hasSuperUser = roles
+        .contains(new SimpleGrantedAuthority(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.name()));
+    boolean hasAdminister = roles
+        .contains(new SimpleGrantedAuthority(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.name()));
 
     if (hasSynchronize || hasSuperUser || hasAdminister) {
 
@@ -243,14 +236,12 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
         uriForUser = User.ANONYMOUS_USER;
       } else {
 
-        RegisteredUsersTable user = RegisteredUsersTable.getUserByUri(uriUser, ds,
-            callingContext.getCurrentUser());
+        RegisteredUsersTable user =
+            RegisteredUsersTable.getUserByUri(uriUser, ds, callingContext.getCurrentUser());
         // Determine the external UID that will identify this user
         externalUID = null;
-        if (user.getEmail() != null) {
-          externalUID = user.getEmail();
-        } else if (user.getUsername() != null) {
-          externalUID = SecurityUtils.USERNAME_COLON + user.getUsername();
+        if (user.getUsername() != null) {
+          externalUID = BasicConsts.COLON + user.getUsername();
         }
         uriForUser = uriUser;
       }
@@ -261,7 +252,8 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
         //
         // GAIN LOCK
         OdkTablesLockTemplate tablesUserPermissions = new OdkTablesLockTemplate(externalUID,
-            ODKTablesTaskLockType.TABLES_USER_PERMISSION_CREATION, OdkTablesLockTemplate.DelayStrategy.SHORT, callingContext);
+            ODKTablesTaskLockType.TABLES_USER_PERMISSION_CREATION,
+            OdkTablesLockTemplate.DelayStrategy.SHORT, callingContext);
         try {
           tablesUserPermissions.acquire();
           // attempt to re-fetch the record.
@@ -272,7 +264,8 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
             return odkTablesUserInfo;
           }
           // otherwise, create a record
-          odkTablesUserInfo = ds.createEntityUsingRelation(prototype, callingContext.getCurrentUser());
+          odkTablesUserInfo =
+              ds.createEntityUsingRelation(prototype, callingContext.getCurrentUser());
           odkTablesUserInfo.setUriUser(uriForUser);
           odkTablesUserInfo.setOdkTablesUserId(externalUID);
           odkTablesUserInfo.persist(callingContext);
@@ -288,7 +281,7 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
     }
   }
 
-  
+
   /**
    * Get the aggregate userid.
    */
@@ -325,16 +318,14 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
   /**
    * Set the ODK Tables user id.
    *
-   * @throws IllegalArgumentException
-   *           if the value cannot be set, most likely due to overflow.
+   * @throws IllegalArgumentException if the value cannot be set, most likely due to overflow.
    */
   public void setOdkTablesUserId(String odkTablesUserId) {
-    if (!(odkTablesUserId.startsWith(SecurityUtils.MAILTO_COLON) ||
-          odkTablesUserId.startsWith(SecurityUtils.USERNAME_COLON) ||
-          odkTablesUserId.equals(User.ANONYMOUS_USER))) {
-      throw new IllegalArgumentException("ODK Tables User Id does not start with "
-          + SecurityUtils.MAILTO_COLON + " or " + SecurityUtils.USERNAME_COLON
-          + " or is not " + User.ANONYMOUS_USER);
+    if (!(odkTablesUserId.startsWith(SecurityConsts.USERNAME_COLON)
+        || odkTablesUserId.equals(User.ANONYMOUS_USER))) {
+      throw new IllegalArgumentException(
+          "ODK Tables User Id does not start with " 
+              + SecurityConsts.USERNAME_COLON + " or is not " + User.ANONYMOUS_USER);
     }
     if (!setStringField(ODK_TABLES_USER_ID, odkTablesUserId)) {
       throw new IllegalArgumentException("overflow external odkTablesUserId");

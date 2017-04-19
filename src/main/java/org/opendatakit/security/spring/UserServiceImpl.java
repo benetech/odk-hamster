@@ -1,16 +1,14 @@
 /*
  * Copyright (C) 2010 University of Washington
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package org.opendatakit.security.spring;
@@ -31,7 +29,6 @@ import org.opendatakit.persistence.Query;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.security.Realm;
-import org.opendatakit.security.SecurityUtils;
 import org.opendatakit.security.User;
 import org.opendatakit.security.client.CredentialsInfo;
 import org.opendatakit.security.client.CredentialsInfoBuilder;
@@ -43,10 +40,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
-public class UserServiceImpl implements org.opendatakit.security.UserService,
-    InitializingBean {
+public class UserServiceImpl implements org.opendatakit.security.UserService, InitializingBean {
 
   private static final Log logger = LogFactory.getLog(UserServiceImpl.class);
 
@@ -56,11 +51,10 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
   String superUserUsername;
   RegisteredUsersTable superUserUsernameRecord;
   MessageDigestPasswordEncoder messageDigestPasswordEncoder;
-  
+
   final Map<String, User> activeUsers = new HashMap<String, User>();
 
-  public UserServiceImpl() {
-  }
+  public UserServiceImpl() {}
 
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -105,16 +99,17 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
 
   @Override
   public boolean isSuperUsernamePasswordSet(CallingContext cc) throws ODKDatastoreException {
-    if ( superUserUsername == null ) {
+    if (superUserUsername == null) {
       return true;
     }
 
-    if ( superUserUsernameRecord == null ) {
+    if (superUserUsernameRecord == null) {
       // retrieve the underlying record
-      superUserUsernameRecord = RegisteredUsersTable.getUserByUsername(superUserUsername, this, cc.getDatastore());
+      superUserUsernameRecord =
+          RegisteredUsersTable.getUserByUsername(superUserUsername, this, cc.getDatastore());
     }
-    
-    if ( superUserUsernameRecord != null ) {
+
+    if (superUserUsernameRecord != null) {
 
 
       RealmSecurityInfo r = new RealmSecurityInfo();
@@ -123,12 +118,13 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
 
       CredentialsInfo credential;
       try {
-         credential = CredentialsInfoBuilder.build(superUserUsername, r, "aggregate");
+        credential = CredentialsInfoBuilder.build(superUserUsername, r, "aggregate");
       } catch (NoSuchAlgorithmException e) {
-         e.printStackTrace();
-         throw new IllegalStateException("unrecognized algorithm");
+        e.printStackTrace();
+        throw new IllegalStateException("unrecognized algorithm");
       }
-      return !credential.getDigestAuthHash().equals(superUserUsernameRecord.getDigestAuthPassword());
+      return !credential.getDigestAuthHash()
+          .equals(superUserUsernameRecord.getDigestAuthPassword());
     }
     return true;
   }
@@ -136,7 +132,8 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
   @Override
   public synchronized boolean isSuperUser(CallingContext cc) throws ODKDatastoreException {
 
-    List<RegisteredUsersTable> tList = RegisteredUsersTable.assertSuperUsers(messageDigestPasswordEncoder, cc);
+    List<RegisteredUsersTable> tList =
+        RegisteredUsersTable.assertSuperUsers(messageDigestPasswordEncoder, cc);
 
     String uriUser = cc.getCurrentUser().getUriUser();
     for (RegisteredUsersTable t : tList) {
@@ -172,12 +169,11 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
   public boolean isAccessManagementConfigured() {
     try {
       /**
-       * Any configuration in the GrantedAuthorityHierarchy table indicates that
-       * we have configured access management with at least a default
-       * configuration.
+       * Any configuration in the GrantedAuthorityHierarchy table indicates that we have configured
+       * access management with at least a default configuration.
        */
-      GrantedAuthorityHierarchyTable relation = GrantedAuthorityHierarchyTable.assertRelation(
-          datastore, getDaemonAccountUser());
+      GrantedAuthorityHierarchyTable relation =
+          GrantedAuthorityHierarchyTable.assertRelation(datastore, getDaemonAccountUser());
       Query query = datastore.createQuery(relation, "UserServiceImpl.isAccessManagementConfigured",
           getDaemonAccountUser());
       List<?> values = query.executeQuery();
@@ -222,14 +218,14 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
       Set<GrantedAuthority> daemonGroups = new HashSet<GrantedAuthority>();
       daemonGroups = new HashSet<GrantedAuthority>();
       daemonGroups.add(new SimpleGrantedAuthority(GrantedAuthorityName.USER_IS_DAEMON.name()));
-      match = new UserImpl(User.DAEMON_USER, null, User.DAEMON_USER_NICKNAME, daemonGroups,
-          datastore);
+      match =
+          new UserImpl(User.DAEMON_USER, null, User.DAEMON_USER_NICKNAME, daemonGroups, datastore);
       activeUsers.put(uriUser, match);
       return match;
     } else {
       try {
-        RegisteredUsersTable t = RegisteredUsersTable.getUserByUri(uriUser, datastore,
-            getDaemonAccountUser());
+        RegisteredUsersTable t =
+            RegisteredUsersTable.getUserByUri(uriUser, datastore, getDaemonAccountUser());
         match = new UserImpl(uriUser, getEmail(uriUser, t.getEmail()), t.getDisplayName(),
             authorities, datastore);
       } catch (ODKEntityNotFoundException e) {
@@ -250,17 +246,13 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
   public User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-/*
-    // I'm not crazy about this addition
-    // We're trying to completely remove use of the Session from this REST service
-    // auth.getAuthorities seems to try to retrieve a (now null) list of authorities from the session by default
-    if (auth.getPrincipal() instanceof UserDetails) {
-      UserDetails principal = (UserDetails) auth.getPrincipal();
-      if (principal.getAuthorities() != null) {
-        authorities = principal.getAuthorities();
-      }
-    }
-*/
+    /*
+     * // I'm not crazy about this addition // We're trying to completely remove use of the Session
+     * from this REST service // auth.getAuthorities seems to try to retrieve a (now null) list of
+     * authorities from the session by default if (auth.getPrincipal() instanceof UserDetails) {
+     * UserDetails principal = (UserDetails) auth.getPrincipal(); if (principal.getAuthorities() !=
+     * null) { authorities = principal.getAuthorities(); } }
+     */
     return internalGetUser(auth.getName(), authorities);
   }
 
@@ -277,13 +269,7 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
 
   private static final String getNickname(String uriUser) {
     String name = uriUser;
-    if (name.startsWith(SecurityUtils.MAILTO_COLON)) {
-      name = name.substring(SecurityUtils.MAILTO_COLON.length());
-      int idxTimestamp = name.indexOf("|");
-      if (idxTimestamp != -1) {
-        name = name.substring(0, idxTimestamp);
-      }
-    } else if (name.startsWith(RegisteredUsersTable.UID_PREFIX)) {
+    if (name.startsWith(RegisteredUsersTable.UID_PREFIX)) {
       name = name.substring(RegisteredUsersTable.UID_PREFIX.length());
       int idxTimestamp = name.indexOf("|");
       if (idxTimestamp != -1) {
@@ -294,17 +280,6 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
   }
 
   private static final String getEmail(String uriUser, String oauth2Email) {
-    if (oauth2Email != null) {
-      return oauth2Email;
-    }
-    if (uriUser.startsWith(SecurityUtils.MAILTO_COLON)) {
-      String n = uriUser;
-      int idxTimestamp = n.indexOf("|");
-      if (idxTimestamp != -1) {
-        return n.substring(0, idxTimestamp);
-      }
-      return n;
-    }
     return null;
   }
 
@@ -314,6 +289,5 @@ public class UserServiceImpl implements org.opendatakit.security.UserService,
   }
 
 
-  
-  
+
 }

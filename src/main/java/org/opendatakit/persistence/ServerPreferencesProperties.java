@@ -42,9 +42,8 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
 
   // these values are set in the ServiceAccountPrivateKeyUploadServlet
   // and used everywhere else when requesting access
-  public static final String GOOGLE_API_CLIENT_ID = "GOOGLE_CLIENT_ID";
-  public static final String GOOGLE_API_SERVICE_ACCOUNT_EMAIL = "GOOGLE_SERVICE_ACCOUNT_EMAIL";
-  public static final String PRIVATE_KEY_FILE_CONTENTS = "PRIVATE_KEY_FILE_CONTENTS";
+  private static final String GOOGLE_API_CLIENT_ID = "GOOGLE_CLIENT_ID";
+
 
   private static final String GOOGLE_SIMPLE_API_KEY = "GOOG_SIMPLE_API_KEY"; // supplied
                                                                              // to
@@ -59,11 +58,6 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
   private static final String SITE_KEY = "SITE_KEY";
   private static final String LAST_KNOWN_REALM_STRING = "LAST_KNOWN_REALM_STRING";
 
-  public static final String GOOGLE_FUSION_TABLE_OAUTH2_ACCESS_TOKEN = "GOOGLE_FUSION_TABLE_OAUTH2_ACCESS_TOKEN";
-
-  public static final String OAUTH2_ACCESS_TOKEN_POSTFIX = "_OAUTH2_ACCESS_TOKEN";
-  public static final String OAUTH2_REFRESH_TOKEN_POSTFIX = "_OAUTH2_REFRESH_TOKEN";
-  public static final String OAUTH2_EXPIRATION_TIME_POSTFIX = "_OAUTH2_EXPIRATION_TIME";
 
   private static final String ODK_TABLES_ENABLED = "ODK_TABLES_ENABLED";
   private static final String FASTER_WATCHDOG_CYCLE_ENABLED = "FASTER_WATCHDOG_CYCLE_ENABLED";
@@ -130,44 +124,7 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
     setServerPreferencesProperty(cc, LAST_KNOWN_REALM_STRING, lastKnownRealmString);
   }
 
-  public static String getGoogleSimpleApiKey(CallingContext cc) throws ODKEntityNotFoundException,
-      ODKOverQuotaException {
-    String value = getServerPreferencesProperty(cc, GOOGLE_SIMPLE_API_KEY);
-    return value;
-  }
 
-  public static void setGoogleSimpleApiKey(CallingContext cc, String googleSimpleApiKey)
-      throws ODKEntityNotFoundException, ODKOverQuotaException {
-    setServerPreferencesProperty(cc, GOOGLE_SIMPLE_API_KEY, googleSimpleApiKey);
-  }
-
-  public static String getGoogleApiClientId(CallingContext cc) throws ODKEntityNotFoundException,
-      ODKOverQuotaException {
-    String value = getServerPreferencesProperty(cc, GOOGLE_API_CLIENT_ID);
-    return value;
-  }
-
-  public static String getEnketoApiUrl(CallingContext cc) throws ODKEntityNotFoundException,
-      ODKOverQuotaException {
-    String value = getServerPreferencesProperty(cc, ENKETO_API_URL);
-    return value;
-  }
-
-  public static void setEnketoApiUrl(CallingContext cc, String enketoApiUrl)
-      throws ODKEntityNotFoundException, ODKOverQuotaException {
-    setServerPreferencesProperty(cc, ENKETO_API_URL, enketoApiUrl);
-  }
-
-  public static String getEnketoApiToken(CallingContext cc) throws ODKEntityNotFoundException,
-      ODKOverQuotaException {
-    String value = getServerPreferencesProperty(cc, ENKETO_API_TOKEN);
-    return value;
-  }
-
-  public static void setEnketoApiToken(CallingContext cc, String enketoApiToken)
-      throws ODKEntityNotFoundException, ODKOverQuotaException {
-    setServerPreferencesProperty(cc, ENKETO_API_TOKEN, enketoApiToken);
-  }
 
   public static Boolean getOdkTablesEnabled(CallingContext cc) throws ODKEntityNotFoundException,
       ODKOverQuotaException {

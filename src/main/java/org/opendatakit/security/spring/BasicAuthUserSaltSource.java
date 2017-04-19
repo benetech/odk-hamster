@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 University of Washington
+ * Copyright (C) 2010 University of Washington
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,16 +13,23 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package org.opendatakit.security.spring;
 
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.core.userdetails.UserDetails;
+
 /**
- * Miscellaneous things that tightly couple our implementation to Spring frameworks.
+ * Fetches the salt used for the Basic Authentication password computation.
  * 
  * @author mitchellsundt@gmail.com
  *
  */
-public class SpringInternals {
+public class BasicAuthUserSaltSource implements SaltSource {
 
-  public static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
+	@Override
+	public Object getSalt(UserDetails userDetail) {
+		OdkServerUser user = (OdkServerUser) userDetail;
+		return user.getSalt();
+	}
+
 }

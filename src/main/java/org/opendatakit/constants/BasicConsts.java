@@ -20,7 +20,7 @@ package org.opendatakit.constants;
 import java.util.Date;
 
 /**
- * Constants used in ODK aggregate that are shared everywhere
+ * Constants used in ODK that are shared everywhere
  *
  * @author wbrunette@gmail.com
  * @author mitchellsundt@gmail.com
@@ -28,32 +28,17 @@ import java.util.Date;
  */
 public final class BasicConsts {
 
-  public static final String NULL = "NULL";
+
   
   // general constants
-  public static final String NEW_LINE = "\n";
-  public static final String COMMA = ",";
-  public static final String SPACE = " ";
-  public static final String TAB = "\t";
-  public static final String GREATER_THAN = ">";
-  public static final String LESS_THAN = "<";
-  public static final String EQUALS = "=";
+
+
+
   public static final String EMPTY_STRING = "";
   public static final String FORWARDSLASH = "/";
-  public static final String TRUE = "true";
-  public static final String QUOTE = "\"";
-  public static final String QUOTE_QUOTE = "\"\"";
-  public static final String SINGLE_QUOTE = "'";
-  public static final String SEMI_COLON = ";";
+
   public static final String COLON = ":";
-  public static final String UNDERSCORE = "_";
-  public static final String DASH = "-";
-  public static final String LEFT_BRACE = "{";
-  public static final String RIGHT_BRACE = "}";
-  public static final String LEFT_BRACKET = "[";
-  public static final String RIGHT_BRACKET = "]";
-  public static final String LEFT_PARENTHESIS = "(";
-  public static final String RIGHT_PARENTHESIS = ")";
+
   public static final String UTF8_ENCODE = "UTF-8";
   // constant as only needs to be created once
   public static final Date EPOCH = new Date(0);

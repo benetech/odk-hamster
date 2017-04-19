@@ -25,24 +25,22 @@ import org.apache.commons.logging.LogFactory;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
+import org.opendatakit.persistence.DataField.IndexType;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.Query;
-import org.opendatakit.persistence.ServerPreferencesProperties;
-import org.opendatakit.persistence.DataField.IndexType;
 import org.opendatakit.persistence.Query.Direction;
 import org.opendatakit.persistence.Query.FilterOperation;
+import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
-import org.opendatakit.security.SecurityUtils;
 import org.opendatakit.security.User;
 import org.opendatakit.security.UserService;
 import org.opendatakit.security.client.CredentialsInfo;
 import org.opendatakit.security.client.CredentialsInfoBuilder;
 import org.opendatakit.security.client.RealmSecurityInfo;
 import org.opendatakit.security.client.UserSecurityInfo;
-import org.opendatakit.security.common.EmailParser.Email;
 import org.opendatakit.utils.WebUtils;
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 
@@ -289,15 +287,8 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
     return datastore.getEntity(prototype, uri, user);
   }
 
-  public static final String generateUniqueUri(String username, String email) {
-    String uri;
-    if (username == null) {
-      uri = UID_PREFIX + email.substring(SecurityUtils.MAILTO_COLON.length()) + "|"
-          + WebUtils.iso8601Date(new Date());
-    } else {
-      uri = UID_PREFIX + username + "|" + WebUtils.iso8601Date(new Date());
-    }
-    return uri;
+  private static final String generateUniqueUri(String username, String email) {
+    return UID_PREFIX + username + "|" + WebUtils.iso8601Date(new Date());
   }
 
   /**

@@ -82,20 +82,16 @@ public class FileService {
   public static final String ERROR_MSG_PATH_NOT_UNDER_APP_ID = "File path is not under app id: ";
   public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";
 
-  private final ServletContext sc;
   private final HttpServletRequest req;
-  private final HttpHeaders headers;
   private final CallingContext callingContext;
   private final String appId;
   private final UriInfo info;
   private TablesUserPermissions userPermissions;
 
-  public FileService(ServletContext sc, HttpServletRequest req, HttpHeaders headers,
-      UriInfo info, String appId, CallingContext cc) throws ODKEntityNotFoundException,
-      ODKDatastoreException, PermissionDeniedException, ODKTaskLockException {
-    this.sc = sc;
+  public FileService(HttpServletRequest req, UriInfo info, String appId, CallingContext cc)
+      throws ODKEntityNotFoundException, ODKDatastoreException, PermissionDeniedException,
+      ODKTaskLockException {
     this.req = req;
-    this.headers = headers;
     this.callingContext = cc;
     this.appId = appId;
     this.info = info;
@@ -182,7 +178,8 @@ public class FileService {
       @PathParam("filePath") List<PathSegment> segments, byte[] content)
       throws IOException, ODKTaskLockException, PermissionDeniedException, ODKDatastoreException {
 
-    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
+    TreeSet<GrantedAuthorityName> ui =
+        SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
       throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
     }
@@ -212,8 +209,8 @@ public class FileService {
 
     UriBuilder ub = info.getBaseUriBuilder();
     ub.path(OdkTables.class, "getFilesService");
-    URI self =
-        ub.path(FileService.class, "getFile").build(ArrayUtils.toArray(appId, odkClientVersion, appRelativePath),false);
+    URI self = ub.path(FileService.class, "getFile")
+        .build(ArrayUtils.toArray(appId, odkClientVersion, appRelativePath), false);
 
     String locationUrl = self.toURL().toExternalForm();
 
@@ -245,7 +242,8 @@ public class FileService {
       throws IOException, ODKTaskLockException, ODKEntityNotFoundException, ODKOverQuotaException,
       PermissionDeniedException, ODKDatastoreException {
 
-    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
+    TreeSet<GrantedAuthorityName> ui =
+        SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
       throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
     }
