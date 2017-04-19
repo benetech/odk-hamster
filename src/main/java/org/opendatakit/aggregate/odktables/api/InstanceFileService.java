@@ -40,9 +40,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.MultiPart;
 import org.opendatakit.aggregate.odktables.FileContentInfo;
 import org.opendatakit.aggregate.odktables.InstanceFileChangeDetail;
 import org.opendatakit.aggregate.odktables.InstanceFileManager;
@@ -468,7 +472,8 @@ public class InstanceFileService {
    * an error is reported.
    * 
    * @param req
-   * @param inMP
+   * @param bodyParts
+   * @param fileDispositions
    * @return string describing error on failure, otherwise empty and Status.CREATED.
    * @throws IOException
    * @throws ODKTaskLockException
@@ -480,13 +485,12 @@ public class InstanceFileService {
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response postFiles(@Context HttpServletRequest req, @FormDataParam("files") List<FormDataBodyPart> bodyParts,
-      @FormDataParam("files") FormDataContentDisposition fileDispositions)
+  public Response postFiles(MultiPart multiPart)
       throws IOException, ODKTaskLockException, ODKTablesException, ODKDatastoreException {
 
     InstanceFileManager fm = new InstanceFileManager(appId, cc);
 
-    fm.postFiles(tableId, rowId, bodyParts, fileDispositions, userPermissions);
+    fm.postFiles(tableId, rowId, multiPart, userPermissions);
 
     UriBuilder ub = info.getBaseUriBuilder();
     ub.path(OdkTables.class, "getTablesService");

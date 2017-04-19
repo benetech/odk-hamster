@@ -44,7 +44,7 @@
             <artifactId>odk-tables-api</artifactId>
             <version>1.0.2</version>
             <exclusions>
-            <!--  Spring boot includes jcl-over-slf4j (conflicts) by default -->
+                <!-- Spring boot includes jcl-over-slf4j (conflicts) by default -->
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-jcl</artifactId>
@@ -69,6 +69,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jersey</artifactId>
+        </dependency>
+        <!--  Multipart not included in Spring Boot.  jersey.version defined by Spring Boot. -->
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -123,7 +129,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-                  
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

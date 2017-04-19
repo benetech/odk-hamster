@@ -15,6 +15,7 @@ import org.opendatakit.aggregate.odktables.api.RealizedTableService;
 import org.opendatakit.aggregate.odktables.api.TableAclService;
 import org.opendatakit.aggregate.odktables.api.TableService;
 import org.opendatakit.aggregate.odktables.api.filter.GzipReaderInterceptor;
+import org.opendatakit.aggregate.odktables.api.filter.MultipartFormDataToMixedInterceptor;
 import org.opendatakit.aggregate.odktables.api.mapper.IOExceptionApplicationXmlMapper;
 import org.opendatakit.aggregate.odktables.api.mapper.IOExceptionJsonMapper;
 import org.opendatakit.aggregate.odktables.api.mapper.IOExceptionTextXmlMapper;
@@ -47,6 +48,8 @@ public class JerseyConfiguration extends ResourceConfig {
   private void registerEndpoints() {
     
     register(GzipReaderInterceptor.class);
+    register(MultipartFormDataToMixedInterceptor.class);
+
     
     register(MultiPartFeature.class);
     

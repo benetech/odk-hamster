@@ -26,10 +26,14 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.http.HeaderElement;
 import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.message.HeaderValueParser;
+import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.BodyPartEntity;
+import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.glassfish.jersey.media.multipart.MultiPart;
 import org.opendatakit.aggregate.odktables.api.InstanceFileService;
 import org.opendatakit.aggregate.odktables.exception.InstanceFileModificationException;
 import org.opendatakit.aggregate.odktables.exception.ODKTablesException;
@@ -344,8 +348,7 @@ public class InstanceFileManager {
     }
   }
 
-  public void postFiles(String tableId, String rowId, List<FormDataBodyPart> bodyParts,
-      FormDataContentDisposition fileDispositions,
+  public void postFiles(String tableId, String rowId, MultiPart multiPart,
       TablesUserPermissions userPermissions)
       throws IOException, ODKTaskLockException, ODKTablesException, ODKDatastoreException {
 
@@ -372,7 +375,7 @@ public class InstanceFileManager {
 
         ODKTablesException e = null;
         // Parse the request
-        for ( FormDataBodyPart bodyPart : bodyParts) {
+        for ( BodyPart bodyPart : multiPart.getBodyParts()) {
 
           MultivaluedMap<String, String> headers = bodyPart.getHeaders();
           String disposition = (headers != null) ? headers.getFirst("Content-Disposition") : null;
