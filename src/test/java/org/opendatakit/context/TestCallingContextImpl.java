@@ -2,11 +2,10 @@ package org.opendatakit.context;
 
 import javax.servlet.ServletContext;
 
-import org.opendatakit.common.persistence.Datastore;
-import org.opendatakit.common.security.User;
-import org.opendatakit.common.security.UserService;
-import org.opendatakit.common.web.CallingContext;
-import org.opendatakit.common.web.constants.BasicConsts;
+import org.opendatakit.constants.BasicConsts;
+import org.opendatakit.persistence.Datastore;
+import org.opendatakit.security.User;
+import org.opendatakit.security.UserService;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 

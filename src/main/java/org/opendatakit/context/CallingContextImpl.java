@@ -5,14 +5,13 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opendatakit.common.persistence.Datastore;
-import org.opendatakit.common.security.Realm;
-import org.opendatakit.common.security.User;
-import org.opendatakit.common.security.UserService;
-import org.opendatakit.common.security.spring.UserServiceImpl;
-import org.opendatakit.common.web.CallingContext;
-import org.opendatakit.common.web.constants.BasicConsts;
-import org.opendatakit.common.web.constants.ServletConsts;
+import org.opendatakit.constants.BasicConsts;
+import org.opendatakit.constants.ServletConsts;
+import org.opendatakit.persistence.Datastore;
+import org.opendatakit.security.Realm;
+import org.opendatakit.security.User;
+import org.opendatakit.security.UserService;
+import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 

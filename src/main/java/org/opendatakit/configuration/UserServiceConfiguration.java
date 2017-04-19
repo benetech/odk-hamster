@@ -2,13 +2,13 @@ package org.opendatakit.configuration;
 
 import java.beans.PropertyVetoException;
 
-import org.opendatakit.common.persistence.exception.ODKDatastoreException;
-import org.opendatakit.common.security.Realm;
-import org.opendatakit.common.security.UserService;
-import org.opendatakit.common.security.spring.RoleHierarchyImpl;
-import org.opendatakit.common.security.spring.UserServiceImpl;
-import org.opendatakit.common.web.CallingContext;
+import org.opendatakit.context.CallingContext;
 import org.opendatakit.context.CallingContextImpl;
+import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.security.Realm;
+import org.opendatakit.security.UserService;
+import org.opendatakit.security.spring.RoleHierarchyImpl;
+import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

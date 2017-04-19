@@ -6,9 +6,9 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opendatakit.common.persistence.Datastore;
-import org.opendatakit.common.persistence.engine.pgres.DatastoreImpl;
-import org.opendatakit.common.persistence.exception.ODKDatastoreException;
+import org.opendatakit.persistence.Datastore;
+import org.opendatakit.persistence.engine.pgres.DatastoreImpl;
+import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

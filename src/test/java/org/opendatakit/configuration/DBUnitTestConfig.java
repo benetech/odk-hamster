@@ -3,7 +3,7 @@ package org.opendatakit.configuration;
 import java.lang.annotation.Retention;
 
 import org.junit.runner.RunWith;
-import org.opendatakit.common.persistence.SetupTeardown;
+import org.opendatakit.persistence.SetupTeardown;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
