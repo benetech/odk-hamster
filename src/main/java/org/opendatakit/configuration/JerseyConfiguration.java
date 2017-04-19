@@ -1,9 +1,22 @@
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package org.opendatakit.configuration;
 
 import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.opendatakit.api.filter.GzipReaderInterceptor;
+import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
+import org.opendatakit.api.filter.ProxyUrlSetFilter;
 import org.opendatakit.api.odktables.DataService;
 import org.opendatakit.api.odktables.DiffService;
 import org.opendatakit.api.odktables.FileManifestService;
@@ -14,8 +27,6 @@ import org.opendatakit.api.odktables.QueryService;
 import org.opendatakit.api.odktables.RealizedTableService;
 import org.opendatakit.api.odktables.TableAclService;
 import org.opendatakit.api.odktables.TableService;
-import org.opendatakit.api.odktables.filter.GzipReaderInterceptor;
-import org.opendatakit.api.odktables.filter.MultipartFormDataToMixedInterceptor;
 import org.opendatakit.api.odktables.mapper.IOExceptionApplicationXmlMapper;
 import org.opendatakit.api.odktables.mapper.IOExceptionJsonMapper;
 import org.opendatakit.api.odktables.mapper.IOExceptionTextXmlMapper;
@@ -46,7 +57,8 @@ public class JerseyConfiguration extends ResourceConfig {
   }
 
   private void registerEndpoints() {
-    
+    // Uncomment to handle proxied URLs
+    // register(ProxyUrlSetFilter.class);
     register(GzipReaderInterceptor.class);
     register(MultipartFormDataToMixedInterceptor.class);
 

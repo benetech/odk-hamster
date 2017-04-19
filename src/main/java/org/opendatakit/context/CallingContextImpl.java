@@ -1,17 +1,21 @@
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package org.opendatakit.context;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.constants.BasicConsts;
-import org.opendatakit.constants.ServletConsts;
 import org.opendatakit.persistence.Datastore;
-import org.opendatakit.security.Realm;
 import org.opendatakit.security.User;
 import org.opendatakit.security.UserService;
-import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.core.Authentication;
@@ -20,17 +24,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class CallingContextImpl implements CallingContext {
 
   private String webApplicationBase;
-
   private Datastore datastore;
-
   private UserService userService;
   private RoleHierarchy hierarchicalRoleRelationships;
   private MessageDigestPasswordEncoder messageDigestPasswordEncoder;
-
   private boolean asDaemon = false;
-
   private static final Log logger = LogFactory.getLog(CallingContextImpl.class);
-
 
   public CallingContextImpl(Datastore datastore, UserService userService,
       RoleHierarchy roleHierarchy, MessageDigestPasswordEncoder messageDigestPasswordEncoder,
