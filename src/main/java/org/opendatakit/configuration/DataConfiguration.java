@@ -36,16 +36,16 @@ public class DataConfiguration {
   
   private static final Log logger = LogFactory.getLog(DataConfiguration.class);
 
-  @Value("${jdbc.driverClassName:org.postgresql.Driver}")
+  @Value("${spring.datasource.driverClassName:org.postgresql.Driver}")
   String driverClassName;
   
-  @Value("${jdbc.url}")
+  @Value("${spring.datasource.url}")
   String url;
   
-  @Value("${jdbc.username}")
+  @Value("${spring.datasource.username}")
   String username;
   
-  @Value("${jdbc.password}")
+  @Value("${spring.datasource.password}")
   String password;
   
   @Value("${jdbc.schema}")
