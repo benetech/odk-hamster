@@ -65,7 +65,7 @@ import org.opendatakit.aggregate.odktables.rest.entity.TableResource;
 import org.opendatakit.aggregate.odktables.rest.entity.TableResourceList;
 import org.opendatakit.aggregate.odktables.rest.entity.TableRole.TablePermission;
 import org.opendatakit.api.odktables.TableService;
-import org.opendatakit.constants.ServletConsts;
+import org.opendatakit.constants.WebConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.odktables.ConfigFileChangeDetail;
 import org.opendatakit.odktables.FileContentInfo;
@@ -690,7 +690,7 @@ public class TableService {
 
     String appRelativePath = FileManager.getPropertiesFilePath(tableId);
 
-    String contentType = ServletConsts.CONTENT_TYPE_CSV_UTF8;
+    String contentType = WebConsts.CONTENT_TYPE_CSV_UTF8;
 
     // DbTableFileInfo.NO_TABLE_ID -- means that we are working with app-level
     // permissions

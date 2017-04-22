@@ -21,7 +21,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
-@Profile("default")
+@Profile({"default","unittest"})
 @SpringBootApplication(scanBasePackages = {"org.opendatakit","org.benetech"})
 public class Application extends SpringBootServletInitializer{
   private static Log logger = LogFactory.getLog(Application.class);
@@ -38,7 +38,6 @@ public class Application extends SpringBootServletInitializer{
       @Override
       public void contextDestroyed(ServletContextEvent arg0) {
         logger.info("ServletContext destroyed");
-
       }
 
       @Override

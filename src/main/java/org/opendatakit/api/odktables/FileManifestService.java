@@ -33,6 +33,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.aggregate.odktables.rest.entity.AppNameList;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
 import org.opendatakit.context.CallingContext;
@@ -44,6 +45,8 @@ import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
+
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Servlet for downloading a manifest of files to the phone for the correct app and the correct
@@ -89,6 +92,8 @@ public class FileManifestService {
    * @throws PermissionDeniedException
    */
   @GET
+  @ApiOperation(value = "Returns a list of application-level files.",
+  response = OdkTablesFileManifest.class)
   @Path("{odkClientVersion}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
@@ -180,6 +185,8 @@ public class FileManifestService {
    * @throws PermissionDeniedException
    */
   @GET
+  @ApiOperation(value = "Returns a the list of files which make up a form definition.",
+  response = OdkTablesFileManifest.class)
   @Path("{odkClientVersion}/{tableId}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})

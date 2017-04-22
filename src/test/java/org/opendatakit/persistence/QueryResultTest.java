@@ -28,9 +28,9 @@ import javax.annotation.PreDestroy;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendatakit.configuration.DBUnitTestConfig;
 import org.opendatakit.configuration.TestDataConfiguration;
 import org.opendatakit.configuration.UserServiceConfiguration;
+import org.opendatakit.configuration.annotations.DBUnitTestConfig;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
@@ -59,9 +59,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestDataConfiguration.class,UserServiceConfiguration.class},initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles("unittest")
-@TestExecutionListeners(listeners = {SetupTeardown.class}, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@DBUnitTestConfig
 public class QueryResultTest {
 
   static int SET_SIZE = 100;

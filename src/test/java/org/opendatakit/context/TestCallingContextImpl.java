@@ -1,7 +1,5 @@
 package org.opendatakit.context;
 
-import javax.servlet.ServletContext;
-
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.security.User;

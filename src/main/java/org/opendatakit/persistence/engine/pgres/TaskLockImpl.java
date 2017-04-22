@@ -34,6 +34,7 @@ import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.User;
+import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -68,158 +69,158 @@ public class TaskLockImpl implements TaskLock {
     
     String uri = entity.getUri();
     
-    StringBuilder b = new StringBuilder();
+    StringBuilder stringBuilder = new StringBuilder();
     String tableName = K_BQ + datastore.getDefaultSchemaName() + K_BQ + "." + K_BQ
         + TaskLockTable.TABLE_NAME + K_BQ;
 
-    b.append("'").append(user.getUriUser().replaceAll("'", "''")).append("'");
-    String uriUserInline = b.toString();
-    b.setLength(0);
-    b.append("'").append(uri.replaceAll("'", "''")).append("'");
-    String uriLockInline = b.toString();
-    b.setLength(0);
-    b.append("'").append(entity.getFormId().replaceAll("'", "''")).append("'");
-    String formIdInline = b.toString();
-    b.setLength(0);
-    b.append("'").append(entity.getTaskType().replaceAll("'", "''")).append("'");
-    String taskTypeInline = b.toString();
-    b.setLength(0);
-    b.append("interval '").append(l).append(" milliseconds'");
-    String lifetimeIntervalMilliseconds = b.toString();
-    b.setLength(0);
+    stringBuilder.append("'").append(user.getUriUser().replaceAll("'", "''")).append("'");
+    String uriUserInline = stringBuilder.toString();
+    stringBuilder.setLength(0);
+    stringBuilder.append("'").append(uri.replaceAll("'", "''")).append("'");
+    String uriLockInline = stringBuilder.toString();
+    stringBuilder.setLength(0);
+    stringBuilder.append("'").append(entity.getFormId().replaceAll("'", "''")).append("'");
+    String formIdInline = stringBuilder.toString();
+    stringBuilder.setLength(0);
+    stringBuilder.append("'").append(entity.getTaskType().replaceAll("'", "''")).append("'");
+    String taskTypeInline = stringBuilder.toString();
+    stringBuilder.setLength(0);
+    stringBuilder.append("interval '").append(l).append(" milliseconds'");
+    String lifetimeIntervalMilliseconds = stringBuilder.toString();
+    stringBuilder.setLength(0);
 
-    b.append("LOCK TABLE ").append(tableName).append(" IN ACCESS EXCLUSIVE MODE");
-    stmts.add(b.toString());
-    b.setLength(0);
+    stringBuilder.append("LOCK TABLE ").append(tableName).append(" IN ACCESS EXCLUSIVE MODE");
+    stmts.add(stringBuilder.toString());
+    stringBuilder.setLength(0);
 
     dam.recordPutUsage(TaskLockTable.TABLE_NAME);
     if (!entity.isFromDatabase()) {
       // insert a new record (prospective lock)
-      b.append("INSERT INTO ");
-      b.append(tableName);
-      b.append(" (");
+      stringBuilder.append("INSERT INTO ");
+      stringBuilder.append(tableName);
+      stringBuilder.append(" (");
       first = true;
-      for (DataField f : entity.getFieldList()) {
+      for (DataField dataField : entity.getFieldList()) {
         if (!first) {
-          b.append(",");
+          stringBuilder.append(",");
         }
         first = false;
-        b.append(K_BQ);
-        b.append(f.getName());
-        b.append(K_BQ);
+        stringBuilder.append(K_BQ);
+        stringBuilder.append(dataField.getName());
+        stringBuilder.append(K_BQ);
       }
       first = true;
-      b.append(") VALUES ( ");
-      for (DataField f : entity.getFieldList()) {
+      stringBuilder.append(") VALUES ( ");
+      for (DataField dataField : entity.getFieldList()) {
         if (!first) {
-          b.append(",");
+          stringBuilder.append(",");
         }
         first = false;
-        if (f.equals(entity.creationDate) || f.equals(entity.lastUpdateDate)) {
-          b.append("NOW()");
-        } else if (f.equals(entity.creatorUriUser) || f.equals(entity.lastUpdateUriUser)) {
-          b.append(uriUserInline);
-        } else if (f.equals(entity.formId)) {
-          b.append(formIdInline);
-        } else if (f.equals(entity.taskType)) {
-          b.append(taskTypeInline);
-        } else if (f.equals(entity.primaryKey)) {
-          b.append(uriLockInline);
-        } else if (f.equals(entity.expirationDateTime)) {
-          b.append(" NOW() + ");
-          b.append(lifetimeIntervalMilliseconds);
+        if (dataField.equals(entity.creationDate) || dataField.equals(entity.lastUpdateDate)) {
+          stringBuilder.append("NOW()");
+        } else if (dataField.equals(entity.creatorUriUser) || dataField.equals(entity.lastUpdateUriUser)) {
+          stringBuilder.append(uriUserInline);
+        } else if (dataField.equals(entity.formId)) {
+          stringBuilder.append(formIdInline);
+        } else if (dataField.equals(entity.taskType)) {
+          stringBuilder.append(taskTypeInline);
+        } else if (dataField.equals(entity.primaryKey)) {
+          stringBuilder.append(uriLockInline);
+        } else if (dataField.equals(entity.expirationDateTime)) {
+          stringBuilder.append(" NOW() + ");
+          stringBuilder.append(lifetimeIntervalMilliseconds);
         } else {
-          throw new IllegalStateException("unexpected case " + f.getName());
+          throw new IllegalStateException("unexpected case " + dataField.getName());
         }
       }
-      b.append(")");
-      stmts.add(b.toString());
-      b.setLength(0);
+      stringBuilder.append(")");
+      stmts.add(stringBuilder.toString());
+      stringBuilder.setLength(0);
     } else {
       // update existing record (prospective lock)
-      b.append("UPDATE ");
-      b.append(tableName);
-      b.append(" SET ");
+      stringBuilder.append("UPDATE ");
+      stringBuilder.append(tableName);
+      stringBuilder.append(" SET ");
       first = true;
       for (DataField f : entity.getFieldList()) {
         if (f == entity.primaryKey)
           continue;
         if (!first) {
-          b.append(",");
+          stringBuilder.append(",");
         }
         first = false;
-        b.append(K_BQ);
-        b.append(f.getName());
-        b.append(K_BQ);
-        b.append(" = ");
+        stringBuilder.append(K_BQ);
+        stringBuilder.append(f.getName());
+        stringBuilder.append(K_BQ);
+        stringBuilder.append(" = ");
         if (f.equals(entity.creationDate) || f.equals(entity.lastUpdateDate)) {
-          b.append("NOW()");
+          stringBuilder.append("NOW()");
         } else if (f.equals(entity.creatorUriUser) || f.equals(entity.lastUpdateUriUser)) {
-          b.append(uriUserInline);
+          stringBuilder.append(uriUserInline);
         } else if (f.equals(entity.formId)) {
-          b.append(formIdInline);
+          stringBuilder.append(formIdInline);
         } else if (f.equals(entity.taskType)) {
-          b.append(taskTypeInline);
+          stringBuilder.append(taskTypeInline);
         } else if (f.equals(entity.primaryKey)) {
-          b.append(uriLockInline);
+          stringBuilder.append(uriLockInline);
         } else if (f.equals(entity.expirationDateTime)) {
-          b.append(" NOW() + ");
-          b.append(lifetimeIntervalMilliseconds);
+          stringBuilder.append(" NOW() + ");
+          stringBuilder.append(lifetimeIntervalMilliseconds);
         } else {
           throw new IllegalStateException("unexpected case " + f.getName());
         }
       }
-      b.append(" WHERE ");
-      b.append(K_BQ);
-      b.append(entity.primaryKey.getName());
-      b.append(K_BQ);
-      b.append(" = ");
-      b.append(uriLockInline);
-      stmts.add(b.toString());
-      b.setLength(0);
+      stringBuilder.append(" WHERE ");
+      stringBuilder.append(K_BQ);
+      stringBuilder.append(entity.primaryKey.getName());
+      stringBuilder.append(K_BQ);
+      stringBuilder.append(" = ");
+      stringBuilder.append(uriLockInline);
+      stmts.add(stringBuilder.toString());
+      stringBuilder.setLength(0);
     }
     // delete stale locks (don't care who's)
     dam.recordDeleteUsage(TaskLockTable.TABLE_NAME);
-    b.append("DELETE FROM ").append(tableName).append(" WHERE ");
-    b.append(K_BQ).append(entity.expirationDateTime.getName()).append(K_BQ).append(" <= NOW()");
-    stmts.add(b.toString());
-    b.setLength(0);
+    stringBuilder.append("DELETE FROM ").append(tableName).append(" WHERE ");
+    stringBuilder.append(K_BQ).append(entity.expirationDateTime.getName()).append(K_BQ).append(" <= NOW()");
+    stmts.add(stringBuilder.toString());
+    stringBuilder.setLength(0);
     // delete prospective locks which are not the oldest for that resource and
     // task type
     dam.recordDeleteUsage(TaskLockTable.TABLE_NAME);
-    b.append("DELETE FROM ").append(tableName).append(" WHERE ");
-    b.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append("DELETE FROM ").append(tableName).append(" WHERE ");
+    stringBuilder.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ")
         .append(formIdInline).append(" AND ");
-    b.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
         .append(taskTypeInline).append(" AND ");
-    b.append(K_BQ).append(entity.expirationDateTime.getName()).append(K_BQ);
-    b.append(" > (SELECT MIN(t3.").append(K_BQ).append(entity.expirationDateTime.getName())
+    stringBuilder.append(K_BQ).append(entity.expirationDateTime.getName()).append(K_BQ);
+    stringBuilder.append(" > (SELECT MIN(t3.").append(K_BQ).append(entity.expirationDateTime.getName())
         .append(K_BQ);
-    b.append(") FROM ").append(tableName).append(" AS t3 WHERE t3.");
-    b.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ").append(formIdInline)
+    stringBuilder.append(") FROM ").append(tableName).append(" AS t3 WHERE t3.");
+    stringBuilder.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ").append(formIdInline)
         .append(" AND t3.");
-    b.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
         .append(taskTypeInline).append(")");
-    stmts.add(b.toString());
-    b.setLength(0);
+    stmts.add(stringBuilder.toString());
+    stringBuilder.setLength(0);
     // delete our entry if it collides with another entry with exactly 
     // this time.
-    b.append("DELETE FROM ").append(tableName).append(" WHERE ");
-    b.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append("DELETE FROM ").append(tableName).append(" WHERE ");
+    stringBuilder.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ")
         .append(formIdInline).append(" AND ");
-    b.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
         .append(taskTypeInline).append(" AND ");
-    b.append(K_BQ).append(entity.primaryKey.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append(K_BQ).append(entity.primaryKey.getName()).append(K_BQ).append(" = ")
         .append(uriLockInline).append(" AND ");
-    b.append("1 < (SELECT COUNT(t3.").append(K_BQ).append(entity.expirationDateTime.getName())
+    stringBuilder.append("1 < (SELECT COUNT(t3.").append(K_BQ).append(entity.expirationDateTime.getName())
         .append(K_BQ);
-    b.append(") FROM ").append(tableName).append(" AS t3 WHERE t3.");
-    b.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ").append(formIdInline)
+    stringBuilder.append(") FROM ").append(tableName).append(" AS t3 WHERE t3.");
+    stringBuilder.append(K_BQ).append(entity.formId.getName()).append(K_BQ).append(" = ").append(formIdInline)
         .append(" AND t3.");
-    b.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
+    stringBuilder.append(K_BQ).append(entity.taskType.getName()).append(K_BQ).append(" = ")
         .append(taskTypeInline).append(")");
-    stmts.add(b.toString());
-    b.setLength(0);
+    stmts.add(stringBuilder.toString());
+    stringBuilder.setLength(0);
     // assert: only the lock that holds the resource for that task type appears
     // in the task lock table
     TaskLockTable relation;
@@ -241,7 +242,10 @@ public class TaskLockImpl implements TaskLock {
               stmt.execute(s);
             }
             conn.commit();
-          } catch (Exception e) {
+          } catch (PSQLException e) {
+            e.printStackTrace();
+            conn.rollback();
+          }catch (Exception e) {
             e.printStackTrace();
             conn.rollback();
           }
@@ -278,7 +282,7 @@ public class TaskLockImpl implements TaskLock {
     } catch (ODKDatastoreException e) {
       // unexpected failure...
       e.printStackTrace();
-    }
+    } 
     return result;
   }
 
@@ -326,7 +330,7 @@ public class TaskLockImpl implements TaskLock {
     return result;
   }
 
-  private static class TaskLockTable extends CommonFieldsBase {
+  public static class TaskLockTable extends CommonFieldsBase {
     static final String TABLE_NAME = "_task_lock";
 
     private static final DataField FORM_ID = new DataField("FORM_ID", DataField.DataType.STRING,
@@ -391,7 +395,7 @@ public class TaskLockImpl implements TaskLock {
 
     static TaskLockTable relation = null;
 
-    static synchronized final TaskLockTable assertRelation(Datastore datastore, User user)
+    public static synchronized final TaskLockTable assertRelation(Datastore datastore, User user)
         throws ODKDatastoreException {
       if (relation == null) {
         TaskLockTable relationPrototype;

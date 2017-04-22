@@ -34,9 +34,16 @@ import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(value = "/odktables", description = "ODK Tables Sync API")
 @Path("odktables")
 @Component
 public class OdkTables {
+
+  private static Log logger = LogFactory.getLog(OdkTables.class);
+
 
   public static final String CURSOR_PARAMETER = "cursor";
   public static final String FETCH_LIMIT = "fetchLimit";
@@ -46,13 +53,15 @@ public class OdkTables {
   CallingContext callingContext;
 
   @GET
+  @ApiOperation(value = "Returns list of applications.  Usually only returns 'default'.",
+      response = AppNameList.class)
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response getAppNames(@Context ServletContext sc, @Context HttpServletRequest req,
       @Context HttpHeaders httpHeaders) throws ODKDatastoreException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
+
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     AppNameList appNames = new AppNameList(Collections.singletonList(preferencesAppId));
@@ -72,7 +81,6 @@ public class OdkTables {
       ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
@@ -121,6 +129,7 @@ public class OdkTables {
     }
   }
 
+
   @Path("{appId}/manifest")
   public FileManifestService getFileManifestService(@Context ServletContext sc,
       @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
@@ -128,7 +137,6 @@ public class OdkTables {
       ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
@@ -139,10 +147,10 @@ public class OdkTables {
   }
 
   @Path("{appId}/files")
-  public FileService getFilesService(@Context ServletContext sc,
-      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
-      @PathParam("appId") String appId) throws AppNameMismatchException, PermissionDeniedException,
-      ODKDatastoreException, ODKTaskLockException {
+  public FileService getFilesService(@Context ServletContext sc, @Context HttpServletRequest req,
+      @Context HttpHeaders httpHeaders, @Context UriInfo info, @PathParam("appId") String appId)
+      throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException,
+      ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
@@ -166,7 +174,6 @@ public class OdkTables {
       ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {
@@ -178,14 +185,12 @@ public class OdkTables {
   }
 
   @Path("{appId}/tables/{tableId}")
-  public TableService getTablesService(@Context ServletContext sc,
-      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
-      @PathParam("appId") String appId, @PathParam("tableId") String tableId)
-      throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException,
-      ODKTaskLockException {
+  public TableService getTablesService(@Context ServletContext sc, @Context HttpServletRequest req,
+      @Context HttpHeaders httpHeaders, @Context UriInfo info, @PathParam("appId") String appId,
+      @PathParam("tableId") String tableId) throws AppNameMismatchException,
+      PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
 
     ServiceUtils.examineRequest(sc, req, httpHeaders);
-    // CallingContext cc = ContextFactory.getCallingContext(sc, req);
     String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
 
     if (!preferencesAppId.equals(appId)) {

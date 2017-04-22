@@ -12,11 +12,9 @@
  * the License.
  */
 
-package org.opendatakit.persistence;
+package org.opendatakit.test.db;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
@@ -26,13 +24,14 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.configuration.TestDataConfiguration;
-import org.opendatakit.configuration.UserServiceConfiguration;
 import org.postgresql.util.PSQLException;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
+import org.springframework.core.annotation.Order;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
+import org.springframework.core.Ordered;
 
 /**
  * 
@@ -78,6 +77,7 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
  * the classpath.
  */
 @ContextConfiguration(classes = {TestDataConfiguration.class},initializers = ConfigFileApplicationContextInitializer.class)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @ActiveProfiles("unittest")
 public class SetupTeardown extends AbstractTestExecutionListener {
 
@@ -95,34 +95,23 @@ public class SetupTeardown extends AbstractTestExecutionListener {
   private String schemaName;
   private String username;
 
-  // Drops connections to a database in Postgres.
-  // Prevents "Can't drop because people are connected" errors.
-  private static final String KILL_CONN_SQL = "SELECT pg_terminate_backend(pg_stat_activity.pid) "
-      + "FROM pg_stat_activity WHERE pg_stat_activity.datname = ?";
+
   private static final String DROP_SCHEMA_SQL = "DROP SCHEMA IF EXISTS ";
   private static final String CASCADE_SQL = " CASCADE";
-  private static final String CREATE_SCHEMA_SQL = "CREATE SCHEMA ";
+  private static final String CREATE_SCHEMA_SQL = "CREATE SCHEMA IF NOT EXISTS ";
   private static final String GRANT_USER_SCHEMA_SQL = "GRANT ALL PRIVILEGES ON SCHEMA ";
   private static final String DBL_QT = "\"";
-  private static final String SGL_QT = "'";
   private static final String TO = " TO ";
 
 
   @Override
-  public void beforeTestClass(TestContext testContext) throws Exception {
+  public void prepareTestInstance(TestContext testContext) throws Exception {
     dataSource = testContext.getApplicationContext().getBean("dataSource", DataSource.class);
     getProperties(testContext);
-    teardownDatabase();
-    setupEmptyDatabase();
+    teardownDatabase(this.dataSource, this.username, this.schemaName);
+    setupEmptyDatabase(this.dataSource, this.username, this.schemaName);
   }
 
-  @Override
-  public void afterTestClass(TestContext testContext) throws Exception {
-    getProperties(testContext);
-    dataSource = testContext.getApplicationContext().getBean("dataSource", DataSource.class);
-
-    // teardownDatabase(conn);
-  }
 
   private void getProperties(TestContext testContext) {
     Properties properties =
@@ -131,7 +120,7 @@ public class SetupTeardown extends AbstractTestExecutionListener {
     schemaName = properties.getProperty("schemaName");
   }
 
-  private void teardownDatabase() throws SQLException {
+  public static void teardownDatabase(DataSource dataSource, String username, String schemaName) throws SQLException {
     Connection conn = dataSource.getConnection();
     
     logger.info("Dropping schema " + schemaName);
@@ -140,11 +129,9 @@ public class SetupTeardown extends AbstractTestExecutionListener {
     executeStatementAndContinue(conn, sql.toString());
   }
 
-  private void setupEmptyDatabase() throws SQLException {
+  public static void setupEmptyDatabase(DataSource dataSource, String username, String schemaName) throws SQLException {
     // Databases, schemata, tables and usernames cannot be set in parameterized queries
     // Risk of SQL Injection is nil because the parameters are not coming from outside input.
-    // ...And now you know why most people inject a (native) SQL script for setup and teardown.
-
     Connection conn = dataSource.getConnection();
 
     logger.info("Creating schema " + schemaName);
@@ -159,7 +146,7 @@ public class SetupTeardown extends AbstractTestExecutionListener {
     executeStatementOrDie(conn, sql.toString());
   }
 
-  private void executeStatementOrDie(Connection conn, String sql)
+  private static void executeStatementOrDie(Connection conn, String sql)
       throws SQLException, PSQLException {
     logger.info("Executing: " + sql);
     Statement s = conn.createStatement();
@@ -167,7 +154,7 @@ public class SetupTeardown extends AbstractTestExecutionListener {
     s.close();
   }
 
-  private void executeStatementAndContinue(Connection conn, String sql) {
+  private static void executeStatementAndContinue(Connection conn, String sql) {
     try {
       executeStatementOrDie(conn, sql.toString());
     } catch (PSQLException e) {

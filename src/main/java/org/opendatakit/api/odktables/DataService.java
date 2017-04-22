@@ -15,6 +15,7 @@
 package org.opendatakit.api.odktables;
 
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.aggregate.odktables.rest.entity.Row;
 import org.opendatakit.aggregate.odktables.rest.entity.RowList;
 import org.opendatakit.aggregate.odktables.rest.entity.RowOutcomeList;
@@ -33,6 +34,8 @@ import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.utils.WebUtils;
+
+import io.swagger.annotations.ApiOperation;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -84,6 +87,8 @@ public class DataService {
    * @throws BadColumnNameException
    */
   @GET
+  @ApiOperation(value = "Get rows representing form instance submission data.",
+  response = RowResourceList.class)
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response /* RowResourceList */ getRows(@QueryParam(CURSOR_PARAMETER) String cursor,
@@ -126,6 +131,8 @@ public class DataService {
    * @throws TableDataETagMismatchException
    */
   @PUT
+  @ApiOperation(value = "Create, update, or delete rows representing form instance submission data.",
+  response = RowOutcomeList.class)
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -154,6 +161,8 @@ public class DataService {
    * @throws BadColumnNameException
    */
   @GET
+  @ApiOperation(value = "Get a row representing form instance submission data.",
+  response = Row.class)
   @Path("{rowId}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})

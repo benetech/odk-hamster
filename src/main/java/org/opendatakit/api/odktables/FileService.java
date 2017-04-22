@@ -42,7 +42,7 @@ import org.opendatakit.ContextUtils;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
 import org.opendatakit.aggregate.odktables.rest.entity.TableRole.TablePermission;
 import org.opendatakit.constants.BasicConsts;
-import org.opendatakit.constants.ServletConsts;
+import org.opendatakit.constants.WebConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.odktables.ConfigFileChangeDetail;
 import org.opendatakit.odktables.FileContentInfo;
@@ -159,7 +159,7 @@ public class FileService {
 
       if (asAttachment != null && !"".equals(asAttachment)) {
         // Set the filename we're downloading to the disk.
-        rBuild.header(ServletConsts.CONTENT_DISPOSITION,
+        rBuild.header(WebConsts.CONTENT_DISPOSITION,
             "attachment; " + "filename=\"" + appRelativePath + "\"");
       }
       return rBuild.build();

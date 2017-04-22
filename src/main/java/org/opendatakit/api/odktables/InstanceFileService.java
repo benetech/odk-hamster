@@ -51,7 +51,7 @@ import org.opendatakit.aggregate.odktables.rest.ApiConstants;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
 import org.opendatakit.constants.BasicConsts;
-import org.opendatakit.constants.ServletConsts;
+import org.opendatakit.constants.WebConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.odktables.FileContentInfo;
 import org.opendatakit.odktables.InstanceFileChangeDetail;
@@ -76,8 +76,8 @@ public class InstanceFileService {
    */
   public static final String SERVLET_PATH = "files";
 
-  public static final String PARAM_AS_ATTACHMENT = "as_attachment";
-  public static final String ERROR_MSG_INVALID_ROW_ID = "Invalid RowId.";
+  private static final String PARAM_AS_ATTACHMENT = "as_attachment";
+  private static final String ERROR_MSG_INVALID_ROW_ID = "Invalid RowId.";
   public static final String ERROR_MSG_MULTIPART_MESSAGE_EXPECTED = "Multipart Form expected.";
   public static final String ERROR_MSG_MULTIPART_FILES_ONLY_EXPECTED =
       "Multipart Form of only file contents expected.";
@@ -91,7 +91,6 @@ public class InstanceFileService {
       "Not Enough Path Segments: must be at least 1.";
   public static final String ERROR_MSG_UNRECOGNIZED_APP_ID = "Unrecognized app id: ";
   public static final String ERROR_MSG_PATH_NOT_UNDER_APP_ID = "File path is not under app id: ";
-  public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";
 
   /**
    * String to stand in for those things in the app's root directory.
@@ -222,7 +221,7 @@ public class InstanceFileService {
           .header("Access-Control-Allow-Credentials", "true");
       if (asAttachment != null && !"".equals(asAttachment)) {
         // Set the filename we're downloading to the disk.
-        rBuild.header(ServletConsts.CONTENT_DISPOSITION,
+        rBuild.header(WebConsts.CONTENT_DISPOSITION,
             "attachment; " + "filename=\"" + "manifest.json" + "\"");
       }
       return rBuild.build();
@@ -306,7 +305,7 @@ public class InstanceFileService {
                   .header("Access-Control-Allow-Credentials", "true");
           if (asAttachment != null && !"".equals(asAttachment)) {
             // Set the filename we're downloading to the disk.
-            responseBuilder.header(ServletConsts.CONTENT_DISPOSITION,
+            responseBuilder.header(WebConsts.CONTENT_DISPOSITION,
                 "attachment; " + "filename=\"" + partialPath + "\"");
           }
           return responseBuilder.build();

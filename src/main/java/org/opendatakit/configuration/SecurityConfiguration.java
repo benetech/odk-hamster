@@ -1,4 +1,5 @@
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -17,6 +18,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.benetech.boot.Application;
 import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
@@ -49,6 +53,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+  private static Log logger = LogFactory.getLog(SecurityConfiguration.class);
+
+
   @Autowired
   DataConfiguration dataConfiguration;
 
@@ -58,14 +65,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+    logger.info("Setting up authentication.");
     http.exceptionHandling().authenticationEntryPoint(delegatingAuthenticationEntryPoint());
-    
+
     // We have a choice here; stateless OR enable sessions and use CSRF.
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.csrf().disable();
     
+    // 0:0:0:0:0:0:0:1 IPv6 localhost
+
+    http.authorizeRequests().antMatchers("/*").permitAll();
+
+    http.authorizeRequests().antMatchers("/**").access(
+        "hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('0.0.0.0') or hasIpAddress('127.0.0.1')");
     http.authorizeRequests().antMatchers("/**").authenticated().and()
-    
         .addFilter(digestAuthenticationFilter());
 
     // http.authorizeRequests().antMatchers("/**").permitAll();

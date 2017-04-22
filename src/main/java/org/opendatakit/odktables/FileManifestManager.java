@@ -32,7 +32,7 @@ import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
-import org.opendatakit.constants.ServletConsts;
+import org.opendatakit.constants.WebConsts;
 
 /**
  * Manages the manifest of files.
@@ -135,7 +135,7 @@ public class FileManifestManager {
     // A map of static url get parameters. In this case we only want to download
     // as an attachment.
     Map<String, String> properties = new HashMap<String, String>();
-    properties.put(ServletConsts.AS_ATTACHMENT, "true");
+    properties.put(WebConsts.AS_ATTACHMENT, "true");
     for (DbTableFileInfoEntity entity : entities) {
       // ignore deleted entities
       if (entity.getDeleted()) {

@@ -15,31 +15,30 @@ package org.opendatakit.persistence;
 
 import static org.junit.Assert.assertEquals;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendatakit.configuration.TestDataConfiguration;
-import org.opendatakit.configuration.UserServiceConfiguration;
+import org.opendatakit.configuration.annotations.UnitTestConfig;
 import org.opendatakit.context.CallingContext;
-import org.opendatakit.persistence.Datastore;
-import org.opendatakit.persistence.PersistConsts;
-import org.opendatakit.persistence.TaskLock;
-import org.opendatakit.persistence.TaskLockType;
+import org.opendatakit.persistence.engine.pgres.TaskLockImpl;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.User;
+import org.opendatakit.test.db.SetupTeardown;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
@@ -49,17 +48,42 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestDataConfiguration.class,UserServiceConfiguration.class},initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles("unittest")
-@TestExecutionListeners(listeners = {SetupTeardown.class},
-    mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@UnitTestConfig 
 public class TaskLockTest {
+  
+  private static Log logger = LogFactory.getLog(TaskLockTest.class);
 
   static AtomicBoolean inside = new AtomicBoolean(false);
   
   @Autowired
   CallingContext callingContext;
-
+  
+  @Autowired
+  Properties dbAdminProperties;
+  
+  @Autowired
+  DataSource dataSource;
+  
+  /**
+   * Force the test schema to be set up.
+   * I'm not very happy with using this instead of \@DBUnitTestConfig.
+   * Setup with that annotation causes 'ERROR: relation "<schema>._task_lock" does not exist' errors.
+   * The \@DBUnitTestConfig annotation Database setup/teardown does not work well with the 
+   * multithreading in this test.
+   * 
+   * @throws SQLException
+   * @throws ODKDatastoreException 
+   */
+  @Before
+  public void forceDatabaseSetup() throws SQLException, ODKDatastoreException {
+    logger.info("Forcing database setup.");
+    String username = dbAdminProperties.getProperty("username");
+    String schemaName = dbAdminProperties.getProperty("schemaName");
+    SetupTeardown.setupEmptyDatabase(dataSource, username, schemaName);
+    // Force creation of _task_lock table.
+    TaskLockImpl.TaskLockTable.assertRelation(callingContext.getDatastore(), callingContext.getCurrentUser());
+  }
+  
   @Ignore
   static class TaskLockThread extends Thread {
     CyclicBarrier launchBarrier;
@@ -175,6 +199,8 @@ public class TaskLockTest {
       }
     }
   }
+  
+
 
   @Test
   public void verifyLock() throws ODKDatastoreException {

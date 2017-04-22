@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.configuration.TestDataConfiguration;
 import org.opendatakit.configuration.UserServiceConfiguration;
+import org.opendatakit.configuration.annotations.DBUnitTestConfig;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.ermodel.Entity;
 import org.opendatakit.ermodel.Query;
@@ -35,10 +36,10 @@ import org.opendatakit.ermodel.TableNamespace;
 import org.opendatakit.persistence.DataField;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.PersistConsts;
-import org.opendatakit.persistence.SetupTeardown;
 import org.opendatakit.persistence.WrappedBigDecimal;
 import org.opendatakit.persistence.Query.FilterOperation;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.test.db.SetupTeardown;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,10 +56,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestDataConfiguration.class,UserServiceConfiguration.class},initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles("unittest")
-@TestExecutionListeners(listeners = {SetupTeardown.class},
-    mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@DBUnitTestConfig
 public class RelationTest {
   
   @Autowired

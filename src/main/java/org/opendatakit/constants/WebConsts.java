@@ -18,13 +18,13 @@
 package org.opendatakit.constants;
 
 /**
- * Constant values used in ODK aggregate to aid with servlet management
+ * Constant values used in ODK aggregate to aid with web service management
  *
  * @author wbrunette@gmail.com
  * @author mitchellsundt@gmail.com
  *
  */
-public final class ServletConsts {
+public final class WebConsts {
 
   
   
@@ -33,6 +33,7 @@ public final class ServletConsts {
   public static final String CONTENT_DISPOSITION = "Content-Disposition";
   public static final String CONTENT_TYPE_CSV_UTF8 = "text/csv; charset=utf-8";
 
+  public static final String OFFICE_ID = "officeId";
 
 
   public static final String AS_ATTACHMENT = "as_attachment";

@@ -23,7 +23,8 @@ There was a "Project Hamster" which was a personal time tracking tool, but it's 
   3. Tomcat
 3. ODK Hamster is a Spring Boot application.
 4. ODK Hamster is a Jersey web service.
-5. Some other stuff was removed from ODK Hamster.
+5. ODK Hamster uses Spring Java Configuration files
+6. Some other stuff was removed from ODK Hamster.
   1. Support for Google Application Engine
   2. Dependence on Google Web Toolkit
   3. Dependence on Apache Wink
