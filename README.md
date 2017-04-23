@@ -13,7 +13,7 @@ https://github.com/opendatakit/aggregate
 - Hamsters collect things.  (In this case, data.)
 - "Hamster" won't be confused with any other Open Data Kit or Benetech projects.
 
-There was a "Project Hamster" which was a personal time tracking tool, but it's not a functional competitor and it is a defunct project.  So, ["ODK Hamster"](https://projecthamster.wordpress.com/).
+There was a ["Project Hamster"](https://projecthamster.wordpress.com/) which was a personal time tracking tool, but it's not a functional competitor and it is a defunct project.  So, "ODK Hamster".
 
 # What are the differences between ODK Aggregate and ODK Hamster?
 1. There is no GUI on ODK Hamster.  It is a web service.
