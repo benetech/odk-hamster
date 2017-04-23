@@ -18,21 +18,21 @@ There was a "Project Hamster" which was a personal time tracking tool, but it's 
 # What are the differences between ODK Aggregate and ODK Hamster?
 1. There is no GUI on ODK Hamster.  It is a web service.
 2. ODK Hamster currently works with:
-  1. Digest Authentication
-  2. Postgres
-  3. Tomcat
+  * Digest Authentication
+  * Postgres
+  * Tomcat
 3. ODK Hamster is a Spring Boot application.
 4. ODK Hamster is a Jersey web service.
 5. ODK Hamster uses Spring Java Configuration files
 6. Some other stuff was removed from ODK Hamster.
-  1. Support for Google Application Engine
-  2. Dependence on Google Web Toolkit
-  3. Dependence on Apache Wink
-  4. Support for other databases
-  5. Support for other authentication methods
-  6. Explicit handling of HTTP/HTTPS
-  7. Bitrock Installer
-  8. Eclipse-specific projects and configuration
+  * Support for Google Application Engine
+  * Dependence on Google Web Toolkit
+  * Dependence on Apache Wink
+  * Support for other databases
+  * Support for other authentication methods
+  * Explicit handling of HTTP/HTTPS
+  * Bitrock Installer
+  * Eclipse-specific projects and configuration
 
 # Why did you remove so much stuff?
 
