@@ -27,7 +27,8 @@ There was a ["Project Hamster"](https://projecthamster.wordpress.com/) which was
 6. Some other stuff was removed from ODK Hamster:
   * Support for Google Application Engine
   * Dependence on Google Web Toolkit
-  * Dependence on Apache WinkSupport for other databases
+  * Dependence on Apache Wink
+  * Support for other databases
   * Support for other authentication methods
   * Explicit handling of HTTP/HTTPS
   * Bitrock Installer
