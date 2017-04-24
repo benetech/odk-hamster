@@ -24,15 +24,14 @@ There was a ["Project Hamster"](https://projecthamster.wordpress.com/) which was
 3. ODK Hamster is a Spring Boot application.
 4. ODK Hamster is a Jersey web service.
 5. ODK Hamster uses Spring Java Configuration files
-6. Some other stuff was removed from ODK Hamster.
-  * Support for Google Application Engine
-  * Dependence on Google Web Toolkit
-  * Dependence on Apache Wink
-  * Support for other databases
-  * Support for other authentication methods
-  * Explicit handling of HTTP/HTTPS
-  * Bitrock Installer
-  * Eclipse-specific projects and configuration
+6. Some other stuff was removed from ODK Hamster:
+  * Support for Google Application Engine
+  * Dependence on Google Web Toolkit
+  * Dependence on Apache WinkSupport for other databases
+  * Support for other authentication methods
+  * Explicit handling of HTTP/HTTPS
+  * Bitrock Installer
+  * Eclipse-specific projects and configuration
 
 # Why did you remove so much stuff?
 
