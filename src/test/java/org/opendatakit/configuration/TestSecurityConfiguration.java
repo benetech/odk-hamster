@@ -32,6 +32,7 @@ import org.opendatakit.security.spring.UserDetailsServiceImpl;
 import org.opendatakit.security.spring.UserDetailsServiceImpl.CredentialType;
 import org.opendatakit.security.spring.UserDetailsServiceImpl.PasswordType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
@@ -56,101 +58,33 @@ import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
-@Profile("default")
+@Profile("integrationtest")
 @EnableWebSecurity
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private static Log logger = LogFactory.getLog(SecurityConfiguration.class);
 
 
   @Autowired
-  DataConfiguration dataConfiguration;
+  TestDataConfiguration testDataConfiguration;
 
   @Autowired
-  UserServiceConfiguration userServiceConfiguration;
-
+  TestUserServiceConfiguration testUserServiceConfiguration;
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     logger.info("Setting up authentication.");
-    http.exceptionHandling().authenticationEntryPoint(delegatingAuthenticationEntryPoint());
 
     // We have a choice here; stateless OR enable sessions and use CSRF.
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.csrf().disable();
-    
+
+
     http.authorizeRequests().antMatchers("/*").permitAll();
 
-
     http.authorizeRequests().antMatchers("/**").authenticated().and()
-        .addFilter(digestAuthenticationFilter());
+        .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class);
 
-  }
-
-  @Bean
-  public DigestAuthenticationFilter digestAuthenticationFilter() throws ODKEntityNotFoundException,
-      ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
-    DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter();
-    digestAuthenticationFilter.setPasswordAlreadyEncoded(true);
-    digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint());
-    digestAuthenticationFilter.setUserDetailsService(digestAndBasicLoginService());
-    // https://github.com/spring-projects/spring-security/issues/3310
-    digestAuthenticationFilter.setCreateAuthenticatedToken(true);
-    return digestAuthenticationFilter;
-  }
-
-  @Bean
-  public DaoAuthenticationProvider digestAuthenticationProvider()
-      throws ODKDatastoreException, PropertyVetoException {
-    DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-    daoAuthenticationProvider.setUserDetailsService(digestAndBasicLoginService());
-    
-    return daoAuthenticationProvider;
-  }
-
-
-  @Bean
-  public DigestAuthenticationEntryPoint digestEntryPoint() throws ODKEntityNotFoundException,
-      ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
-    DigestAuthenticationEntryPoint entryPoint = new DigestAuthenticationEntryPoint();
-    entryPoint.setRealmName(userServiceConfiguration.realm().getRealmString());
-    entryPoint
-        .setKey(ServerPreferencesProperties.getSiteKey(userServiceConfiguration.callingContext()));
-    entryPoint.setNonceValiditySeconds(1800);
-    return entryPoint;
-  }
-
-
-  @Bean
-  public UserDetailsService digestAndBasicLoginService()
-      throws ODKDatastoreException, PropertyVetoException {
-    UserDetailsServiceImpl userDetailsServiceImpl = new UserDetailsServiceImpl();
-    userDetailsServiceImpl.setCredentialType(CredentialType.Username);
-    userDetailsServiceImpl.setPasswordType(PasswordType.DigestAuth);
-    userDetailsServiceImpl.setDatastore(dataConfiguration.datastore());
-    userDetailsServiceImpl.setUserService(userServiceConfiguration.userService());
-
-    List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
-    authorities.add(new SimpleGrantedAuthority("AUTH_LOCAL"));
-    userDetailsServiceImpl.setAuthorities(authorities);
-    return userDetailsServiceImpl;
-  }
-
-  @Bean
-  DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint()
-      throws ODKEntityNotFoundException, ODKOverQuotaException, ODKDatastoreException,
-      PropertyVetoException {
-    LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints =
-        new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
-    entryPoints.put(new RequestHeaderRequestMatcher("X-OpenRosa-Version", "1.0"),
-        digestEntryPoint());
-    entryPoints.put(new RequestHeaderRequestMatcher("X-OpenDataKit-Version", "2.0"),
-        digestEntryPoint());
-    DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint =
-        new DelegatingAuthenticationEntryPoint(entryPoints);
-    delegatingAuthenticationEntryPoint.setDefaultEntryPoint(digestEntryPoint());
-    return delegatingAuthenticationEntryPoint;
   }
 
   @Bean
@@ -170,27 +104,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   public AnonymousAuthenticationProvider anonymousProvider()
       throws ODKDatastoreException, PropertyVetoException {
     AnonymousAuthenticationProvider anonymousProvider = new AnonymousAuthenticationProvider(
-        ServerPreferencesProperties.getSiteKey(userServiceConfiguration.callingContext()));
+        ServerPreferencesProperties.getSiteKey(testUserServiceConfiguration.callingContext()));
 
     return anonymousProvider;
   }
-  
 
   @Bean
-  public MessageDigestPasswordEncoder basicUsingDigestPasswordEncoder() {
+  public MessageDigestPasswordEncoder passwordEncoder() {
     BasicUsingDigestPasswordEncoder passwordEncoder = new BasicUsingDigestPasswordEncoder();
-    passwordEncoder.setRealmName(userServiceConfiguration.realm().getRealmString());
+    passwordEncoder.setRealmName(testUserServiceConfiguration.realm().getRealmString());
     return passwordEncoder;
   }
-
+  
   @Bean
   public DaoAuthenticationProvider basicAuthenticationProvider()
       throws ODKDatastoreException, PropertyVetoException {
     DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-    daoAuthenticationProvider.setUserDetailsService(digestAndBasicLoginService());
-    daoAuthenticationProvider.setPasswordEncoder(basicUsingDigestPasswordEncoder());
+    daoAuthenticationProvider.setUserDetailsService(basicLoginService());
+    daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
     daoAuthenticationProvider.setSaltSource(new BasicUsingDigestSaltSource());
-
     return daoAuthenticationProvider;
   }
 
@@ -199,8 +131,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   public BasicAuthenticationEntryPoint basicEntryPoint() throws ODKEntityNotFoundException,
       ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
     BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-    entryPoint.setRealmName(userServiceConfiguration.realm().getRealmString());
+    entryPoint.setRealmName(testUserServiceConfiguration.realm().getRealmString());
     return entryPoint;
+  }
+
+
+  @Bean
+  public UserDetailsService basicLoginService()
+      throws ODKDatastoreException, PropertyVetoException {
+    UserDetailsServiceImpl userDetailsServiceImpl = new UserDetailsServiceImpl();
+    userDetailsServiceImpl.setCredentialType(CredentialType.Username);
+    userDetailsServiceImpl.setPasswordType(PasswordType.BasicAuth);
+    userDetailsServiceImpl.setDatastore(testDataConfiguration.datastore());
+    userDetailsServiceImpl.setUserService(testUserServiceConfiguration.userService());
+
+    List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
+    authorities.add(new SimpleGrantedAuthority("AUTH_LOCAL"));
+    userDetailsServiceImpl.setAuthorities(authorities);
+    return userDetailsServiceImpl;
   }
 
 

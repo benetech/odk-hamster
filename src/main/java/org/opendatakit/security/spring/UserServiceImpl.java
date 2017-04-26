@@ -35,7 +35,6 @@ import org.opendatakit.security.client.CredentialsInfoBuilder;
 import org.opendatakit.security.client.RealmSecurityInfo;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,11 +45,10 @@ public class UserServiceImpl implements org.opendatakit.security.UserService, In
   private static final Log logger = LogFactory.getLog(UserServiceImpl.class);
 
   // configured by bean definition...
-  Datastore datastore;
-  Realm realm;
-  String superUserUsername;
-  RegisteredUsersTable superUserUsernameRecord;
-  MessageDigestPasswordEncoder messageDigestPasswordEncoder;
+  private Datastore datastore;
+  private Realm realm;
+  private String superUserUsername;
+  private RegisteredUsersTable superUserUsernameRecord;
 
   final Map<String, User> activeUsers = new HashMap<String, User>();
 
@@ -114,7 +112,6 @@ public class UserServiceImpl implements org.opendatakit.security.UserService, In
 
       RealmSecurityInfo r = new RealmSecurityInfo();
       r.setRealmString(this.getCurrentRealm().getRealmString());
-      r.setBasicAuthHashEncoding(messageDigestPasswordEncoder.getAlgorithm());
 
       CredentialsInfo credential;
       try {
@@ -133,7 +130,8 @@ public class UserServiceImpl implements org.opendatakit.security.UserService, In
   public synchronized boolean isSuperUser(CallingContext cc) throws ODKDatastoreException {
 
     List<RegisteredUsersTable> tList =
-        RegisteredUsersTable.assertSuperUsers(messageDigestPasswordEncoder, cc);
+        RegisteredUsersTable.assertSuperUsers(
+            cc);
 
     String uriUser = cc.getCurrentUser().getUriUser();
     for (RegisteredUsersTable t : tList) {
@@ -276,12 +274,5 @@ public class UserServiceImpl implements org.opendatakit.security.UserService, In
   private static final String getEmail(String uriUser, String oauth2Email) {
     return null;
   }
-
-  public void setMessageDigestPasswordEncoder(
-      MessageDigestPasswordEncoder messageDigestPasswordEncoder) {
-    this.messageDigestPasswordEncoder = messageDigestPasswordEncoder;
-  }
-
-
 
 }

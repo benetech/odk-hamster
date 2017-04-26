@@ -24,13 +24,16 @@ import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.fileupload.FileItem;
@@ -76,13 +79,19 @@ public class FormService {
 
   private static final Log logger = LogFactory.getLog(FormService.class);
 
+  @GET
+  public Response doGet(@Context HttpServletRequest req, @Context HttpServletResponse resp) throws IOException {
+    return Response.ok("Hello forms.").build();
+  }
+
+  
   @POST
   @ApiOperation(value = "This API operation is currently being written. Upload a zipped form definition.",
   response = FormUploadResult.class)
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp) throws IOException {
     ServiceUtils.examineRequest(req.getServletContext(), req);
 
 

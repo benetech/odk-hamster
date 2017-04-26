@@ -241,7 +241,7 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
         // Determine the external UID that will identify this user
         externalUID = null;
         if (user.getUsername() != null) {
-          externalUID = BasicConsts.COLON + user.getUsername();
+          externalUID = SecurityConsts.USERNAME_COLON + user.getUsername();
         }
         uriForUser = uriUser;
       }

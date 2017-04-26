@@ -49,7 +49,7 @@ public class DataConfiguration {
   String password;
   
   @Value("${jdbc.schema}")
-  public String schemaName;
+  private String schemaName;
   
 
   @Value("10")

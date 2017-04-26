@@ -25,6 +25,7 @@ import org.opendatakit.api.RootRedirect;
 import org.opendatakit.api.filter.GzipReaderInterceptor;
 import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
 import org.opendatakit.api.filter.ProxyUrlSetFilter;
+import org.opendatakit.api.forms.FormService;
 import org.opendatakit.api.odktables.DataService;
 import org.opendatakit.api.odktables.DiffService;
 import org.opendatakit.api.odktables.FileManifestService;
@@ -104,6 +105,9 @@ public class JerseyConfiguration extends ResourceConfig {
     // Legacy User/Roles ODK 1.0 API
     register(RoleService.class);
     register(UserService.class);
+    
+    // Form management
+    register(FormService.class);
 
     // Mapper classes
     register(SimpleHTMLMessageWriter.class);
@@ -132,7 +136,7 @@ public class JerseyConfiguration extends ResourceConfig {
     register(WadlResource.class);
     
     // Forward when not found, lets us get to static content like swagger
-    property(ServletProperties.FILTER_STATIC_CONTENT_REGEX, "((/swagger/.*)|(.*\\.(html)))");
+    property(ServletProperties.FILTER_STATIC_CONTENT_REGEX, "((/swagger/.*)|(.*\\.html))");
     
 
   }
@@ -158,5 +162,6 @@ public class JerseyConfiguration extends ResourceConfig {
     config.setBasePath(this.apiPath);
     config.setPrettyPrint(true);
     config.setScan(true);
+    
   }
 }

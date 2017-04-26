@@ -24,7 +24,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.api.forms.FormService;
 
 /**
  * Class to extract and format the request information coming in from ODK Tables
@@ -40,6 +43,8 @@ public class ServiceUtils {
 
   @SuppressWarnings({ "rawtypes", "unused" })
   public static void examineRequest(ServletContext sc, HttpServletRequest req) {
+    Log logger = LogFactory.getLog(ServiceUtils.class);
+
     Enumeration headers = req.getHeaderNames();
     StringBuilder b = new StringBuilder();
     while (headers.hasMoreElements()) {
@@ -50,14 +55,31 @@ public class ServiceUtils {
         b.append(headerName).append(": ").append(fieldValue).append("\n");
       }
     }
+    
     String contentType = req.getContentType();
+    logger.info("Content type: " + contentType);
+    
     String charEncoding = req.getCharacterEncoding();
+    logger.info("Character encoding: " + charEncoding);
+
     String headerSet = b.toString();
+    logger.info("Headers: " + headerSet);
+
     Cookie[] cookies = req.getCookies();
+    logger.info("Cookies: " + cookies);
+
     String method = req.getMethod();
+    logger.info("Method: " + method);
+
     String ctxtPath = req.getContextPath();
+    logger.info("Context Path: " + ctxtPath);
+    
     String pathInfo = req.getPathInfo();
+    logger.info("Path Info: " + pathInfo);
+
     String query = req.getQueryString();
+    logger.info("Query String: " + query);
+
     String ace = req.getHeader(ApiConstants.ACCEPT_CONTENT_ENCODING_HEADER);
     boolean sessionId = req.isRequestedSessionIdValid();
   }

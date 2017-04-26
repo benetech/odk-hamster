@@ -151,28 +151,32 @@ public class UserDetailsServiceImpl implements UserDetailsService, InitializingB
     final boolean isCredentialNonExpired = true;
     try {
       if (credentialType == CredentialType.Username) {
-        RegisteredUsersTable t;
+        RegisteredUsersTable registeredUsersTable;
         // first call from digest, basic or forms-based auth
         if (name.startsWith(RegisteredUsersTable.UID_PREFIX)) {
-          t = RegisteredUsersTable.getUserByUri(name, datastore, user);
-          if (t == null) {
+          registeredUsersTable = RegisteredUsersTable.getUserByUri(name, datastore, user);
+          if (registeredUsersTable == null) {
             throw new UsernameNotFoundException("UID " + name + " is not recognized.");
           }
         } else {
-          t = RegisteredUsersTable.getUniqueUserByUsername(name, datastore, user);
-          if (t == null) {
+          registeredUsersTable =
+              RegisteredUsersTable.getUniqueUserByUsername(name, datastore, user);
+          if (registeredUsersTable == null) {
             throw new UsernameNotFoundException(
                 "User " + name + " is not registered or the registered users table is corrupt.");
           }
         }
-        uriUser = t.getUri();
+        uriUser = registeredUsersTable.getUri();
+
+        // Along with BasicUsingDigest* classes, we allow both types of authentication to use the
+        // same DB field for password.
         switch (passwordType) {
           case BasicAuth:
-            password = t.getBasicAuthPassword();
-            salt = t.getBasicAuthSalt();
-            break;
+            // password = registeredUsersTable.getBasicAuthPassword();
+            // salt = registeredUsersTable.getBasicAuthSalt();
+            // break;
           case DigestAuth:
-            password = t.getDigestAuthPassword();
+            password = registeredUsersTable.getDigestAuthPassword();
             salt = UUID.randomUUID().toString();
             break;
           default:
@@ -180,7 +184,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, InitializingB
                 "Password type " + passwordType.toString() + " cannot be interpretted");
         }
 
-        grantedAuthorities = getGrantedAuthorities(t.getUri());
+        grantedAuthorities = getGrantedAuthorities(registeredUsersTable.getUri());
         if (password == null) {
           throw new AuthenticationCredentialsNotFoundException("User " + name
               + " does not have a password configured. You must close and re-open your browser to clear this error.");

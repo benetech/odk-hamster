@@ -18,6 +18,7 @@ import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.security.Realm;
 import org.opendatakit.security.UserService;
+import org.opendatakit.security.spring.BasicUsingDigestPasswordEncoder;
 import org.opendatakit.security.spring.RoleHierarchyImpl;
 import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,23 +61,14 @@ public class UserServiceConfiguration {
     realm.setHostname(hostname);
     return realm;
   }
-
+  
   @Bean
   public UserService userService() throws ODKDatastoreException, PropertyVetoException {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
     userServiceImpl.setRealm(realm());
     userServiceImpl.setDatastore(dataConfiguration.datastore());
     userServiceImpl.setSuperUserUsername(superUserUsername);
-    userServiceImpl
-        .setMessageDigestPasswordEncoder(basicAuthenticationMessageDigestPasswordEncoder());
-    return userServiceImpl;
-  }
-
-
-  // The Basic Authentication passwords are sha1-encoded with a salt
-  @Bean
-  public MessageDigestPasswordEncoder basicAuthenticationMessageDigestPasswordEncoder() {
-    return new ShaPasswordEncoder();
+   return userServiceImpl;
   }
 
   @Bean
@@ -85,15 +77,14 @@ public class UserServiceConfiguration {
     RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
     roleHierarchyImpl.setDatastore(dataConfiguration.datastore());
     roleHierarchyImpl.setUserService(userService());
-    roleHierarchyImpl.setPasswordEncoder(basicAuthenticationMessageDigestPasswordEncoder());
-    return roleHierarchyImpl;
+     return roleHierarchyImpl;
   }
 
   @Bean
   public CallingContext callingContext() throws ODKDatastoreException, PropertyVetoException {
     CallingContextImpl callingContextImpl = new CallingContextImpl(dataConfiguration.datastore(),
         userService(), hierarchicalRoleRelationships(),
-        basicAuthenticationMessageDigestPasswordEncoder(), servletPath, false);
+        servletPath, false);
     // This is probably not necessary, it's only used by the GUI in aggregate
     //ServerPreferencesProperties.setOdkTablesEnabled(callingContextImpl, true);
     return callingContextImpl;

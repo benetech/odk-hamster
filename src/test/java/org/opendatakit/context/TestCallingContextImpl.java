@@ -14,15 +14,9 @@ public class TestCallingContextImpl implements CallingContext {
   Datastore datastore;
   UserService userService;
   RoleHierarchy hierarchicalRoleRelationships;
-  MessageDigestPasswordEncoder messageDigestPasswordEncoder;
-
 
   boolean asDaemon = false;
 
-//  @Override
-//  public Object getBean(String beanName) {
-//    return null;
-//  }
 
   @Override
   public Datastore getDatastore() {
@@ -39,12 +33,6 @@ public class TestCallingContextImpl implements CallingContext {
     return hierarchicalRoleRelationships;
   }
   
-  @Override
-  public MessageDigestPasswordEncoder getMessageDigestPasswordEncoder() {
-    // TODO Auto-generated method stub
-    return messageDigestPasswordEncoder;
-  }
-
   @Override
   public void setAsDaemon(boolean asDaemon) {
     this.asDaemon = asDaemon;
@@ -106,12 +94,5 @@ public class TestCallingContextImpl implements CallingContext {
   public void setHierarchicalRoleRelationships(RoleHierarchy hierarchicalRoleRelationships) {
     this.hierarchicalRoleRelationships = hierarchicalRoleRelationships;
   }
-
-  public void setMessageDigestPasswordEncoder(
-      MessageDigestPasswordEncoder messageDigestPasswordEncoder) {
-    this.messageDigestPasswordEncoder = messageDigestPasswordEncoder;
-  }
-  
-  
 
 }

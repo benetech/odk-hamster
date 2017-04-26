@@ -611,10 +611,10 @@ public class SecurityServiceUtil {
 
       // Synthesize a UserSecurityInfo object for the super-user(s)
       // and add it(them) to the list.
-      MessageDigestPasswordEncoder mde = cc.getMessageDigestPasswordEncoder();
 
       try {
-        List<RegisteredUsersTable> tList = RegisteredUsersTable.assertSuperUsers(mde, cc);
+        List<RegisteredUsersTable> tList = RegisteredUsersTable.assertSuperUsers( 
+            cc);
 
         for (RegisteredUsersTable t : tList) {
           UserSecurityInfo i = new UserSecurityInfo(t.getUsername(), t.getFullName(), t.getEmail(),
@@ -784,9 +784,9 @@ public class SecurityServiceUtil {
   public static final synchronized void superUserBootstrap(CallingContext cc)
       throws ODKDatastoreException {
     // assert that the superuser exists...
-    MessageDigestPasswordEncoder mde = cc.getMessageDigestPasswordEncoder();
 
-    List<RegisteredUsersTable> suList = RegisteredUsersTable.assertSuperUsers(mde, cc);
+    List<RegisteredUsersTable> suList = RegisteredUsersTable.assertSuperUsers(
+        cc);
 
     Set<String> uriUsers;
 

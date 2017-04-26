@@ -25,10 +25,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("unittest")
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
+@Profile("integrationtest")
 public class TestWebServiceConfiguration {
-
+  
   @Autowired
   TestDataConfiguration testDataConfiguration;
 

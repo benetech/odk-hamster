@@ -19,6 +19,9 @@ package org.opendatakit.persistence;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opendatakit.api.forms.FormServiceTest;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
@@ -275,6 +278,8 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
 
   public static final void setServerPreferencesProperty(CallingContext cc, String keyName,
       String value) throws ODKEntityNotFoundException, ODKOverQuotaException {
+    Log logger = LogFactory.getLog(ServerPreferencesProperties.class);
+
     try {
       ServerPreferencesProperties relation = assertRelation(cc);
       Query query = cc.getDatastore().createQuery(relation,
@@ -296,6 +301,7 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
       // nothing there -- put the value...
       ServerPreferencesProperties preferences = cc.getDatastore().createEntityUsingRelation(
           relation, cc.getCurrentUser());
+      logger.info("Setting Server Preference " + keyName + " to " + value);
       if (!preferences.setStringField(KEY, keyName)) {
         throw new IllegalStateException("Unexpected truncation of ServerPreferencesProperty: "
             + keyName + " keyName");

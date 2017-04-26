@@ -21,7 +21,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
-@Profile({"default","unittest"})
+@Profile({"default","integrationtest"})
 @SpringBootApplication(scanBasePackages = {"org.opendatakit","org.benetech"})
 public class Application extends SpringBootServletInitializer{
   private static Log logger = LogFactory.getLog(Application.class);

@@ -18,6 +18,7 @@ import org.opendatakit.context.TestCallingContextImpl;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.security.Realm;
 import org.opendatakit.security.UserService;
+import org.opendatakit.security.spring.BasicUsingDigestPasswordEncoder;
 import org.opendatakit.security.spring.RoleHierarchyImpl;
 import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,7 @@ import org.springframework.security.authentication.encoding.MessageDigestPasswor
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 @Configuration
-@Profile("unittest")
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
+@Profile({"unittest", "integrationtest"})
 public class TestUserServiceConfiguration {
  
   @Autowired
@@ -62,23 +62,17 @@ public class TestUserServiceConfiguration {
     return realm;
   }
 
+  
   @Bean
   public UserService userService() throws ODKDatastoreException, PropertyVetoException {
     UserServiceImpl userServiceImpl = new UserServiceImpl();
     userServiceImpl.setRealm(realm());
     userServiceImpl.setDatastore(testDataConfiguration.datastore());
     userServiceImpl.setSuperUserUsername(superUserUsername);
-    userServiceImpl
-    .setMessageDigestPasswordEncoder(basicAuthenticationMessageDigestPasswordEncoder());
-
     return userServiceImpl;
   }
 
-  // The Basic Authentication passwords are sha1-encoded with a salt
-  @Bean
-  public MessageDigestPasswordEncoder basicAuthenticationMessageDigestPasswordEncoder() {
-    return new ShaPasswordEncoder();
-  }
+
 
   @Bean
   public RoleHierarchy hierarchicalRoleRelationships()
@@ -86,7 +80,6 @@ public class TestUserServiceConfiguration {
     RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
     roleHierarchyImpl.setDatastore(testDataConfiguration.datastore());
     roleHierarchyImpl.setUserService(userService());
-    roleHierarchyImpl.setPasswordEncoder(basicAuthenticationMessageDigestPasswordEncoder());
     return roleHierarchyImpl;
   }
   
@@ -95,13 +88,9 @@ public class TestUserServiceConfiguration {
   public CallingContext callingContext() throws ODKDatastoreException, PropertyVetoException {
     CallingContextImpl callingContextImpl = new CallingContextImpl(testDataConfiguration.datastore(),
         userService(), hierarchicalRoleRelationships(),
-        basicAuthenticationMessageDigestPasswordEncoder(), servletPath, false);
+        servletPath, false);
     return callingContextImpl;
   }
   
-  @Bean 
-  public MessageDigestPasswordEncoder passwordEncoder() {
-    return new ShaPasswordEncoder();
-  }
 
 }

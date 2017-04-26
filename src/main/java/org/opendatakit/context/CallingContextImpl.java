@@ -27,13 +27,11 @@ public class CallingContextImpl implements CallingContext {
   private Datastore datastore;
   private UserService userService;
   private RoleHierarchy hierarchicalRoleRelationships;
-  private MessageDigestPasswordEncoder messageDigestPasswordEncoder;
   private boolean asDaemon = false;
   private static final Log logger = LogFactory.getLog(CallingContextImpl.class);
 
   public CallingContextImpl(Datastore datastore, UserService userService,
-      RoleHierarchy roleHierarchy, MessageDigestPasswordEncoder messageDigestPasswordEncoder,
-      String path, boolean asDaemon) {
+      RoleHierarchy roleHierarchy, String path, boolean asDaemon) {
 
     path = path == null ? "" : path;
     this.datastore = datastore;
@@ -105,10 +103,6 @@ public class CallingContextImpl implements CallingContext {
     return hierarchicalRoleRelationships;
   }
 
-  @Override
-  public MessageDigestPasswordEncoder getMessageDigestPasswordEncoder() {
-    return messageDigestPasswordEncoder;
-  }
 
   public String getWebApplicationBase() {
     return webApplicationBase;

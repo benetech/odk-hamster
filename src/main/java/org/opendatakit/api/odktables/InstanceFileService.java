@@ -342,6 +342,7 @@ public class InstanceFileService {
    * @throws ODKTaskLockException
    * @throws PermissionDeniedException
    */
+  // Refer to https://www.ibm.com/support/knowledgecenter/en/SSAW57_8.5.5/com.ibm.websphere.nd.doc/ae/twbs_jaxrs_multipart_formdata_from_html.html
 //  @POST
 //  @Path("download")
 //  @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,

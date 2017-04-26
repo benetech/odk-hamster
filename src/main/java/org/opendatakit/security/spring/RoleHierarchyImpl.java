@@ -67,8 +67,6 @@ public class RoleHierarchyImpl implements RoleHierarchy, InitializingBean {
   private Datastore datastore = null;
   /** bean to the userService */
   private UserService userService = null;
-  /** bean to password hash algorithm */
-  private MessageDigestPasswordEncoder passwordEncoder = null;
   /** bean to the startup action */
   private WebStartup startupAction = null;
 
@@ -97,14 +95,6 @@ public class RoleHierarchyImpl implements RoleHierarchy, InitializingBean {
 
   public void setUserService(UserService userService) {
     this.userService = userService;
-  }
-
-  public MessageDigestPasswordEncoder getPasswordEncoder() {
-    return passwordEncoder;
-  }
-
-  public void setPasswordEncoder(MessageDigestPasswordEncoder passwordEncoder) {
-    this.passwordEncoder = passwordEncoder;
   }
 
   public WebStartup getStartupAction() {
@@ -143,12 +133,7 @@ public class RoleHierarchyImpl implements RoleHierarchy, InitializingBean {
       public RoleHierarchy getHierarchicalRoleRelationships() {
         return RoleHierarchyImpl.this;
       }
-      
-      @Override 
-      public MessageDigestPasswordEncoder getMessageDigestPasswordEncoder() {
-        return RoleHierarchyImpl.this.passwordEncoder;
-      }
-
+   
       @Override
       public void setAsDaemon(boolean asDaemon) {
         if (asDaemon != true) {

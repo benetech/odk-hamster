@@ -491,7 +491,9 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
   }
 
   private static final boolean resetSuperUserPasswordIfNecessary(RegisteredUsersTable registeredUsersTable,
-      boolean newUser, MessageDigestPasswordEncoder digester, CallingContext callingContext)
+      boolean newUser, 
+      // MessageDigestPasswordEncoder digester, 
+      CallingContext callingContext)
       throws ODKEntityPersistException, ODKOverQuotaException, ODKEntityNotFoundException {
     String localSuperUser = registeredUsersTable.getUsername();
     String currentRealmString = callingContext.getUserService().getCurrentRealm().getRealmString();
@@ -503,7 +505,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
     // The realm string has changed, so we need to reset the password.
     RealmSecurityInfo realmSecurityInfo = new RealmSecurityInfo();
     realmSecurityInfo.setRealmString(currentRealmString);
-    realmSecurityInfo.setBasicAuthHashEncoding(digester.getAlgorithm());
+    //realmSecurityInfo.setBasicAuthHashEncoding(digester.getAlgorithm());
 
     CredentialsInfo credential;
     try {
@@ -542,7 +544,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
    * @return list of the superUsers of record.
    * @throws ODKDatastoreException
    */
-  public static final List<RegisteredUsersTable> assertSuperUsers(MessageDigestPasswordEncoder digester,
+  public static final List<RegisteredUsersTable> assertSuperUsers(
       CallingContext cc) throws ODKDatastoreException {
     List<RegisteredUsersTable> tList = new ArrayList<RegisteredUsersTable>();
 
@@ -558,7 +560,9 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
         RegisteredUsersTable t = RegisteredUsersTable.getUserByUsername(localSuperUser,
             userService, datastore);
         if (t != null) {
-          changesMade = resetSuperUserPasswordIfNecessary(t, false, digester, cc);
+          changesMade = resetSuperUserPasswordIfNecessary(t, false, 
+              //digester, 
+              cc);
           tList.add(t);
         } else {
           RegisteredUsersTable prototype = assertRelation(datastore, user);
@@ -573,7 +577,9 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
           datastore.putEntity(t, user);
           logger.warn("Created a new local superuser record: " + t.getUri() + " identified by: "
               + t.getUsername());
-          changesMade = resetSuperUserPasswordIfNecessary(t, true, digester, cc);
+          changesMade = resetSuperUserPasswordIfNecessary(t, true, 
+              //digester, 
+              cc);
           tList.add(t);
         }
       }

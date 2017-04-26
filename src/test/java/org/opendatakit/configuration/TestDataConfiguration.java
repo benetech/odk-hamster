@@ -30,20 +30,20 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
-@Profile("unittest")
+@Profile({"unittest", "integrationtest"})
 @ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
 public class TestDataConfiguration {
 
-  @Value("${jdbc.driverClassName:org.postgresql.Driver}")
+  @Value("${spring.datasource.driverClassName}")
   String driverClassName;
-
-  @Value("${jdbc.url}")
+  
+  @Value("${spring.datasource.url}")
   String url;
-
-  @Value("${jdbc.username}")
+  
+  @Value("${spring.datasource.username}")
   String username;
-
-  @Value("${jdbc.password}")
+  
+  @Value("${spring.datasource.password}")
   String password;
 
   @Value("${jdbc.schema}")

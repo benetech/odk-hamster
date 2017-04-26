@@ -50,11 +50,6 @@ public interface CallingContext {
    public RoleHierarchy getHierarchicalRoleRelationships();
    
    /**
-    *  @return the encoder for passwords
-    */
-   public MessageDigestPasswordEncoder getMessageDigestPasswordEncoder();
-   
-   /**
     * Set whether or not we should act as the daemon user.
     * Effectively a run-as feature, but not necessarily
     * linked with security.

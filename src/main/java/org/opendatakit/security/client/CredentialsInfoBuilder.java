@@ -19,6 +19,7 @@ package org.opendatakit.security.client;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import org.opendatakit.security.client.CredentialsInfo;
 import org.opendatakit.security.client.RealmSecurityInfo;
@@ -73,38 +74,6 @@ public class CredentialsInfoBuilder {
 		String basicAuthSalt = null;
 		String basicAuthHash = null;
 		
-		// TODO: find sha-1 library
-		// SHA-1 is used for basic auth logins.  
-		// if we have a library, the code would be:
-		
-		// verify that we can do the encoding the server is requesting.  SHA-1 for now...
-//		final String sha1Encoding = "SHA-1";
-//		if ( !sha1Encoding.equals(realmInfo.getBasicAuthHashEncoding()) ) {
-//			throw new NoSuchAlgorithmException("Encryption mechanism is not supported");
-//		}
-//		// compute the basic auth hash...
-//		int rv = Random.nextInt();
-//		String  basicAuthSalt = Integer.toHexString(rv);
-//		// RealmSecurityInfo would need to be augmented if additional
-//		// encrypted format parameters are allowed.
-//		// Must match SpringSecurity BasicPasswordEncoder for constructing salted string.
-//		String fullBasicAuth = rawPassword + "{" + basicAuthSalt + "}";
-//		md = MessageDigest.getInstance(realmInfo.getBasicAuthHashEncoding());
-//		String basicAuthHash = genHash(md, fullBasicAuth, -1 );
-
-		
-//		Original server-side code:
-//
-//		import org.opendatakit.common.security.SecurityBeanDefs;
-//		import org.opendatakit.common.security.SecurityUtils;
-//		import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
-//
-//		MessageDigestPasswordEncoder mde = (MessageDigestPasswordEncoder) cc.getBean(SecurityBeanDefs.BASIC_AUTH_PASSWORD_ENCODER);
-//		String fullBasicAuthPass = mde.encodePassword(password, basicAuthSalt);
-//		String fullDigestAuthPass = SecurityUtils.getDigestAuthenticationPasswordHash(
-//											userDefinition.getUsername(),
-//											password, 
-//											cc.getUserService().getCurrentRealm() );
 		return new CredentialsInfo(username, digestAuthHash, basicAuthHash, basicAuthSalt );
 	}
 }
