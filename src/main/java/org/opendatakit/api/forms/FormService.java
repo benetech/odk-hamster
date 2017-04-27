@@ -26,12 +26,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
@@ -48,6 +50,7 @@ import org.opendatakit.aggregate.odktables.rest.ApiConstants;
 import org.opendatakit.aggregate.odktables.rest.entity.Column;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.api.forms.entity.FormUploadResult;
+import org.opendatakit.api.odktables.FileManifestService;
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.constants.ErrorConsts;
 import org.opendatakit.constants.MimeTypes;
@@ -70,9 +73,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
-@Api(value = "/form", description = "ODK Form Definition API",
+@Api(value = "/forms", description = "ODK Form Definition API",
     authorizations = {@Authorization(value = "basicAuth")})
-@Path("form")
+@Path("/forms")
 public class FormService {
 
   @Autowired
@@ -93,8 +96,10 @@ public class FormService {
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp)
-      throws IOException {
+  @Path("{appId}/{odkClientVersion}")
+  public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp,
+      @PathParam("odkClientVersion") String odkClientVersion, @PathParam("appId") String appId,
+      @Context UriInfo info) throws IOException {
     ServiceUtils.examineRequest(req.getServletContext(), req);
 
     req.getContentLength();
@@ -104,7 +109,6 @@ public class FormService {
     }
 
     try {
-      String appId = ContextUtils.getOdkTablesAppId(callingContext);
       TablesUserPermissions userPermissions = ContextUtils.getTablesUserPermissions(callingContext);
       List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(req);
       Map<String, byte[]> files = new HashMap<>();
@@ -126,7 +130,7 @@ public class FormService {
         String fieldName = item.getFieldName();
         String fileName = FilenameUtils.getName(item.getName());
 
-        if (fieldName.equals("form_zip")) {
+        if (fieldName.equals(WebConsts.ZIP_FILE)) {
 
           if (!(fileName.endsWith(".zip"))) {
             throw new WebApplicationException(ErrorConsts.NO_ZIP_FILE,
@@ -185,7 +189,7 @@ public class FormService {
             Long.valueOf(entry.getValue().length), null, entry.getValue());
 
         ConfigFileChangeDetail outcome =
-            fm.putFile(org.opendatakit.constants.ApiConstants.OPEN_DATA_KIT_VERSION_SHORT, tableId,
+            fm.putFile(odkClientVersion, tableId,
                 fi, userPermissions);
 
         if (outcome == ConfigFileChangeDetail.FILE_NOT_CHANGED) {
@@ -196,14 +200,16 @@ public class FormService {
       }
 
       FileManifestManager manifestManager = new FileManifestManager(appId,
-          org.opendatakit.constants.ApiConstants.OPEN_DATA_KIT_VERSION_SHORT, callingContext);
+          odkClientVersion, callingContext);
       OdkTablesFileManifest manifest = manifestManager.getManifestForTable(tableId);
+      FileManifestService.fixDownloadUrls(info, appId, odkClientVersion, manifest);
 
       FormUploadResult formUploadResult = new FormUploadResult();
       formUploadResult.setNotProcessedFiles(notUploadedFiles);
       formUploadResult.setManifest(manifest);
       String eTag = Integer.toHexString(manifest.hashCode()); // Is this
                                                               // right?
+
 
       return Response.status(Status.CREATED).entity(formUploadResult).header(HttpHeaders.ETAG, eTag)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)

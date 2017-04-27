@@ -49,6 +49,7 @@ import org.opendatakit.api.odktables.mapper.ODKTaskLockExceptionTextXmlMapper;
 import org.opendatakit.api.odktables.mapper.RuntimeExceptionApplicationXmlMapper;
 import org.opendatakit.api.odktables.mapper.RuntimeExceptionJsonMapper;
 import org.opendatakit.api.odktables.mapper.RuntimeExceptionTextXmlMapper;
+import org.opendatakit.api.offices.OfficeService;
 import org.opendatakit.api.users.RoleService;
 import org.opendatakit.api.users.UserService;
 import org.opendatakit.odktables.entity.serialization.SimpleHTMLMessageWriter;
@@ -112,6 +113,9 @@ public class JerseyConfiguration extends ResourceConfig implements ServletConfig
 
 		// Form management
 		register(FormService.class);
+		
+		// Regional offices
+	    register(OfficeService.class);
 
 		// Mapper classes
 		register(SimpleHTMLMessageWriter.class);

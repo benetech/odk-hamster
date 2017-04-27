@@ -30,6 +30,7 @@ import org.opendatakit.odktables.exception.PermissionDeniedException;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
+import org.opendatakit.persistence.table.OdkTablesUserInfoTable;
 import org.springframework.security.core.GrantedAuthority;
 
 public class TablesUserPermissionsImpl implements TablesUserPermissions {

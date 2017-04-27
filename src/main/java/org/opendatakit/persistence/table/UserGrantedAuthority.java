@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.opendatakit.security.spring;
+package org.opendatakit.persistence.table;
 
 import java.util.ArrayList;
 import java.util.Collection;

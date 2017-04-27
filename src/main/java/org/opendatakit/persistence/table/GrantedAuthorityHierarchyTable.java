@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.opendatakit.security.spring;
+package org.opendatakit.persistence.table;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +35,7 @@ import org.opendatakit.persistence.Query.FilterOperation;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.security.User;
 import org.opendatakit.security.common.GrantedAuthorityName;
+import org.opendatakit.security.spring.RoleHierarchyImpl;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

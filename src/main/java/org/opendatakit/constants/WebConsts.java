@@ -34,6 +34,7 @@ public final class WebConsts {
   public static final String CONTENT_TYPE_CSV_UTF8 = "text/csv; charset=utf-8";
 
   public static final String OFFICE_ID = "officeId";
+  public static final String ZIP_FILE = "zipFile";
 
 
   public static final String AS_ATTACHMENT = "as_attachment";

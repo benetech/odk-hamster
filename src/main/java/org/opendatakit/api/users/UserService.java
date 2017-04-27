@@ -37,6 +37,7 @@ import org.opendatakit.constants.ErrorConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.client.exception.DatastoreFailureException;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.persistence.table.RegisteredUsersTable;
 import org.opendatakit.security.User;
 import org.opendatakit.security.client.UserSecurityInfo;
 import org.opendatakit.security.client.UserSecurityInfo.UserType;
@@ -44,7 +45,6 @@ import org.opendatakit.security.client.exception.AccessDeniedException;
 import org.opendatakit.security.common.EmailParser;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.server.SecurityServiceUtil;
-import org.opendatakit.security.spring.RegisteredUsersTable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

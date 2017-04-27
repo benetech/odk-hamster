@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.opendatakit.persistence;
+package org.opendatakit.persistence.table;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +26,9 @@ import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.Query;
+import org.opendatakit.persistence.DataField.DataType;
+import org.opendatakit.persistence.Query.Direction;
+import org.opendatakit.persistence.Query.FilterOperation;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
@@ -33,7 +36,7 @@ import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.security.User;
 import org.opendatakit.utils.WebUtils;
 
-public class ServerPreferencesProperties extends CommonFieldsBase {
+public class ServerPreferencesPropertiesTable extends CommonFieldsBase {
 
   private static final String TABLE_NAME = "_server_preferences_properties";
 
@@ -78,7 +81,7 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
    * @param databaseSchema
    * @param tableName
    */
-  private ServerPreferencesProperties(String schemaName) {
+  private ServerPreferencesPropertiesTable(String schemaName) {
     super(schemaName, TABLE_NAME);
     fieldList.add(KEY);
     fieldList.add(VALUE);
@@ -90,13 +93,13 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
    * @param ref
    * @param user
    */
-  private ServerPreferencesProperties(ServerPreferencesProperties ref, User user) {
+  private ServerPreferencesPropertiesTable(ServerPreferencesPropertiesTable ref, User user) {
     super(ref, user);
   }
 
   @Override
-  public ServerPreferencesProperties getEmptyRow(User user) {
-    return new ServerPreferencesProperties(this, user);
+  public ServerPreferencesPropertiesTable getEmptyRow(User user) {
+    return new ServerPreferencesPropertiesTable(this, user);
   }
 
   public static String getSiteKey(CallingContext cc) throws ODKEntityNotFoundException,
@@ -234,15 +237,15 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
     ds.putEntity(this, user);
   }
 
-  private static ServerPreferencesProperties relation = null;
+  private static ServerPreferencesPropertiesTable relation = null;
 
-  public static synchronized final ServerPreferencesProperties assertRelation(CallingContext cc)
+  public static synchronized final ServerPreferencesPropertiesTable assertRelation(CallingContext cc)
       throws ODKDatastoreException {
     if (relation == null) {
-      ServerPreferencesProperties relationPrototype;
+      ServerPreferencesPropertiesTable relationPrototype;
       Datastore ds = cc.getDatastore();
       User user = cc.getUserService().getDaemonAccountUser();
-      relationPrototype = new ServerPreferencesProperties(ds.getDefaultSchemaName());
+      relationPrototype = new ServerPreferencesPropertiesTable(ds.getDefaultSchemaName());
       ds.assertRelation(relationPrototype, user); // may throw exception...
       // at this point, the prototype has become fully populated
       relation = relationPrototype; // set static variable only upon success...
@@ -253,7 +256,7 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
   public static final String getServerPreferencesProperty(CallingContext cc, String keyName)
       throws ODKEntityNotFoundException, ODKOverQuotaException {
     try {
-      ServerPreferencesProperties relation = assertRelation(cc);
+      ServerPreferencesPropertiesTable relation = assertRelation(cc);
       Query query = cc.getDatastore().createQuery(relation,
           "ServerPreferences.getServerPreferences", cc.getCurrentUser());
       query.addFilter(KEY, Query.FilterOperation.EQUAL, keyName);
@@ -262,8 +265,8 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
       query.addSort(relation.lastUpdateDate, Query.Direction.DESCENDING);
       List<? extends CommonFieldsBase> results = query.executeQuery();
       if (!results.isEmpty()) {
-        if (results.get(0) instanceof ServerPreferencesProperties) {
-          ServerPreferencesProperties preferences = (ServerPreferencesProperties) results.get(0);
+        if (results.get(0) instanceof ServerPreferencesPropertiesTable) {
+          ServerPreferencesPropertiesTable preferences = (ServerPreferencesPropertiesTable) results.get(0);
           return preferences.getStringField(VALUE);
         }
       }
@@ -277,17 +280,17 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
 
   public static final void setServerPreferencesProperty(CallingContext cc, String keyName,
       String value) throws ODKEntityNotFoundException, ODKOverQuotaException {
-    Log logger = LogFactory.getLog(ServerPreferencesProperties.class);
+    Log logger = LogFactory.getLog(ServerPreferencesPropertiesTable.class);
 
     try {
-      ServerPreferencesProperties relation = assertRelation(cc);
+      ServerPreferencesPropertiesTable relation = assertRelation(cc);
       Query query = cc.getDatastore().createQuery(relation,
           "ServerPreferences.getServerPreferences", cc.getCurrentUser());
       query.addFilter(KEY, Query.FilterOperation.EQUAL, keyName);
       List<? extends CommonFieldsBase> results = query.executeQuery();
       if (!results.isEmpty()) {
-        if (results.get(0) instanceof ServerPreferencesProperties) {
-          ServerPreferencesProperties preferences = (ServerPreferencesProperties) results.get(0);
+        if (results.get(0) instanceof ServerPreferencesPropertiesTable) {
+          ServerPreferencesPropertiesTable preferences = (ServerPreferencesPropertiesTable) results.get(0);
           if (!preferences.setStringField(VALUE, value)) {
             throw new IllegalStateException("Unexpected truncation of ServerPreferencesProperty: "
                 + keyName + " value");
@@ -298,7 +301,7 @@ public class ServerPreferencesProperties extends CommonFieldsBase {
         throw new IllegalStateException("Expected ServerPreferencesProperties entity");
       }
       // nothing there -- put the value...
-      ServerPreferencesProperties preferences = cc.getDatastore().createEntityUsingRelation(
+      ServerPreferencesPropertiesTable preferences = cc.getDatastore().createEntityUsingRelation(
           relation, cc.getCurrentUser());
       logger.info("Setting Server Preference " + keyName + " to " + value);
       if (!preferences.setStringField(KEY, keyName)) {

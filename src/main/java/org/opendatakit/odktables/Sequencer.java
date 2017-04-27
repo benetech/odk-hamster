@@ -18,9 +18,9 @@ package org.opendatakit.odktables;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opendatakit.context.CallingContext;
-import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
+import org.opendatakit.persistence.table.ServerPreferencesPropertiesTable;
 
 /**
  * Impose a strict ordering on the log entries associated with a file. The
@@ -58,7 +58,7 @@ public class Sequencer {
    * @throws ODKOverQuotaException
    */
   Sequencer(CallingContext cc) throws ODKEntityNotFoundException, ODKOverQuotaException {
-    sequenceBase = ServerPreferencesProperties.unsafeIncOdkTablesSequencerBase(cc);
+    sequenceBase = ServerPreferencesPropertiesTable.unsafeIncOdkTablesSequencerBase(cc);
     counter = 0;
   }
 

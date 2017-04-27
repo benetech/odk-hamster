@@ -1,4 +1,4 @@
-package org.opendatakit.security.spring;
+package org.opendatakit.persistence.table;
 
 import java.util.Date;
 

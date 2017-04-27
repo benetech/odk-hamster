@@ -10,14 +10,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.forms.entity.FormUploadResult;
 import org.opendatakit.configuration.annotations.WebServiceUnitTestConfig;
+import org.opendatakit.constants.WebConsts;
+import org.opendatakit.test.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -54,9 +54,11 @@ public class FormServiceTest {
     final File sampleForm = pmrpr.getResource("classpath:forms/hamsterform.zip").getFile();
 
     MultiValueMap<String, Object> parts = new LinkedMultiValueMap<String, Object>();
-    parts.add("form_zip", new FileSystemResource(sampleForm));
-    parts.add("officeId", "madison");
-    String target = "http://localhost:" + server.getEmbeddedServletContainer().getPort() + "/form";
+    parts.add(WebConsts.ZIP_FILE, new FileSystemResource(sampleForm));
+    parts.add(WebConsts.OFFICE_ID, "madison");
+    String target = "http://localhost:" + server.getEmbeddedServletContainer().getPort() + "/forms/" + 
+    Constants.APP_ID_PARAMETER + "/" + Constants.API_VERSION_PARAMETER;
+    
     logger.info("Sending to URL: " + target);
     try {
     ResponseEntity<FormUploadResult> entity =

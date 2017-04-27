@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.opendatakit.security.spring;
+package org.opendatakit.persistence.table;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -30,7 +30,6 @@ import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.Query;
 import org.opendatakit.persistence.Query.Direction;
 import org.opendatakit.persistence.Query.FilterOperation;
-import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
@@ -497,7 +496,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
       throws ODKEntityPersistException, ODKOverQuotaException, ODKEntityNotFoundException {
     String localSuperUser = registeredUsersTable.getUsername();
     String currentRealmString = callingContext.getUserService().getCurrentRealm().getRealmString();
-    String lastKnownRealmString = ServerPreferencesProperties.getLastKnownRealmString(callingContext);
+    String lastKnownRealmString = ServerPreferencesPropertiesTable.getLastKnownRealmString(callingContext);
     if (!newUser && lastKnownRealmString != null && lastKnownRealmString.equals(currentRealmString)) {
       // no need to reset the passwords
       return false;
@@ -521,7 +520,7 @@ public final class RegisteredUsersTable extends CommonFieldsBase {
     registeredUsersTable.setIsRemoved(false);
     callingContext.getDatastore().putEntity(registeredUsersTable, callingContext.getCurrentUser());
     // remember the current realm string
-    ServerPreferencesProperties.setLastKnownRealmString(callingContext, currentRealmString);
+    ServerPreferencesPropertiesTable.setLastKnownRealmString(callingContext, currentRealmString);
     logger.warn("Reset password of the local superuser record: " + registeredUsersTable.getUri() + " identified by: "
         + registeredUsersTable.getUsername());
     return true;

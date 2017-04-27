@@ -245,26 +245,31 @@ public class FileManifestService {
       }
       // and whatever the eTag is in that entity is the eTag we should return...
       eTag = eTagEntity.getManifestETag();
-      UriBuilder ub = info.getBaseUriBuilder();
-      ub.path(OdkTables.class);
-      ub.path(OdkTables.class, "getFilesService");
-      // now supply the downloadUrl...
-      for (OdkTablesFileManifestEntry entry : manifest.getFiles()) {
-        URI self = ub.clone().path(FileService.class, "getFile").build(ArrayUtils.toArray(appId, odkClientVersion,
-            entry.filename),false);
-        try {
-          entry.downloadUrl = self.toURL().toExternalForm();
-        } catch (MalformedURLException e) {
-          e.printStackTrace();
-          throw new IllegalArgumentException("Unable to convert to URL");
-        }
-      }
+      fixDownloadUrls(info, appId, odkClientVersion, manifest);
 
       return Response.ok(manifest).header(HttpHeaders.ETAG, eTag)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
           .header("Access-Control-Allow-Credentials", "true").build();
     }
+  }
+  
+  public static void fixDownloadUrls(UriInfo info, String appId, String odkClientVersion, OdkTablesFileManifest manifest) {
+    UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
+    ub.path(OdkTables.class, "getFilesService");
+    // now supply the downloadUrl...
+    for (OdkTablesFileManifestEntry entry : manifest.getFiles()) {
+      URI self = ub.clone().path(FileService.class, "getFile").build(ArrayUtils.toArray(appId, odkClientVersion,
+          entry.filename),false);
+      try {
+        entry.downloadUrl = self.toURL().toExternalForm();
+      } catch (MalformedURLException e) {
+        e.printStackTrace();
+        throw new IllegalArgumentException("Unable to convert to URL");
+      }
+    }
+
   }
 
 }

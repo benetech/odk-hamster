@@ -35,6 +35,8 @@ import org.opendatakit.persistence.TaskLock;
 import org.opendatakit.persistence.TaskLockType;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
+import org.opendatakit.persistence.table.GrantedAuthorityHierarchyTable;
+import org.opendatakit.persistence.table.SecurityRevisionsTable;
 import org.opendatakit.security.User;
 import org.opendatakit.security.UserService;
 import org.opendatakit.security.server.SecurityServiceUtil;

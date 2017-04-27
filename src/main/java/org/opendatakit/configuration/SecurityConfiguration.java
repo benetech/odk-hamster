@@ -21,10 +21,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.benetech.boot.Application;
-import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
+import org.opendatakit.persistence.table.ServerPreferencesPropertiesTable;
 import org.opendatakit.security.spring.BasicAuthenticationFilter;
 import org.opendatakit.security.spring.BasicUsingDigestPasswordEncoder;
 import org.opendatakit.security.spring.BasicUsingDigestSaltSource;
@@ -124,7 +124,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     DigestAuthenticationEntryPoint entryPoint = new DigestAuthenticationEntryPoint();
     entryPoint.setRealmName(userServiceConfiguration.realm().getRealmString());
     entryPoint
-        .setKey(ServerPreferencesProperties.getSiteKey(userServiceConfiguration.callingContext()));
+        .setKey(ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext()));
     entryPoint.setNonceValiditySeconds(1800);
     return entryPoint;
   }
@@ -178,7 +178,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   public AnonymousAuthenticationProvider anonymousProvider()
       throws ODKDatastoreException, PropertyVetoException {
     AnonymousAuthenticationProvider anonymousProvider = new AnonymousAuthenticationProvider(
-        ServerPreferencesProperties.getSiteKey(userServiceConfiguration.callingContext()));
+        ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext()));
 
     return anonymousProvider;
   }

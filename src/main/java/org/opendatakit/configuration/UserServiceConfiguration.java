@@ -14,8 +14,8 @@ import java.beans.PropertyVetoException;
 
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.context.CallingContextImpl;
-import org.opendatakit.persistence.ServerPreferencesProperties;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.persistence.table.ServerPreferencesPropertiesTable;
 import org.opendatakit.security.Realm;
 import org.opendatakit.security.UserService;
 import org.opendatakit.security.spring.BasicUsingDigestPasswordEncoder;

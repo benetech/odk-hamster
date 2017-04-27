@@ -61,7 +61,7 @@ import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
-import org.opendatakit.security.spring.RegisteredUsersTable;
+import org.opendatakit.persistence.table.RegisteredUsersTable;
 
 import java.util.ArrayList;
 import java.util.List;

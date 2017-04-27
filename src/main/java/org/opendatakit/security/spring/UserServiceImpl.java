@@ -28,6 +28,8 @@ import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.Query;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
+import org.opendatakit.persistence.table.GrantedAuthorityHierarchyTable;
+import org.opendatakit.persistence.table.RegisteredUsersTable;
 import org.opendatakit.security.Realm;
 import org.opendatakit.security.User;
 import org.opendatakit.security.client.CredentialsInfo;

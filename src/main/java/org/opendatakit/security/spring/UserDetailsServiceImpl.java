@@ -20,6 +20,8 @@ import java.util.UUID;
 
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.persistence.table.RegisteredUsersTable;
+import org.opendatakit.persistence.table.UserGrantedAuthority;
 import org.opendatakit.security.User;
 import org.opendatakit.security.UserService;
 import org.opendatakit.security.common.GrantedAuthorityName;

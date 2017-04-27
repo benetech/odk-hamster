@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.opendatakit.odktables.security;
+package org.opendatakit.persistence.table;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +27,7 @@ import org.opendatakit.odktables.FileManifestManager;
 import org.opendatakit.odktables.ODKTablesTaskLockType;
 import org.opendatakit.odktables.OdkTablesLockTemplate;
 import org.opendatakit.odktables.exception.PermissionDeniedException;
+import org.opendatakit.odktables.security.OdkTablesUserInfo;
 import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
 import org.opendatakit.persistence.Datastore;
@@ -38,7 +39,6 @@ import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.User;
 import org.opendatakit.security.common.GrantedAuthorityName;
-import org.opendatakit.security.spring.RegisteredUsersTable;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
