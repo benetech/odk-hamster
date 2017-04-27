@@ -1,13 +1,12 @@
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package org.opendatakit.api.forms;
@@ -72,34 +71,36 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
 @Api(value = "/form", description = "ODK Form Definition API",
-authorizations = {@Authorization(value="basicAuth")})
+    authorizations = {@Authorization(value = "basicAuth")})
 @Path("form")
 public class FormService {
-  
+
   @Autowired
   private CallingContext callingContext;
 
   private static final Log logger = LogFactory.getLog(FormService.class);
 
   @GET
-  public Response doGet(@Context HttpServletRequest req, @Context HttpServletResponse resp) throws IOException {
+  public Response doGet(@Context HttpServletRequest req, @Context HttpServletResponse resp)
+      throws IOException {
     return Response.ok("Hello forms.").build();
   }
 
-  
   @POST
-  @ApiOperation(value = "This API operation is currently being written. Upload a zipped form definition.",
-  response = FormUploadResult.class)
+  @ApiOperation(
+      value = "This API operation is currently being written. Upload a zipped form definition.",
+      response = FormUploadResult.class)
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp) throws IOException {
+  public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp)
+      throws IOException {
     ServiceUtils.examineRequest(req.getServletContext(), req);
-
 
     req.getContentLength();
     if (!ServletFileUpload.isMultipartContent(req)) {
-      throw new WebApplicationException(ErrorConsts.NO_MULTI_PART_CONTENT, HttpServletResponse.SC_BAD_REQUEST);
+      throw new WebApplicationException(ErrorConsts.NO_MULTI_PART_CONTENT,
+          HttpServletResponse.SC_BAD_REQUEST);
     }
 
     try {
@@ -115,7 +116,8 @@ public class FormService {
 
       for (FileItem item : items) {
 
-        // Retrieve all Regional Office IDs to which a form definition is going to be assigned to
+        // Retrieve all Regional Office IDs to which a form definition
+        // is going to be assigned to
         if (item.getFieldName().equals(WebConsts.OFFICE_ID)) {
           regionalOffices.add(item.getString());
           logger.info("Form definition would be assigned to office with ID: " + item.getString());
@@ -127,7 +129,8 @@ public class FormService {
         if (fieldName.equals("form_zip")) {
 
           if (!(fileName.endsWith(".zip"))) {
-            throw new WebApplicationException(ErrorConsts.NO_ZIP_FILE, HttpServletResponse.SC_BAD_REQUEST);
+            throw new WebApplicationException(ErrorConsts.NO_ZIP_FILE,
+                HttpServletResponse.SC_BAD_REQUEST);
           }
 
           InputStream fileStream = item.getInputStream();
@@ -157,7 +160,8 @@ public class FormService {
       }
 
       if (definition == null || tableId == null || regionalOffices.isEmpty()) {
-        throw new WebApplicationException(ErrorConsts.NO_DEFINITION_FILE, HttpServletResponse.SC_BAD_REQUEST);
+        throw new WebApplicationException(ErrorConsts.NO_DEFINITION_FILE,
+            HttpServletResponse.SC_BAD_REQUEST);
       }
 
       List<String> notUploadedFiles = new ArrayList<>();
@@ -170,7 +174,8 @@ public class FormService {
 
       // uploading files
       for (Map.Entry<String, byte[]> entry : files.entrySet()) {
-        String contentType = MimeTypes.MIME_TYPES.get(entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1));
+        String contentType =
+            MimeTypes.MIME_TYPES.get(entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1));
         if (contentType == null) {
           contentType = "application/octet-stream";
         }
@@ -179,7 +184,9 @@ public class FormService {
         FileContentInfo fi = new FileContentInfo(entry.getKey(), contentType,
             Long.valueOf(entry.getValue().length), null, entry.getValue());
 
-        ConfigFileChangeDetail outcome = fm.putFile( org.opendatakit.constants.ApiConstants.OPEN_DATA_KIT_VERSION_SHORT, tableId, fi, userPermissions);
+        ConfigFileChangeDetail outcome =
+            fm.putFile(org.opendatakit.constants.ApiConstants.OPEN_DATA_KIT_VERSION_SHORT, tableId,
+                fi, userPermissions);
 
         if (outcome == ConfigFileChangeDetail.FILE_NOT_CHANGED) {
           notUploadedFiles.add(entry.getKey());
@@ -187,24 +194,27 @@ public class FormService {
           uploadedFiles.add(entry.getKey());
         }
       }
-     
-      FileManifestManager manifestManager = new FileManifestManager(appId, ApiConstants.OPEN_DATA_KIT_VERSION, callingContext);
+
+      FileManifestManager manifestManager = new FileManifestManager(appId,
+          org.opendatakit.constants.ApiConstants.OPEN_DATA_KIT_VERSION_SHORT, callingContext);
       OdkTablesFileManifest manifest = manifestManager.getManifestForTable(tableId);
 
       FormUploadResult formUploadResult = new FormUploadResult();
       formUploadResult.setNotProcessedFiles(notUploadedFiles);
       formUploadResult.setManifest(manifest);
-      String eTag = Integer.toHexString(manifest.hashCode());  // Is this right?
+      String eTag = Integer.toHexString(manifest.hashCode()); // Is this
+                                                              // right?
 
-      
       return Response.status(Status.CREATED).entity(formUploadResult).header(HttpHeaders.ETAG, eTag)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
           .header("Access-Control-Allow-Credentials", "true").build();
 
-    } catch (FileUploadException | ODKDatastoreException | ODKTaskLockException | PermissionDeniedException | TableAlreadyExistsException e) {
-      logger.error("error uploading zip" ,  e);
-      throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    } catch (FileUploadException | ODKDatastoreException | ODKTaskLockException
+        | PermissionDeniedException | TableAlreadyExistsException e) {
+      logger.error("error uploading zip", e);
+      throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
     }
   }
@@ -225,6 +235,5 @@ public class FormService {
 
     return outcome;
   }
-
 
 }
