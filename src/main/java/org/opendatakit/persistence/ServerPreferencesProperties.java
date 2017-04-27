@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opendatakit.api.forms.FormServiceTest;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
