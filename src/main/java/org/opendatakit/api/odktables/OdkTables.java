@@ -36,8 +36,11 @@ import org.springframework.stereotype.Component;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
-@Api(value = "/odktables", description = "ODK Tables Sync API")
+
+@Api(value = "/odktables", description = "ODK Tables Sync API",
+authorizations = {@Authorization(value="basicAuth")})
 @Path("odktables")
 @Component
 public class OdkTables {

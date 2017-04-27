@@ -69,8 +69,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
-@Api(value = "/form", description = "ODK Form Definition API")
+@Api(value = "/form", description = "ODK Form Definition API",
+authorizations = {@Authorization(value="basicAuth")})
 @Path("form")
 public class FormService {
   

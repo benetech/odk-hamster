@@ -50,8 +50,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 
-@Api(value = "/users", description = "ODK User API")
+@Api(value = "/users", description = "ODK User API",
+authorizations = {@Authorization(value="basicAuth")})
 @Path("users")
 public class UserService {
 
