@@ -43,7 +43,6 @@ public class Application extends SpringBootServletInitializer{
       @Override
       public void contextInitialized(ServletContextEvent arg0) {
         logger.info("ServletContext initialized");
-
       }
 
     };

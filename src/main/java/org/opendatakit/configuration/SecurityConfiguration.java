@@ -48,6 +48,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
@@ -80,11 +81,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.csrf().disable();
     
-    http.authorizeRequests().antMatchers("/*").permitAll();
+    http.authorizeRequests().antMatchers("/").permitAll();
+    http.authorizeRequests().antMatchers("/swagger.json").permitAll();
 
+    http.authorizeRequests().antMatchers("/swagger/**").authenticated().and()
+    .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class);
 
+    // This is where we are currently enabling a fallback to Basic Authentication.
+    // We may wish to remove this, as it is not very secure.  On the other hand, we're not requiring anyone to use it.
     http.authorizeRequests().antMatchers("/**").authenticated().and()
-        .addFilter(digestAuthenticationFilter());
+    .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class).addFilter(digestAuthenticationFilter());
 
   }
 

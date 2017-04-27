@@ -12,6 +12,8 @@
 package org.opendatakit.configuration;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.ws.rs.ApplicationPath;
 
 import org.apache.commons.logging.Log;
@@ -58,13 +60,18 @@ import org.opendatakit.odktables.entity.serialization.SimpleJSONMessageReaderWri
 import org.opendatakit.odktables.entity.serialization.SimpleXMLMessageReaderWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.ServletConfigAware;
 
 import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.config.SwaggerContextService;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
+import io.swagger.models.Swagger;
+import io.swagger.models.auth.BasicAuthDefinition;
 
 @Component
-public class JerseyConfiguration extends ResourceConfig {
+public class JerseyConfiguration extends ResourceConfig 
+{
   private static Log logger = LogFactory.getLog(JerseyConfiguration.class);
 
   @Value("${spring.jersey.application-path:/}")
@@ -72,13 +79,9 @@ public class JerseyConfiguration extends ResourceConfig {
 
   public JerseyConfiguration() {
     registerEndpoints();
-    this.configureSwagger();
+    configureSwagger();
   }
 
-  @PostConstruct
-  public void init() {
-    //this.configureSwagger();
-  }
 
   private void registerEndpoints() {
     logger.info("Registering Jersey classes.");
@@ -164,4 +167,7 @@ public class JerseyConfiguration extends ResourceConfig {
     config.setScan(true);
     
   }
+
+
+
 }
