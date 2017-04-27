@@ -83,6 +83,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     http.authorizeRequests().antMatchers("/").permitAll();
     http.authorizeRequests().antMatchers("/swagger.json").permitAll();
+    http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
+
 
     http.authorizeRequests().antMatchers("/swagger/**").authenticated().and()
     .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class);
