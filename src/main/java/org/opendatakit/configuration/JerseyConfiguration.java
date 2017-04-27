@@ -141,7 +141,7 @@ public class JerseyConfiguration extends ResourceConfig implements ServletConfig
 		register(WadlResource.class);
 
 		// Forward when not found, lets us get to static content like swagger
-		property(ServletProperties.FILTER_STATIC_CONTENT_REGEX, "((/swagger/.*)|(.*\\.html))");
+		property(ServletProperties.FILTER_STATIC_CONTENT_REGEX, "((/swagger/.*)|(.*\\.(html|ico)))");
 
 	}
 

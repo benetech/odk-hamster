@@ -27,19 +27,13 @@ import java.util.Date;
  * 
  */
 public final class BasicConsts {
-
-
   
   // general constants
-
-
-
   public static final String EMPTY_STRING = "";
   public static final String FORWARDSLASH = "/";
-
   public static final String COLON = ":";
-
   public static final String UTF8_ENCODE = "UTF-8";
+
   // constant as only needs to be created once
   public static final Date EPOCH = new Date(0);
 }

@@ -179,7 +179,7 @@ public class FormService {
         FileContentInfo fi = new FileContentInfo(entry.getKey(), contentType,
             Long.valueOf(entry.getValue().length), null, entry.getValue());
 
-        ConfigFileChangeDetail outcome = fm.putFile( ApiConstants.OPEN_DATA_KIT_VERSION, tableId, fi, userPermissions);
+        ConfigFileChangeDetail outcome = fm.putFile( org.opendatakit.constants.ApiConstants.OPEN_DATA_KIT_VERSION_SHORT, tableId, fi, userPermissions);
 
         if (outcome == ConfigFileChangeDetail.FILE_NOT_CHANGED) {
           notUploadedFiles.add(entry.getKey());
