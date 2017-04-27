@@ -35,7 +35,9 @@ import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.utils.WebUtils;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -53,6 +55,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class DataService {
 
   private static final String CURSOR_PARAMETER = "cursor";

@@ -47,6 +47,10 @@ import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.utils.WebUtils;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
+
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class QueryService {
 
   public static final String QUERY_DATA_ETAG = "data_etag";

@@ -49,6 +49,10 @@ import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.server.SecurityServiceUtil;
 import org.opendatakit.utils.WebUtils;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
+
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class TableAclService {
 
   public static final String CURSOR_PARAMETER = "cursor";

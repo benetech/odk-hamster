@@ -68,6 +68,10 @@ import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
+
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class InstanceFileService {
 
   /**
