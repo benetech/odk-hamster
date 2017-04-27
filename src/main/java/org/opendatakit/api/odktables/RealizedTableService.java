@@ -50,6 +50,10 @@ import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.server.SecurityServiceUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
+
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class RealizedTableService  {
   private static final Log logger = LogFactory.getLog(RealizedTableService.class);
 

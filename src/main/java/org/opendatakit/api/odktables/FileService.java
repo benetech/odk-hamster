@@ -58,6 +58,9 @@ import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.server.SecurityServiceUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
+
 /**
  * Servlet for handling the uploading and downloading of files from the phone.
  * <p>
@@ -73,6 +76,7 @@ import org.opendatakit.security.server.SecurityServiceUtil;
  * @author sudar.sam@gmail.com
  *
  */
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class FileService {
 
   public static final String PARAM_AS_ATTACHMENT = "as_attachment";

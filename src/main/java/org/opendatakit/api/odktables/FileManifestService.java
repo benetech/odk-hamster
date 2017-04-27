@@ -46,7 +46,9 @@ import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 /**
  * Servlet for downloading a manifest of files to the phone for the correct app and the correct
@@ -54,6 +56,7 @@ import io.swagger.annotations.ApiOperation;
  *
  * @author sudar.sam@gmail.com
  */
+@Api(authorizations = {@Authorization(value="basicAuth")})
 public class FileManifestService {
 
   private final CallingContext cc;

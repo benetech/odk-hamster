@@ -13,12 +13,9 @@ package org.opendatakit.configuration;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.ws.rs.ApplicationPath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.benetech.boot.Application;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.wadl.internal.WadlResource;
@@ -26,7 +23,6 @@ import org.glassfish.jersey.servlet.ServletProperties;
 import org.opendatakit.api.RootRedirect;
 import org.opendatakit.api.filter.GzipReaderInterceptor;
 import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
-import org.opendatakit.api.filter.ProxyUrlSetFilter;
 import org.opendatakit.api.forms.FormService;
 import org.opendatakit.api.odktables.DataService;
 import org.opendatakit.api.odktables.DiffService;
@@ -70,104 +66,116 @@ import io.swagger.models.Swagger;
 import io.swagger.models.auth.BasicAuthDefinition;
 
 @Component
-public class JerseyConfiguration extends ResourceConfig 
-{
-  private static Log logger = LogFactory.getLog(JerseyConfiguration.class);
+public class JerseyConfiguration extends ResourceConfig implements ServletConfigAware {
+	private static Log logger = LogFactory.getLog(JerseyConfiguration.class);
 
-  @Value("${spring.jersey.application-path:/}")
-  private String apiPath;
+	@Value("${spring.jersey.application-path:/}")
+	private String apiPath;
 
-  public JerseyConfiguration() {
-    registerEndpoints();
-    configureSwagger();
-  }
+	private ServletConfig servletConfig;
+	
+	public JerseyConfiguration() {
+		registerEndpoints();
+		this.configureSwagger();
+	}
 
+	@PostConstruct
+	public void init() {
+		// this.configureSwagger();
+	}
 
-  private void registerEndpoints() {
-    logger.info("Registering Jersey classes.");
+	private void registerEndpoints() {
+		logger.info("Registering Jersey classes.");
 
-    // Uncomment to handle proxied URLs
-    // register(ProxyUrlSetFilter.class);
-    register(GzipReaderInterceptor.class);
-    register(MultipartFormDataToMixedInterceptor.class);
+		// Uncomment to handle proxied URLs
+		// register(ProxyUrlSetFilter.class);
+		register(GzipReaderInterceptor.class);
+		register(MultipartFormDataToMixedInterceptor.class);
 
-    register(MultiPartFeature.class);
+		register(MultiPartFeature.class);
 
-    // ODK Tables Synchronization 2.0 API
-    register(OdkTables.class);
-    register(DataService.class);
-    register(DiffService.class);
-    register(FileManifestService.class);
-    register(FileService.class);
-    register(InstanceFileService.class);
-    register(QueryService.class);
-    register(RealizedTableService.class);
-    register(TableAclService.class);
-    register(TableService.class);
+		// ODK Tables Synchronization 2.0 API
+		register(OdkTables.class);
+		register(DataService.class);
+		register(DiffService.class);
+		register(FileManifestService.class);
+		register(FileService.class);
+		register(InstanceFileService.class);
+		register(QueryService.class);
+		register(RealizedTableService.class);
+		register(TableAclService.class);
+		register(TableService.class);
 
-    // Legacy User/Roles ODK 1.0 API
-    register(RoleService.class);
-    register(UserService.class);
-    
-    // Form management
-    register(FormService.class);
+		// Legacy User/Roles ODK 1.0 API
+		register(RoleService.class);
+		register(UserService.class);
 
-    // Mapper classes
-    register(SimpleHTMLMessageWriter.class);
-    register(SimpleJSONMessageReaderWriter.class);
-    register(SimpleXMLMessageReaderWriter.class);
-    register(ODKDatastoreExceptionJsonMapper.class);
-    register(ODKDatastoreExceptionTextXmlMapper.class);
-    register(ODKDatastoreExceptionApplicationXmlMapper.class);
-    register(ODKTablesExceptionJsonMapper.class);
-    register(ODKTablesExceptionTextXmlMapper.class);
-    register(ODKTablesExceptionApplicationXmlMapper.class);
-    register(ODKTaskLockExceptionJsonMapper.class);
-    register(ODKTaskLockExceptionTextXmlMapper.class);
-    register(ODKTaskLockExceptionApplicationXmlMapper.class);
-    register(IOExceptionJsonMapper.class);
-    register(IOExceptionTextXmlMapper.class);
-    register(IOExceptionApplicationXmlMapper.class);
-    register(RuntimeExceptionJsonMapper.class);
-    register(RuntimeExceptionTextXmlMapper.class);
-    register(RuntimeExceptionApplicationXmlMapper.class);
-    
-    // Redirect the root to something user friendly, or for security through obfuscation (good luck with the latter.)
-    register(RootRedirect.class);
-    
-    // Generate Jersey WADL at /<Jersey's servlet path>/application.wadl
-    register(WadlResource.class);
-    
-    // Forward when not found, lets us get to static content like swagger
-    property(ServletProperties.FILTER_STATIC_CONTENT_REGEX, "((/swagger/.*)|(.*\\.html))");
-    
+		// Form management
+		register(FormService.class);
 
-  }
+		// Mapper classes
+		register(SimpleHTMLMessageWriter.class);
+		register(SimpleJSONMessageReaderWriter.class);
+		register(SimpleXMLMessageReaderWriter.class);
+		register(ODKDatastoreExceptionJsonMapper.class);
+		register(ODKDatastoreExceptionTextXmlMapper.class);
+		register(ODKDatastoreExceptionApplicationXmlMapper.class);
+		register(ODKTablesExceptionJsonMapper.class);
+		register(ODKTablesExceptionTextXmlMapper.class);
+		register(ODKTablesExceptionApplicationXmlMapper.class);
+		register(ODKTaskLockExceptionJsonMapper.class);
+		register(ODKTaskLockExceptionTextXmlMapper.class);
+		register(ODKTaskLockExceptionApplicationXmlMapper.class);
+		register(IOExceptionJsonMapper.class);
+		register(IOExceptionTextXmlMapper.class);
+		register(IOExceptionApplicationXmlMapper.class);
+		register(RuntimeExceptionJsonMapper.class);
+		register(RuntimeExceptionTextXmlMapper.class);
+		register(RuntimeExceptionApplicationXmlMapper.class);
 
-  /**
-   * Configure the Swagger documentation for this API.
-   * 
-   * Very useful setup instructions:
-   * http://tech.asimio.net/2016/04/05/Microservices-using-Spring-Boot-Jersey-Swagger-and-Docker.html
-   */
-  private void configureSwagger() {
-    // Creates file at localhost:port/swagger.json
-    this.register(ApiListingResource.class);
-    this.register(SwaggerSerializers.class);
+		// Redirect the root to something user friendly, or for security through
+		// obfuscation (good luck with the latter.)
+		register(RootRedirect.class);
 
-    BeanConfig config = new BeanConfig();
-    config.setConfigId("odk-tables-sync-hamster");
-    config.setTitle("OpenDataKit 2.0 Tables Sync + Hamster API");
-    config.setVersion("2");
-    config.setContact("Caden Howell <cadenh@benetech.org>");
-    config.setSchemes(new String[] {"http", "https"});
-    config.setResourcePackage("org.opendatakit.api");
-    config.setBasePath(this.apiPath);
-    config.setPrettyPrint(true);
-    config.setScan(true);
-    
-  }
+		// Generate Jersey WADL at /<Jersey's servlet path>/application.wadl
+		register(WadlResource.class);
 
+		// Forward when not found, lets us get to static content like swagger
+		property(ServletProperties.FILTER_STATIC_CONTENT_REGEX, "((/swagger/.*)|(.*\\.html))");
 
+	}
 
+	/**
+	 * Configure the Swagger documentation for this API.
+	 * 
+	 * Very useful setup instructions:
+	 * http://tech.asimio.net/2016/04/05/Microservices-using-Spring-Boot-Jersey-Swagger-and-Docker.html
+	 */
+	private void configureSwagger() {
+		// Creates file at localhost:port/swagger.json
+		this.register(ApiListingResource.class);
+		this.register(SwaggerSerializers.class);
+
+		BeanConfig config = new BeanConfig();
+		config.setConfigId("odk-tables-sync-hamster");
+		config.setTitle("OpenDataKit 2.0 Tables Sync + Hamster API");
+		config.setVersion("2");
+		config.setContact("Caden Howell <cadenh@benetech.org>");
+		config.setSchemes(new String[] { "http", "https" });
+		config.setResourcePackage("org.opendatakit.api");
+		config.setBasePath(this.apiPath);
+		config.setPrettyPrint(true);
+		config.setScan(true);
+		
+		Swagger swagger = new Swagger();
+		swagger.securityDefinition("basicAuth", new BasicAuthDefinition());
+		new SwaggerContextService().withServletConfig(servletConfig).updateSwagger(swagger);
+
+	}
+
+	@Override
+	public void setServletConfig(ServletConfig servletConfig) {
+		logger.info("Setting ServletConfig");
+		this.servletConfig = servletConfig;
+	}
 }

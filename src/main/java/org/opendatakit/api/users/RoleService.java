@@ -38,8 +38,10 @@ import org.springframework.security.core.GrantedAuthority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 
-@Api(value = "/roles", description = "ODK Role API")
+@Api(value = "/roles", description = "ODK Role API",
+authorizations = {@Authorization(value="basicAuth")})
 @Path("roles")
 public class RoleService {
 
