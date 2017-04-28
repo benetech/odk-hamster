@@ -84,10 +84,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     http.authorizeRequests().antMatchers("/").permitAll();
     http.authorizeRequests().antMatchers("/swagger.json").permitAll();
     http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
+    http.authorizeRequests().antMatchers("/index.html").permitAll();
 
 
-    http.authorizeRequests().antMatchers("/swagger/**").authenticated().and()
-    .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class);
+    http.authorizeRequests().antMatchers("/swagger/**").permitAll();
 
     // This is where we are currently enabling a fallback to Basic Authentication.
     // We may wish to remove this, as it is not very secure.  On the other hand, we're not requiring anyone to use it.

@@ -15,12 +15,11 @@ import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import org.opendatakit.test.db.SetupTeardown;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -28,23 +27,12 @@ import org.springframework.context.annotation.Profile;
 @Profile("integrationtest")
 public class TestWebServiceConfiguration {
   
-  @Autowired
-  TestDataConfiguration testDataConfiguration;
-
   @Bean
   public EmbeddedServletContainerFactory servletContainer() throws SQLException, PropertyVetoException {
-    // Reset the database before we set up the container
-    // This isn't where we should put this but @PostConstruct and @BeforeClass annotations,
-    // HIGHEST_PRECEDENCE ordered TestExecutionListeners have all failed to run this code
-    // before the Tomcat server is started, causing much sadness.
-
-    String username = testDataConfiguration.dbAdminProperties().getProperty("username");
-    String schemaName = testDataConfiguration.dbAdminProperties().getProperty("schemaName");
-    SetupTeardown.teardownDatabase(testDataConfiguration.dataSource(), username, schemaName);
-    SetupTeardown.setupEmptyDatabase(testDataConfiguration.dataSource(), username, schemaName);
+    Log logger = LogFactory.getLog(TestWebServiceConfiguration.class);
+    logger.info("Setting up servletContainer");
 
     TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-    factory.setPort(25001);
     factory.setSessionTimeout(10, TimeUnit.MINUTES);
     return factory;
   }

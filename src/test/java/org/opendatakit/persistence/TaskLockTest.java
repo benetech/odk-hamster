@@ -15,7 +15,6 @@ package org.opendatakit.persistence;
 
 import static org.junit.Assert.assertEquals;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -25,10 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.configuration.annotations.UnitTestConfig;
@@ -37,7 +32,6 @@ import org.opendatakit.persistence.engine.pgres.TaskLockImpl;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.User;
-import org.opendatakit.test.db.SetupTeardown;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -48,46 +42,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@UnitTestConfig 
-@Ignore
-// There is a race condition here not yet resolved.  The test starts before
-// the task lock table is recreated and causes a million errors.
+@UnitTestConfig
 public class TaskLockTest {
-  
-  private static Log logger = LogFactory.getLog(TaskLockTest.class);
 
   static AtomicBoolean inside = new AtomicBoolean(false);
-  
+
   @Autowired
   CallingContext callingContext;
-  
+
   @Autowired
   Properties dbAdminProperties;
-  
+
   @Autowired
   DataSource dataSource;
-  
-  /**
-   * Force the test schema to be set up.
-   * I'm not very happy with using this instead of \@DBUnitTestConfig.
-   * Setup with that annotation causes 'ERROR: relation "<schema>._task_lock" does not exist' errors.
-   * The \@DBUnitTestConfig annotation Database setup/teardown does not work well with the 
-   * multithreading in this test.
-   * 
-   * @throws SQLException
-   * @throws ODKDatastoreException 
-   */
-  @Before
-  public void forceDatabaseSetup() throws SQLException, ODKDatastoreException {
-    logger.info("Forcing database setup.");
-    String username = dbAdminProperties.getProperty("username");
-    String schemaName = dbAdminProperties.getProperty("schemaName");
-    SetupTeardown.setupEmptyDatabase(dataSource, username, schemaName);
-    // Force creation of _task_lock table.
-    TaskLockImpl.TaskLockTable.assertRelation(callingContext.getDatastore(), callingContext.getCurrentUser());
-  }
-  
-  @Ignore
+
   static class TaskLockThread extends Thread {
     CyclicBarrier launchBarrier;
     CallingContext callingContext;
@@ -129,8 +97,8 @@ public class TaskLockTest {
             boolean locked = false;
             while (!locked) {
               if ((++i) % 10 == 0) {
-                System.out.println("excessive wait count for startup serialization lock. Count: "
-                    + i);
+                System.out
+                    .println("excessive wait count for startup serialization lock. Count: " + i);
                 try {
                   Thread.sleep(PersistConsts.MIN_SETTLE_MILLISECONDS);
                 } catch (InterruptedException e) {
@@ -202,12 +170,16 @@ public class TaskLockTest {
       }
     }
   }
-  
+
 
 
   @Test
-  public void verifyLock() throws ODKDatastoreException {
-
+  public void verifyLock() throws ODKDatastoreException, InterruptedException {
+    
+    TaskLockImpl.TaskLockTable.assertRelation(callingContext.getDatastore(),
+        callingContext.getCurrentUser());
+    Thread.sleep(1000);
+    
     int MAX_THREADS = 8;
     CyclicBarrier launchBarrier = new CyclicBarrier(MAX_THREADS);
 
@@ -242,8 +214,8 @@ public class TaskLockTest {
       declinedEntryTally += t.declinedEntryCount;
     }
 
-    System.out.println("entryCount " + entryTally + " of " + TaskLockThread.ENTRY_ATTEMPTS
-        * MAX_THREADS);
+    System.out
+        .println("entryCount " + entryTally + " of " + TaskLockThread.ENTRY_ATTEMPTS * MAX_THREADS);
     System.out.println("declinedEntryCount " + declinedEntryTally);
 
     assertEquals(failure, false);

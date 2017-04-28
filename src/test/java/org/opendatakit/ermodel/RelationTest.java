@@ -25,27 +25,15 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendatakit.configuration.TestDataConfiguration;
-import org.opendatakit.configuration.UserServiceConfiguration;
 import org.opendatakit.configuration.annotations.DBUnitTestConfig;
 import org.opendatakit.context.CallingContext;
-import org.opendatakit.ermodel.Entity;
-import org.opendatakit.ermodel.Query;
-import org.opendatakit.ermodel.Relation;
-import org.opendatakit.ermodel.TableNamespace;
 import org.opendatakit.persistence.DataField;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.PersistConsts;
-import org.opendatakit.persistence.WrappedBigDecimal;
 import org.opendatakit.persistence.Query.FilterOperation;
+import org.opendatakit.persistence.WrappedBigDecimal;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
-import org.opendatakit.test.db.SetupTeardown;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**

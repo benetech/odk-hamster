@@ -109,6 +109,7 @@ public class RoleHierarchyImpl implements RoleHierarchy, InitializingBean {
 
   @Override
   public void afterPropertiesSet() throws Exception {
+    logger.info("RoleHierarchyImpl.afterPropertiesSet");
     if (datastore == null) {
       throw new IllegalStateException("datastore cannot be unspecified");
     }

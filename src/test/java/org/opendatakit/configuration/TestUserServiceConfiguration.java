@@ -12,6 +12,8 @@ package org.opendatakit.configuration;
 
 import java.beans.PropertyVetoException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.context.CallingContextImpl;
 import org.opendatakit.context.TestCallingContextImpl;
@@ -50,10 +52,6 @@ public class TestUserServiceConfiguration {
   @Value("${security.server.superUserUsername:admin}")
   private String superUserUsername;
 
-  @Value("")
-  private String webApplicationBase;
-
-
   @Bean
   public Realm realm() {
     Realm realm = new Realm();
@@ -61,7 +59,6 @@ public class TestUserServiceConfiguration {
     realm.setHostname(hostname);
     return realm;
   }
-
   
   @Bean
   public UserService userService() throws ODKDatastoreException, PropertyVetoException {
@@ -73,10 +70,11 @@ public class TestUserServiceConfiguration {
   }
 
 
-
   @Bean
   public RoleHierarchy hierarchicalRoleRelationships()
       throws ODKDatastoreException, PropertyVetoException {
+    Log logger = LogFactory.getLog(TestUserServiceConfiguration.class);
+    logger.info("Setting up hierarchicalRoleRelationships");
     RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
     roleHierarchyImpl.setDatastore(testDataConfiguration.datastore());
     roleHierarchyImpl.setUserService(userService());

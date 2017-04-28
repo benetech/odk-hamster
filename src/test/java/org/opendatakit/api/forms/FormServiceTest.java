@@ -39,7 +39,6 @@ public class FormServiceTest {
 	@Test
 	// http://stackoverflow.com/questions/4118670/sending-multipart-file-as-post-parameters-with-resttemplate-requests
 	public void uploadFormDefinition() throws IOException {
-
 		FormHttpMessageConverter formConverter = new FormHttpMessageConverter();
 		formConverter.setCharset(Charset.forName("UTF8"));
 
@@ -65,9 +64,7 @@ public class FormServiceTest {
 			logger.info(e.getRawStatusCode());
 			logger.info(e.getResponseBodyAsString());
 		}
-
-		// assertThat(entity.getBody()).isEqualTo("[\"default\"]");
-		// assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
+	
 
 }

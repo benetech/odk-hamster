@@ -17,9 +17,8 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.opendatakit.persistence.Datastore;
-import org.opendatakit.persistence.engine.pgres.DatastoreImpl;
+import org.opendatakit.persistence.EphemeralTestDatastoreImpl;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -45,9 +44,6 @@ public class TestDataConfiguration {
   
   @Value("${spring.datasource.password}")
   String password;
-
-  @Value("${jdbc.schema}")
-  String schemaName;
 
   @Value("10")
   int maxIdle;
@@ -78,6 +74,8 @@ public class TestDataConfiguration {
 
   @Value("select 1")
   String validationQuery;
+  
+
 
   /**
    * This is only for functions at the "meta" level that tests have to do i.e. Drop/create database,
@@ -88,7 +86,6 @@ public class TestDataConfiguration {
   public Properties dbAdminProperties() {
     Properties properties = new Properties();
     properties.setProperty("username", username);
-    properties.setProperty("schemaName", schemaName);
     return properties;
   }
 
@@ -113,9 +110,9 @@ public class TestDataConfiguration {
 
   @Bean(name = "datastore")
   public Datastore datastore() throws ODKDatastoreException, PropertyVetoException {
-    DatastoreImpl datastoreImpl = new DatastoreImpl();
+    EphemeralTestDatastoreImpl datastoreImpl = new EphemeralTestDatastoreImpl();
     datastoreImpl.setDataSource(dataSource());
-    datastoreImpl.setSchemaName(schemaName);
+    datastoreImpl.setUsername(username);
     return datastoreImpl;
   }
 

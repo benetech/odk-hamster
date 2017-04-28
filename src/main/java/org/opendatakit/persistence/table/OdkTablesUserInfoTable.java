@@ -115,7 +115,7 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
    * @param ref
    * @param user
    */
-  private OdkTablesUserInfoTable(OdkTablesUserInfoTable ref, User user) {
+  protected OdkTablesUserInfoTable(OdkTablesUserInfoTable ref, User user) {
     super(ref, user);
   }
 
@@ -153,6 +153,10 @@ public class OdkTablesUserInfoTable extends CommonFieldsBase implements OdkTable
    */
   private static OdkTablesUserInfoTable relation = null;
 
+  public static void resetSingletonReference() {
+    relation = null;
+  }
+  
   /**
    * This must be called to ensure that the datamodel for the table has been initiated.
    *

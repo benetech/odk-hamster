@@ -93,7 +93,7 @@ public class ServerPreferencesPropertiesTable extends CommonFieldsBase {
    * @param ref
    * @param user
    */
-  private ServerPreferencesPropertiesTable(ServerPreferencesPropertiesTable ref, User user) {
+  protected ServerPreferencesPropertiesTable(ServerPreferencesPropertiesTable ref, User user) {
     super(ref, user);
   }
 
@@ -238,6 +238,10 @@ public class ServerPreferencesPropertiesTable extends CommonFieldsBase {
   }
 
   private static ServerPreferencesPropertiesTable relation = null;
+  
+  public static void resetSingletonReference() {
+    relation = null;
+  }
 
   public static synchronized final ServerPreferencesPropertiesTable assertRelation(CallingContext cc)
       throws ODKDatastoreException {

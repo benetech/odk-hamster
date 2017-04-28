@@ -394,6 +394,10 @@ public class TaskLockImpl implements TaskLock {
     }
 
     static TaskLockTable relation = null;
+    
+    public static void resetSingletonReference() {
+      relation = null;
+    }
 
     public static synchronized final TaskLockTable assertRelation(Datastore datastore, User user)
         throws ODKDatastoreException {
