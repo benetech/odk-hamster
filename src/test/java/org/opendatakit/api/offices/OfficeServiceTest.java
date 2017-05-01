@@ -110,13 +110,13 @@ public class OfficeServiceTest {
     assertThat(postResponse.getStatusCode(), is(HttpStatus.CREATED));
 
     // Retrieve the new office record
-    String getOfficeUrl = ConstantsUtils.url(server) + "/offices/" + office.getOfficeID();
+    String getOfficeUrl = ConstantsUtils.url(server) + "/offices/" + office.getOfficeId();
 
     ResponseEntity<RegionalOffice> getResponse =
         restTemplate.getForEntity(getOfficeUrl, RegionalOffice.class);
     assertThat(getResponse.getStatusCode(), is(HttpStatus.OK));
     assertThat(getResponse.getBody().getName(), equalTo(office.getName()));
-    assertThat(getResponse.getBody().getOfficeID(), equalTo(office.getOfficeID()));
+    assertThat(getResponse.getBody().getOfficeId(), equalTo(office.getOfficeId()));
     assertThat(getResponse.getBody().getUri(), notNullValue());
   }
 

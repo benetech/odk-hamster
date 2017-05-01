@@ -21,6 +21,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.wadl.internal.WadlResource;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.opendatakit.api.RootRedirect;
+import org.opendatakit.api.admin.UserAdminService;
 import org.opendatakit.api.filter.GzipReaderInterceptor;
 import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
 import org.opendatakit.api.forms.FormService;
@@ -113,6 +114,9 @@ public class JerseyConfiguration extends ResourceConfig implements ServletConfig
 
 		// Form management
 		register(FormService.class);
+		
+		// (New API) User Management
+		register(UserAdminService.class);
 		
 		// Regional offices
 	    register(OfficeService.class);

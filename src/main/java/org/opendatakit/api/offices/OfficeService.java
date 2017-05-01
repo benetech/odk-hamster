@@ -129,24 +129,18 @@ public class OfficeService {
 		try {
 			prototype = OdkRegionalOfficeTable.assertRelation(callingContext);
 
-			OdkRegionalOfficeTable record = null;
-
-			OdkRegionalOfficeTable check = OdkRegionalOfficeTable.getRecordFromDatabase(office.getOfficeID(),
+			OdkRegionalOfficeTable record = OdkRegionalOfficeTable.getRecordFromDatabase(office.getOfficeId(),
 					callingContext);
-
-			if (OdkRegionalOfficeTable.getRecordFromDatabase(office.getOfficeID(), callingContext) != null) {
-				throw new WebApplicationException("Office ID already exists.", HttpServletResponse.SC_BAD_REQUEST);
-			}
 
 			try {
 				// when office is already exists in database it is just edited
 				record = ds.getEntity(prototype, office.getUri(), user);
-				record.setRegionalOfficeId(office.getOfficeID());
+				record.setRegionalOfficeId(office.getOfficeId());
 				record.setRegionalOfficeName(office.getName());
 			} catch (ODKEntityNotFoundException e) {
 				// when office is not exists we create a new record in database
 				record = ds.createEntityUsingRelation(prototype, user);
-				record.setRegionalOfficeId(office.getOfficeID());
+				record.setRegionalOfficeId(office.getOfficeId());
 				record.setRegionalOfficeName(office.getName());
 			}
 
@@ -159,7 +153,7 @@ public class OfficeService {
 					.build();
 
 		} catch (ODKDatastoreException e) {
-			logger.error("error uploading zip", e);
+			logger.error("Error adding or updating office", e);
 			throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
 					HttpServletResponse.SC_BAD_REQUEST);
 

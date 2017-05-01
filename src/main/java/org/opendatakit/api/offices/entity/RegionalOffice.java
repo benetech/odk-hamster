@@ -23,7 +23,7 @@ public class RegionalOffice {
   private String name;
 
   @JsonProperty(required = false)
-  private String officeID;
+  private String officeId;
 
   @JsonProperty(required = false)
   private String uri;
@@ -33,13 +33,13 @@ public class RegionalOffice {
 
   public RegionalOffice(String name, String officeID) {
     this.name = name;
-    this.officeID = officeID;
+    this.officeId = officeID;
   }
 
   public RegionalOffice(String URI, String name, String officeID) {
     this.uri = URI;
     this.name = name;
-    this.officeID = officeID;
+    this.officeId = officeID;
   }
 
   public String getName() {
@@ -50,12 +50,12 @@ public class RegionalOffice {
     this.name = name;
   }
 
-  public String getOfficeID() {
-    return officeID;
+  public String getOfficeId() {
+    return officeId;
   }
 
-  public void setOfficeID(String officeID) {
-    this.officeID = officeID;
+  public void setOfficeId(String officeID) {
+    this.officeId = officeID;
   }
 
   public String getUri() {
@@ -72,7 +72,7 @@ public class RegionalOffice {
     int result = 1;
     result = prime * result + ((uri == null) ? 0 : uri.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((officeID == null) ? 0 : officeID.hashCode());
+    result = prime * result + ((officeId == null) ? 0 : officeId.hashCode());
     return result;
   }
 
@@ -95,10 +95,10 @@ public class RegionalOffice {
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (officeID == null) {
-      if (other.officeID != null)
+    if (officeId == null) {
+      if (other.officeId != null)
         return false;
-    } else if (!officeID.equals(other.officeID))
+    } else if (!officeId.equals(other.officeId))
       return false;
     return true;
   }
