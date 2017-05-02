@@ -91,7 +91,7 @@ public class FormService {
 
   @POST
   @ApiOperation(
-      value = "This API operation is currently being written. Upload a zipped form definition.",
+      value = "Upload a zipped form definition.",
       response = FormUploadResult.class)
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,

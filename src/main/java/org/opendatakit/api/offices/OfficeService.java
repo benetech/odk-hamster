@@ -62,7 +62,7 @@ public class OfficeService {
 	private static final Log logger = LogFactory.getLog(OfficeService.class);
 
 	@GET
-	@Path("")
+	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8 })
 	public Response getList() throws IOException {
 		Datastore ds = callingContext.getDatastore();
@@ -119,7 +119,7 @@ public class OfficeService {
 	 * @throws DatastoreFailureException
 	 */
 	@POST
-	@Path("")
+	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8 })
 	@Consumes({ MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8, ApiConstants.MEDIA_APPLICATION_XML_UTF8 })
 	public Response putOffice(RegionalOffice office) throws AccessDeniedException, DatastoreFailureException {

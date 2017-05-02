@@ -1,3 +1,14 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package org.opendatakit.api.admin;
 
 import java.io.IOException;
@@ -23,6 +34,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.api.users.entity.UserEntity;
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.constants.ErrorConsts;
 import org.opendatakit.constants.SecurityConsts;
@@ -52,7 +64,7 @@ import io.swagger.annotations.Authorization;
 
 @Api(value = "/admin/users", description = "ODK User Admin API",
     authorizations = {@Authorization(value = "basicAuth")})
-@Path("admin/users")
+@Path("/admin/users")
 public class UserAdminService {
   @Autowired
   private CallingContext callingContext;
@@ -62,7 +74,7 @@ public class UserAdminService {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   @GET
-  @Path("")
+  @Path("/")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response getList() throws IOException {
@@ -70,11 +82,11 @@ public class UserAdminService {
   }
 
   @GET
-  @Path("username:{username}")
+  @Path("/username:{username}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response getUser(@PathParam("username") String username) {
-    Map<String, Object> userInfoMap;
+    UserEntity resultUserEntity = null;
     try {
 
       RegisteredUsersTable user = RegisteredUsersTable.getUserByUsername(username,
@@ -91,7 +103,7 @@ public class UserAdminService {
               UserSecurityInfo.UserType.REGISTERED, user.getOfficeId());
 
       SecurityServiceUtil.setAuthenticationLists(userSecurityInfo, user.getUri(), callingContext);
-      userInfoMap = mapFromInfo(userSecurityInfo);
+      resultUserEntity = new UserEntity(userSecurityInfo);
 
     } catch (ODKDatastoreException e) {
       logger.error("Error retrieving ", e);
@@ -99,35 +111,22 @@ public class UserAdminService {
           HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
-    return Response.ok().entity(userInfoMap).encoding(BasicConsts.UTF8_ENCODE)
+    return Response.ok().entity(resultUserEntity).encoding(BasicConsts.UTF8_ENCODE)
         .type(MediaType.APPLICATION_JSON)
         .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
         .header("Access-Control-Allow-Origin", "*")
         .header("Access-Control-Allow-Credentials", "true").build();
   }
 
-  private static Map<String, Object> mapFromInfo(UserSecurityInfo userSecurityInfo) {
-    Map<String, Object> userInfoMap = new HashMap<String, Object>();
-    userInfoMap.put(SecurityConsts.OFFICE_ID, userSecurityInfo.getOfficeId());
 
-    userInfoMap.put(SecurityConsts.USER_ID, "username:" + userSecurityInfo.getUsername());
-    if (userSecurityInfo.getFullName() == null) {
-      userInfoMap.put(SecurityConsts.FULL_NAME, userSecurityInfo.getUsername());
-    } else {
-      userInfoMap.put(SecurityConsts.FULL_NAME, userSecurityInfo.getFullName());
-    }
-
-    UserRoleUtils.processRoles(userSecurityInfo.getGrantedAuthorities(), userInfoMap);
-    return userInfoMap;
-  }
-  
   /**
    * Update user password
    *
    * @throws DatastoreFailureException
    *
    */
-  @ApiOperation(value = "Set a password in cleartext.  Probably a good idea to disable this endpoint in production.")
+  @ApiOperation(
+      value = "Set a password in cleartext.  Probably a good idea to disable this endpoint in production.")
   @POST
   @Path("username:{username}/password")
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -135,14 +134,14 @@ public class UserAdminService {
   public Response setUserPassword(@PathParam("username") String username, String password)
       throws AccessDeniedException, DatastoreFailureException {
 
-      SecurityUtils.updateCleartextPassword(callingContext, username, password);
+    SecurityUtils.updateCleartextPassword(callingContext, username, password);
 
-      return Response.status(Status.OK)
-          .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
-          .header("Access-Control-Allow-Origin", "*")
-          .header("Access-Control-Allow-Credentials", "true").build();
+    return Response.status(Status.OK)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
   }
-  
+
   /**
    * Update user password in digest format
    *
@@ -157,35 +156,34 @@ public class UserAdminService {
   public Response setUserDigestPassword(@PathParam("username") String username, String password)
       throws AccessDeniedException, DatastoreFailureException {
 
-      SecurityUtils.updateDigestPassword(callingContext, username, password);
+    SecurityUtils.updateDigestPassword(callingContext, username, password);
 
-      return Response.status(Status.OK)
-          .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
-          .header("Access-Control-Allow-Origin", "*")
-          .header("Access-Control-Allow-Credentials", "true").build();
+    return Response.status(Status.OK)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
   }
-  
-  
+
+
   /**
    * Add or update user to database.
    *
    * @throws DatastoreFailureException
    */
   @POST
-  @Path("")
+  @Path("/")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
-  public Response putUser(Map<String, Object> userInfoMap)
+  public Response putUser(UserEntity userEntity)
       throws AccessDeniedException, DatastoreFailureException {
-    //Datastore datastore = callingContext.getDatastore();
-    //User user = callingContext.getCurrentUser();
+
     try {
 
-      String fullName = (String) userInfoMap.get(SecurityConsts.FULL_NAME);
-      String officeId = (String) userInfoMap.get(SecurityConsts.OFFICE_ID);
-      String userId = (String) userInfoMap.get(SecurityConsts.USER_ID);
+      String fullName = userEntity.getFullName();
+      String officeId = userEntity.getOfficeId();
+      String userId = userEntity.getUserId();
 
       String username = null;
       String email = null;
@@ -197,7 +195,7 @@ public class UserAdminService {
       }
 
       @SuppressWarnings("unchecked")
-      List<String> roles = (List<String>) userInfoMap.get(SecurityConsts.ROLES);
+      List<String> roles = userEntity.getRoles();
       UserSecurityInfo userSecurityInfo = new UserSecurityInfo(username, fullName, email,
           UserSecurityInfo.UserType.REGISTERED, officeId);
 
@@ -205,16 +203,17 @@ public class UserAdminService {
           RegisteredUsersTable.assertActiveUserByUserSecurityInfo(userSecurityInfo, callingContext);
 
       UserGrantedAuthority.assertUserGrantedAuthorities(user.getUri(), roles, callingContext);
-      
+
       UserSecurityInfo resultUserSecurityInfo =
           new UserSecurityInfo(user.getUsername(), user.getFullName(), user.getEmail(),
               UserSecurityInfo.UserType.REGISTERED, user.getOfficeId());
-      
-      
-      Map<String, Object> resultUserInfoMap = mapFromInfo(resultUserSecurityInfo);
-      String eTag = Integer.toHexString(userInfoMap.hashCode());
 
-      return Response.status(Status.CREATED).entity(resultUserInfoMap).header(HttpHeaders.ETAG, eTag)
+      SecurityServiceUtil.setAuthenticationLists(resultUserSecurityInfo, user.getUri(), callingContext);
+      UserEntity resultUserEntity = new UserEntity(resultUserSecurityInfo);
+
+      String eTag = Integer.toHexString(resultUserEntity.hashCode());
+
+      return Response.status(Status.CREATED).entity(resultUserEntity).header(HttpHeaders.ETAG, eTag)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
           .header("Access-Control-Allow-Credentials", "true").build();
@@ -229,16 +228,18 @@ public class UserAdminService {
   }
 
   @DELETE
-  @Path("{uriUser}")
-  public Response deleteOffice(@PathParam("officeId") String officeId)
+  @Path("username:{username}")
+  public Response deleteUser(@PathParam("username") String username)
       throws IOException, DatastoreFailureException {
     Datastore ds = callingContext.getDatastore();
     User user = callingContext.getCurrentUser();
     try {
-      OdkRegionalOfficeTable recordToDelete =
-          OdkRegionalOfficeTable.getRecordFromDatabase(officeId, callingContext);
-      if (recordToDelete != null) {
-        ds.deleteEntity(recordToDelete.getEntityKey(), user);
+      RegisteredUsersTable deleteUser = RegisteredUsersTable.getUserByUsername(username,
+          callingContext.getUserService(), callingContext.getDatastore());
+      if (deleteUser != null) {
+        UserGrantedAuthority.deleteGrantedAuthoritiesForUser(deleteUser.getUri(),
+            callingContext.getUserService(), callingContext.getDatastore(), user);
+        ds.deleteEntity(deleteUser.getEntityKey(), user);
       }
     } catch (ODKDatastoreException e) {
       e.printStackTrace();
@@ -252,35 +253,14 @@ public class UserAdminService {
 
   public static Response internalGetList(CallingContext callingContext)
       throws JsonProcessingException {
-    ArrayList<HashMap<String, Object>> listOfUsers = new ArrayList<HashMap<String, Object>>();
+    ArrayList<UserEntity> listOfUsers = new ArrayList<UserEntity>();
 
-    HashMap<String, Object> userInfoMap;
+    UserEntity userEntity;
     try {
       ArrayList<UserSecurityInfo> allUsers = SecurityServiceUtil.getAllUsers(true, callingContext);
       for (UserSecurityInfo i : allUsers) {
-        userInfoMap = new HashMap<String, Object>();
-        if (i.getType() == UserType.ANONYMOUS) {
-          userInfoMap.put(SecurityConsts.USER_ID, "anonymous");
-          userInfoMap.put(SecurityConsts.FULL_NAME, User.ANONYMOUS_USER_NICKNAME);
-        } else if (i.getEmail() == null) {
-          userInfoMap.put(SecurityConsts.USER_ID, "username:" + i.getUsername());
-          if (i.getFullName() == null) {
-            userInfoMap.put(SecurityConsts.FULL_NAME, i.getUsername());
-          } else {
-            userInfoMap.put(SecurityConsts.FULL_NAME, i.getFullName());
-          }
-        } else {
-          // already has the mailto: prefix
-          userInfoMap.put(SecurityConsts.USER_ID, i.getEmail());
-          if (i.getFullName() == null) {
-            userInfoMap.put(SecurityConsts.FULL_NAME,
-                i.getEmail().substring(EmailParser.K_MAILTO.length()));
-          } else {
-            userInfoMap.put(SecurityConsts.FULL_NAME, i.getFullName());
-          }
-        }
-        UserRoleUtils.processRoles(i.getGrantedAuthorities(), userInfoMap);
-        listOfUsers.add(userInfoMap);
+        userEntity = new UserEntity(i);
+        listOfUsers.add(userEntity);
       }
     } catch (DatastoreFailureException e) {
       logger.error("Retrieving users persistence error: " + e.toString(), e);

@@ -34,6 +34,9 @@ import org.springframework.web.client.RestTemplate;
 @WebServiceUnitTestConfig
 public class OfficeServiceTest {
 
+  @Autowired
+  private EmbeddedWebApplicationContext server;
+  
   private static Log logger = LogFactory.getLog(OfficeServiceTest.class);
   final PathMatchingResourcePatternResolver pmrpr = new PathMatchingResourcePatternResolver();
   private static List<RegionalOffice> testOfficeList;
@@ -58,11 +61,8 @@ public class OfficeServiceTest {
     testOfficeList.add(testOffice3);
   }
 
-  @Autowired
-  private EmbeddedWebApplicationContext server;
-
   @Test
-  public void putGetTest() throws IOException {
+  public void putGetDeleteTest() throws IOException {
     RegionalOffice testOffice = new RegionalOffice("Caaguazú, Caaguazú", "caaguazú");
 
     String getOfficeUrl = ConstantsUtils.url(server) + "/offices/caaguazú";
