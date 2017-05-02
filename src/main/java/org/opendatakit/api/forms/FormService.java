@@ -83,12 +83,6 @@ public class FormService {
 
   private static final Log logger = LogFactory.getLog(FormService.class);
 
-  @GET
-  public Response doGet(@Context HttpServletRequest req, @Context HttpServletResponse resp)
-      throws IOException {
-    return Response.ok("Hello forms.").build();
-  }
-
   @POST
   @ApiOperation(
       value = "Upload a zipped form definition.",

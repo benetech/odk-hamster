@@ -73,6 +73,7 @@ public class UserAdminService {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
+  @ApiOperation(value = "Get a list of all users with role information.")
   @GET
   @Path("/")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -81,6 +82,7 @@ public class UserAdminService {
     return internalGetList(callingContext);
   }
 
+  @ApiOperation(value = "Get information and roles for a single user by username.")
   @GET
   @Path("/username:{username}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -119,12 +121,7 @@ public class UserAdminService {
   }
 
 
-  /**
-   * Update user password
-   *
-   * @throws DatastoreFailureException
-   *
-   */
+
   @ApiOperation(
       value = "Set a password in cleartext.  Probably a good idea to disable this endpoint in production.")
   @POST
@@ -142,12 +139,7 @@ public class UserAdminService {
         .header("Access-Control-Allow-Credentials", "true").build();
   }
 
-  /**
-   * Update user password in digest format
-   *
-   * @throws DatastoreFailureException
-   *
-   */
+
   @ApiOperation(value = "Set a password using digest hash.")
   @POST
   @Path("username:{username}/password/digest")
@@ -165,11 +157,7 @@ public class UserAdminService {
   }
 
 
-  /**
-   * Add or update user to database.
-   *
-   * @throws DatastoreFailureException
-   */
+  @ApiOperation(value = "Add or update user to database.  Uses user_id field as unique key which determines if user is created or updated.")
   @POST
   @Path("/")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -227,6 +215,7 @@ public class UserAdminService {
 
   }
 
+  @ApiOperation(value = "Delete user by username.")
   @DELETE
   @Path("username:{username}")
   public Response deleteUser(@PathParam("username") String username)

@@ -28,7 +28,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * For type safety passing user "on the wire" with Rest endpoints.
+ * For type safety passing user "on the wire" with REST endpoints.
  * 
  * @author Caden Howell <cadenh@benetech.org>
  *
