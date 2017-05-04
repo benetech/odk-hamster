@@ -39,7 +39,6 @@ import org.opendatakit.security.client.CredentialsInfoBuilder;
 import org.opendatakit.security.client.RealmSecurityInfo;
 import org.opendatakit.security.client.UserSecurityInfo;
 import org.opendatakit.utils.WebUtils;
-import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 
 /**
  * Table of registered users of the system. Currently, only the password fields, the SALT and the

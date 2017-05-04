@@ -41,7 +41,6 @@ import org.opendatakit.security.client.UserSecurityInfo.UserType;
 import org.opendatakit.security.client.exception.AccessDeniedException;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

@@ -43,7 +43,6 @@ import org.opendatakit.odktables.exception.PermissionDeniedException;
 import org.opendatakit.odktables.exception.SchemaETagMismatchException;
 import org.opendatakit.odktables.exception.TableNotFoundException;
 import org.opendatakit.odktables.security.TablesUserPermissions;
-import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
@@ -105,7 +104,6 @@ public class RealizedTableService  {
 
     tm.deleteTable(tableId);
     logger.info("tableId: " + tableId);
-    Datastore ds = cc.getDatastore();
 
     return Response.ok()
         .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)

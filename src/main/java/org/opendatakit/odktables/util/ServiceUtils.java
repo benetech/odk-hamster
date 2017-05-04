@@ -27,7 +27,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
-import org.opendatakit.api.forms.FormService;
 
 /**
  * Class to extract and format the request information coming in from ODK Tables

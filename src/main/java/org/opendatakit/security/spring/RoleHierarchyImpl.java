@@ -44,7 +44,6 @@ import org.opendatakit.utils.WebStartup;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.hierarchicalroles.CycleInRoleHierarchyException;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

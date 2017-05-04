@@ -20,9 +20,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Transparently decompress incoming GZIP.
  * 

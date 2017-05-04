@@ -15,10 +15,8 @@ import java.beans.PropertyVetoException;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.context.CallingContextImpl;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
-import org.opendatakit.persistence.table.ServerPreferencesPropertiesTable;
 import org.opendatakit.security.Realm;
 import org.opendatakit.security.UserService;
-import org.opendatakit.security.spring.BasicUsingDigestPasswordEncoder;
 import org.opendatakit.security.spring.RoleHierarchyImpl;
 import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +26,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 @Configuration
 @Profile("default")

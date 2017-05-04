@@ -19,10 +19,6 @@ package org.opendatakit.security.client;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-
-import org.opendatakit.security.client.CredentialsInfo;
-import org.opendatakit.security.client.RealmSecurityInfo;
 
 /**
  * Handles creating the CredentialsInfo object (encrypted passwords) for a user.  These are then

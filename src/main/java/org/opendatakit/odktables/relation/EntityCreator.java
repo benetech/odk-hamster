@@ -39,7 +39,6 @@ import org.opendatakit.odktables.relation.DbTableEntry.DbTableEntryEntity;
 import org.opendatakit.odktables.relation.DbTableFileInfo.DbTableFileInfoEntity;
 import org.opendatakit.odktables.security.TablesUserPermissions;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
-import org.opendatakit.persistence.table.RegisteredUsersTable;
 
 /**
  * Creates and updates new Entity objects for relations.

@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.opendatakit.configuration.annotations.DBUnitTestConfig;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.DataField;
-import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.PersistConsts;
 import org.opendatakit.persistence.Query.FilterOperation;
 import org.opendatakit.persistence.WrappedBigDecimal;
@@ -269,8 +268,6 @@ public class RelationTest {
 
   @Test
   public void testCase8() throws ODKDatastoreException {
-
-    Datastore ds = callingContext.getDatastore();
 
     MyRelation rel = new MyRelation(callingContext);
     rel = new MyRelation(callingContext);

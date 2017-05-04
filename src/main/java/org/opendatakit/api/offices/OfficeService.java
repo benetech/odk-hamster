@@ -47,8 +47,6 @@ import org.opendatakit.security.User;
 import org.opendatakit.security.client.exception.AccessDeniedException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;

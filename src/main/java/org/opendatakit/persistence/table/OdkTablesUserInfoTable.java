@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.constants.SecurityConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.odktables.FileManifestManager;

@@ -24,7 +24,6 @@ import java.io.Serializable;
  * @author mitchellsundt@gmail.com
  * 
  */
-@Deprecated
 public class DatastoreFailureException extends Exception implements Serializable {
 	private static final String DATASTORE_FAILURE_EXCEPTION = "Problem persisting data or accessing data";
 

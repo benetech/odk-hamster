@@ -18,7 +18,6 @@ package org.opendatakit.security;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Component;
 
 /**
  * A bean class used to capture configuration values about this server

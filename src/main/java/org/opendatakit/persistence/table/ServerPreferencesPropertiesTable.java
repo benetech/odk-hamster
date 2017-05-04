@@ -26,9 +26,6 @@ import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.DataField;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.Query;
-import org.opendatakit.persistence.DataField.DataType;
-import org.opendatakit.persistence.Query.Direction;
-import org.opendatakit.persistence.Query.FilterOperation;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
@@ -45,19 +42,6 @@ public class ServerPreferencesPropertiesTable extends CommonFieldsBase {
   private static final DataField VALUE = new DataField("VALUE", DataField.DataType.STRING, true,
       20480L);
 
-  // these values are set in the ServiceAccountPrivateKeyUploadServlet
-  // and used everywhere else when requesting access
-  private static final String GOOGLE_API_CLIENT_ID = "GOOGLE_CLIENT_ID";
-
-
-  private static final String GOOGLE_SIMPLE_API_KEY = "GOOG_SIMPLE_API_KEY"; // supplied
-                                                                             // to
-                                                                             // Google
-                                                                             // Maps
-                                                                             // only
-
-  private static final String ENKETO_API_URL = "ENKETO_API_URL";
-  private static final String ENKETO_API_TOKEN = "ENKETO_API_TOKEN";
 
   // other keys...
   private static final String SITE_KEY = "SITE_KEY";

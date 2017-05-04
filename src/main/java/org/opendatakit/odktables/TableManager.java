@@ -16,6 +16,9 @@
 
 package org.opendatakit.odktables;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.Validate;
 import org.opendatakit.aggregate.odktables.rest.entity.Column;
 import org.opendatakit.aggregate.odktables.rest.entity.Scope;
@@ -32,39 +35,35 @@ import org.opendatakit.ermodel.Query.WebsafeQueryResult;
 import org.opendatakit.odktables.exception.PermissionDeniedException;
 import org.opendatakit.odktables.exception.TableAlreadyExistsException;
 import org.opendatakit.odktables.relation.DbColumnDefinitions;
+import org.opendatakit.odktables.relation.DbColumnDefinitions.DbColumnDefinitionsEntity;
 import org.opendatakit.odktables.relation.DbLogTable;
 import org.opendatakit.odktables.relation.DbManifestETags;
+import org.opendatakit.odktables.relation.DbManifestETags.DbManifestETagEntity;
 import org.opendatakit.odktables.relation.DbTable;
 import org.opendatakit.odktables.relation.DbTableAcl;
+import org.opendatakit.odktables.relation.DbTableAcl.DbTableAclEntity;
 import org.opendatakit.odktables.relation.DbTableDefinitions;
+import org.opendatakit.odktables.relation.DbTableDefinitions.DbTableDefinitionsEntity;
 import org.opendatakit.odktables.relation.DbTableEntry;
+import org.opendatakit.odktables.relation.DbTableEntry.DbTableEntryEntity;
 import org.opendatakit.odktables.relation.DbTableFileInfo;
+import org.opendatakit.odktables.relation.DbTableFileInfo.DbTableFileInfoEntity;
 import org.opendatakit.odktables.relation.DbTableFiles;
 import org.opendatakit.odktables.relation.DbTableInstanceFiles;
 import org.opendatakit.odktables.relation.DbTableInstanceManifestETags;
 import org.opendatakit.odktables.relation.EntityConverter;
 import org.opendatakit.odktables.relation.EntityCreator;
 import org.opendatakit.odktables.relation.RUtil;
-import org.opendatakit.odktables.relation.DbColumnDefinitions.DbColumnDefinitionsEntity;
-import org.opendatakit.odktables.relation.DbManifestETags.DbManifestETagEntity;
-import org.opendatakit.odktables.relation.DbTableAcl.DbTableAclEntity;
-import org.opendatakit.odktables.relation.DbTableDefinitions.DbTableDefinitionsEntity;
-import org.opendatakit.odktables.relation.DbTableEntry.DbTableEntryEntity;
-import org.opendatakit.odktables.relation.DbTableFileInfo.DbTableFileInfoEntity;
 import org.opendatakit.odktables.security.TablesUserPermissions;
 import org.opendatakit.persistence.CommonFieldsBase;
 import org.opendatakit.persistence.PersistenceUtils;
-import org.opendatakit.persistence.QueryResumePoint;
 import org.opendatakit.persistence.Query.Direction;
+import org.opendatakit.persistence.QueryResumePoint;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
-import org.opendatakit.persistence.table.RegisteredUsersTable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Manages creating, deleting, and getting tables.

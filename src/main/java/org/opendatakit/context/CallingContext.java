@@ -19,7 +19,6 @@ import org.opendatakit.persistence.Datastore;
 import org.opendatakit.security.User;
 import org.opendatakit.security.UserService;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 
 /**
  * Context in which the call occurs.  

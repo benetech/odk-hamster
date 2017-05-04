@@ -25,26 +25,13 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendatakit.configuration.TestDataConfiguration;
-import org.opendatakit.configuration.UserServiceConfiguration;
 import org.opendatakit.configuration.annotations.DBUnitTestConfig;
 import org.opendatakit.context.CallingContext;
-import org.opendatakit.persistence.CommonFieldsBase;
-import org.opendatakit.persistence.DataField;
-import org.opendatakit.persistence.Datastore;
-import org.opendatakit.persistence.PersistConsts;
-import org.opendatakit.persistence.Query;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.security.User;
-import org.opendatakit.security.spring.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**

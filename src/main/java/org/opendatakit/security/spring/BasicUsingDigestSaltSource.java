@@ -13,8 +13,6 @@
  */
 package org.opendatakit.security.spring;
 
-import org.opendatakit.context.CallingContext;
-import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.security.client.UserSecurityInfo;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.core.userdetails.UserDetails;

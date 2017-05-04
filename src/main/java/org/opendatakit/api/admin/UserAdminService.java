@@ -13,9 +13,7 @@ package org.opendatakit.api.admin;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -42,12 +40,10 @@ import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.client.exception.DatastoreFailureException;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
-import org.opendatakit.persistence.table.OdkRegionalOfficeTable;
 import org.opendatakit.persistence.table.RegisteredUsersTable;
 import org.opendatakit.persistence.table.UserGrantedAuthority;
 import org.opendatakit.security.User;
 import org.opendatakit.security.client.UserSecurityInfo;
-import org.opendatakit.security.client.UserSecurityInfo.UserType;
 import org.opendatakit.security.client.exception.AccessDeniedException;
 import org.opendatakit.security.common.EmailParser;
 import org.opendatakit.security.server.SecurityServiceUtil;
@@ -105,7 +101,7 @@ public class UserAdminService {
               UserSecurityInfo.UserType.REGISTERED, user.getOfficeId());
 
       SecurityServiceUtil.setAuthenticationLists(userSecurityInfo, user.getUri(), callingContext);
-      resultUserEntity = new UserEntity(userSecurityInfo);
+      resultUserEntity = UserRoleUtils.getEntityFromUserSecurityInfo(userSecurityInfo);
 
     } catch (ODKDatastoreException e) {
       logger.error("Error retrieving ", e);
@@ -182,7 +178,6 @@ public class UserAdminService {
         username = userId.substring(SecurityConsts.USERNAME_COLON.length());
       }
 
-      @SuppressWarnings("unchecked")
       List<String> roles = userEntity.getRoles();
       UserSecurityInfo userSecurityInfo = new UserSecurityInfo(username, fullName, email,
           UserSecurityInfo.UserType.REGISTERED, officeId);
@@ -197,7 +192,7 @@ public class UserAdminService {
               UserSecurityInfo.UserType.REGISTERED, user.getOfficeId());
 
       SecurityServiceUtil.setAuthenticationLists(resultUserSecurityInfo, user.getUri(), callingContext);
-      UserEntity resultUserEntity = new UserEntity(resultUserSecurityInfo);
+      UserEntity resultUserEntity = UserRoleUtils.getEntityFromUserSecurityInfo(resultUserSecurityInfo);
 
       String eTag = Integer.toHexString(resultUserEntity.hashCode());
 
@@ -247,8 +242,8 @@ public class UserAdminService {
     UserEntity userEntity;
     try {
       ArrayList<UserSecurityInfo> allUsers = SecurityServiceUtil.getAllUsers(true, callingContext);
-      for (UserSecurityInfo i : allUsers) {
-        userEntity = new UserEntity(i);
+      for (UserSecurityInfo userSecurityInfo : allUsers) {
+        userEntity = UserRoleUtils.getEntityFromUserSecurityInfo(userSecurityInfo);
         listOfUsers.add(userEntity);
       }
     } catch (DatastoreFailureException e) {
