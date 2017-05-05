@@ -38,7 +38,7 @@ public class UserServiceConfiguration {
   @Value("/")
   private String servletPath;
 
-  @Value("${security.server.realm.realmString:opendatakit.org ODK Aggregate}")
+  @Value("${security.server.realm.realmString:opendatakit.org ODK 2.0 Server}")
   private String realmString;
 
   @Value("${security.server.hostname:localhost}")

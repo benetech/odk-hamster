@@ -1,8 +1,6 @@
 package org.opendatakit.api.offices;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -15,14 +13,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.offices.entity.RegionalOffice;
-import org.opendatakit.configuration.annotations.WebServiceUnitTestConfig;
-import org.opendatakit.test.ConstantsUtils;
+import org.opendatakit.configuration.annotations.BasicWebServiceUnitTestConfig;
+import org.opendatakit.test.util.ConstantsUtils;
+import org.opendatakit.test.util.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +29,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@WebServiceUnitTestConfig
+@BasicWebServiceUnitTestConfig
 public class OfficeServiceTest {
 
   @Autowired
@@ -67,7 +65,7 @@ public class OfficeServiceTest {
 
     String getOfficeUrl = ConstantsUtils.url(server) + "/offices/caaguazú";
 
-    putGetOneOffice(testOffice);
+    TestUtils.putGetOneOffice(restTemplate, server, testOffice);
     // Delete the new office record
     ResponseEntity<String> deleteReponse =
         restTemplate.exchange(getOfficeUrl, HttpMethod.DELETE, null, String.class);
@@ -86,8 +84,8 @@ public class OfficeServiceTest {
   
   @Test
   public void putGetListTest() throws Exception {
-    for (RegionalOffice office : testOfficeList) {
-      putGetOneOffice(office);
+    for (RegionalOffice testOffice : testOfficeList) {
+      TestUtils.putGetOneOffice(restTemplate, server, testOffice);
     }
     String getOfficeListUrl = ConstantsUtils.url(server) + "/offices/";
 
@@ -99,26 +97,7 @@ public class OfficeServiceTest {
   }
   
 
-  private void putGetOneOffice(RegionalOffice office) {
-    String putOfficeUrl = ConstantsUtils.url(server) + "/offices/";
 
-    HttpEntity<RegionalOffice> putOfficeEntity = new HttpEntity<>(office);
-
-    // Submit a new office
-    ResponseEntity<RegionalOffice> postResponse =
-        restTemplate.exchange(putOfficeUrl, HttpMethod.POST, putOfficeEntity, RegionalOffice.class);
-    assertThat(postResponse.getStatusCode(), is(HttpStatus.CREATED));
-
-    // Retrieve the new office record
-    String getOfficeUrl = ConstantsUtils.url(server) + "/offices/" + office.getOfficeId();
-
-    ResponseEntity<RegionalOffice> getResponse =
-        restTemplate.getForEntity(getOfficeUrl, RegionalOffice.class);
-    assertThat(getResponse.getStatusCode(), is(HttpStatus.OK));
-    assertThat(getResponse.getBody().getName(), equalTo(office.getName()));
-    assertThat(getResponse.getBody().getOfficeId(), equalTo(office.getOfficeId()));
-    assertThat(getResponse.getBody().getUri(), notNullValue());
-  }
 
 
 }

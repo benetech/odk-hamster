@@ -44,11 +44,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
 
 @Configuration
-@Profile("integrationtest")
+@Profile("digestauth-integration")
 @EnableWebSecurity
-public class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class TestDigestSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private static Log logger = LogFactory.getLog(SecurityConfiguration.class);
 
@@ -71,8 +73,58 @@ public class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
     http.authorizeRequests().antMatchers("/*").permitAll();
 
     http.authorizeRequests().antMatchers("/**").authenticated().and()
-        .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class);
+        .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class)
+        .addFilter(digestAuthenticationFilter());
 
+  }
+
+  @Bean
+  public DigestAuthenticationFilter digestAuthenticationFilter() throws ODKEntityNotFoundException,
+      ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
+    DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter();
+    digestAuthenticationFilter.setPasswordAlreadyEncoded(true);
+    digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint());
+    digestAuthenticationFilter.setUserDetailsService(digestAndBasicLoginService());
+    // https://github.com/spring-projects/spring-security/issues/3310
+    digestAuthenticationFilter.setCreateAuthenticatedToken(true);
+    return digestAuthenticationFilter;
+  }
+
+  @Bean
+  public DaoAuthenticationProvider digestAuthenticationProvider()
+      throws ODKDatastoreException, PropertyVetoException {
+    DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+    daoAuthenticationProvider.setUserDetailsService(digestAndBasicLoginService());
+
+    return daoAuthenticationProvider;
+  }
+
+
+  @Bean
+  public DigestAuthenticationEntryPoint digestEntryPoint() throws ODKEntityNotFoundException,
+      ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
+    DigestAuthenticationEntryPoint entryPoint = new DigestAuthenticationEntryPoint();
+    entryPoint.setRealmName(testUserServiceConfiguration.realm().getRealmString());
+    entryPoint.setKey(
+        ServerPreferencesPropertiesTable.getSiteKey(testUserServiceConfiguration.callingContext()));
+    entryPoint.setNonceValiditySeconds(1800);
+    return entryPoint;
+  }
+
+
+  @Bean
+  public UserDetailsService digestAndBasicLoginService()
+      throws ODKDatastoreException, PropertyVetoException {
+    UserDetailsServiceImpl userDetailsServiceImpl = new UserDetailsServiceImpl();
+    userDetailsServiceImpl.setCredentialType(CredentialType.Username);
+    userDetailsServiceImpl.setPasswordType(PasswordType.DigestAuth);
+    userDetailsServiceImpl.setDatastore(testDataConfiguration.datastore());
+    userDetailsServiceImpl.setUserService(testUserServiceConfiguration.userService());
+
+    List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
+    authorities.add(new SimpleGrantedAuthority("AUTH_LOCAL"));
+    userDetailsServiceImpl.setAuthorities(authorities);
+    return userDetailsServiceImpl;
   }
 
   @Bean
@@ -103,12 +155,12 @@ public class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
     passwordEncoder.setRealmName(testUserServiceConfiguration.realm().getRealmString());
     return passwordEncoder;
   }
-  
+
   @Bean
   public DaoAuthenticationProvider basicAuthenticationProvider()
       throws ODKDatastoreException, PropertyVetoException {
     DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-    daoAuthenticationProvider.setUserDetailsService(basicLoginService());
+    daoAuthenticationProvider.setUserDetailsService(digestAndBasicLoginService());
     daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
     daoAuthenticationProvider.setSaltSource(new BasicUsingDigestSaltSource());
     return daoAuthenticationProvider;
@@ -121,22 +173,6 @@ public class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
     BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
     entryPoint.setRealmName(testUserServiceConfiguration.realm().getRealmString());
     return entryPoint;
-  }
-
-
-  @Bean
-  public UserDetailsService basicLoginService()
-      throws ODKDatastoreException, PropertyVetoException {
-    UserDetailsServiceImpl userDetailsServiceImpl = new UserDetailsServiceImpl();
-    userDetailsServiceImpl.setCredentialType(CredentialType.Username);
-    userDetailsServiceImpl.setPasswordType(PasswordType.BasicAuth);
-    userDetailsServiceImpl.setDatastore(testDataConfiguration.datastore());
-    userDetailsServiceImpl.setUserService(testUserServiceConfiguration.userService());
-
-    List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
-    authorities.add(new SimpleGrantedAuthority("AUTH_LOCAL"));
-    userDetailsServiceImpl.setAuthorities(authorities);
-    return userDetailsServiceImpl;
   }
 
 

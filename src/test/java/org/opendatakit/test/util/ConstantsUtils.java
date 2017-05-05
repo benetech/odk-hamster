@@ -1,4 +1,4 @@
-package org.opendatakit.test;
+package org.opendatakit.test.util;
 
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 

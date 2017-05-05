@@ -44,6 +44,7 @@ import org.opendatakit.security.server.SecurityServiceUtil;
 import org.opendatakit.utils.UserRoleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
@@ -91,52 +92,9 @@ public class UserService {
         break;
       }
     }
-
-    // returned object (will be JSON serialized).
-    ArrayList<HashMap<String, Object>> listOfUsers = new ArrayList<HashMap<String, Object>>();
-
-    HashMap<String, Object> userInfoMap;
     if (!returnFullList) {
-      // only return ourself -- we don't have privileges to see everyone
-      userInfoMap = new HashMap<String, Object>();
-      User user = callingContext.getCurrentUser();
-      if (user.isAnonymous()) {
-        userInfoMap.put(SecurityConsts.USER_ID, "anonymous");
-        userInfoMap.put(SecurityConsts.FULL_NAME, User.ANONYMOUS_USER_NICKNAME);
-      } else {
-        RegisteredUsersTable entry;
-        try {
-          entry = RegisteredUsersTable.getUserByUri(user.getUriUser(),
-              callingContext.getDatastore(), callingContext.getCurrentUser());
-        } catch (ODKDatastoreException e) {
-          logger.error("Retrieving users persistence error: " + e.toString(), e);
-          throw new WebApplicationException(
-              ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
-              HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
-        }
-        userInfoMap.put(SecurityConsts.OFFICE_ID, entry.getOfficeId());
-        if (user.getEmail() == null) {
-          userInfoMap.put(SecurityConsts.USER_ID, "username:" + entry.getUsername());
-          if (user.getNickname() == null) {
-            userInfoMap.put(SecurityConsts.FULL_NAME, entry.getUsername());
-          } else {
-            userInfoMap.put(SecurityConsts.FULL_NAME, user.getNickname());
-          }
-        } else {
-          userInfoMap.put(SecurityConsts.USER_ID, entry.getEmail());
-          if (user.getNickname() == null) {
-            userInfoMap.put(SecurityConsts.FULL_NAME,
-                entry.getEmail().substring(EmailParser.K_MAILTO.length()));
-          } else {
-            userInfoMap.put(SecurityConsts.FULL_NAME, user.getNickname());
-          }
-        }
-      }
-      UserRoleUtils.processRoles(grants, userInfoMap);
-      listOfUsers.add(userInfoMap);
-      // Need to set host header? original has
-      // resp.addHeader(HttpHeaders.HOST, cc.getServerURL());
+      ArrayList<HashMap<String, Object>> listOfUsers = new ArrayList<HashMap<String, Object>>();
+      listOfUsers.add(internalGetUser(grants));
       return Response.ok(mapper.writeValueAsString(listOfUsers)).encoding(BasicConsts.UTF8_ENCODE)
           .type(MediaType.APPLICATION_JSON)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
@@ -149,7 +107,75 @@ public class UserService {
 
   }
 
+  @ApiOperation(value = "Return just the current user.")
+  @GET
+  @Path("current")
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  public Response getCurrent(@Context HttpHeaders httpHeaders) throws IOException {
+    TreeSet<GrantedAuthorityName> grants;
+    try {
+      grants = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
+    } catch (ODKDatastoreException e) {
+      logger.error("Retrieving users persistence error: " + e.toString());
+      e.printStackTrace();
+      throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
 
+    // Need to set host header? original has
+    // resp.addHeader(HttpHeaders.HOST, cc.getServerURL());
+    return Response.ok(mapper.writeValueAsString(internalGetUser(grants)))
+        .encoding(BasicConsts.UTF8_ENCODE).type(MediaType.APPLICATION_JSON)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
+
+  }
+
+
+  private HashMap<String, Object> internalGetUser(TreeSet<GrantedAuthorityName> grants)
+      throws JsonProcessingException {
+    HashMap<String, Object> userInfoMap;
+    userInfoMap = new HashMap<String, Object>();
+    User user = callingContext.getCurrentUser();
+    if (user.isAnonymous()) {
+      userInfoMap.put(SecurityConsts.USER_ID, "anonymous");
+      userInfoMap.put(SecurityConsts.FULL_NAME, User.ANONYMOUS_USER_NICKNAME);
+    } else {
+      RegisteredUsersTable entry;
+      try {
+        entry = RegisteredUsersTable.getUserByUri(user.getUriUser(), callingContext.getDatastore(),
+            callingContext.getCurrentUser());
+      } catch (ODKDatastoreException e) {
+        logger.error("Retrieving users persistence error: " + e.toString(), e);
+        throw new WebApplicationException(
+            ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
+            HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+      }
+      userInfoMap.put(SecurityConsts.OFFICE_ID, entry.getOfficeId());
+      if (user.getEmail() == null) {
+        userInfoMap.put(SecurityConsts.USER_ID, "username:" + entry.getUsername());
+        if (user.getNickname() == null) {
+          userInfoMap.put(SecurityConsts.FULL_NAME, entry.getUsername());
+        } else {
+          userInfoMap.put(SecurityConsts.FULL_NAME, user.getNickname());
+        }
+      } else {
+        userInfoMap.put(SecurityConsts.USER_ID, entry.getEmail());
+        if (user.getNickname() == null) {
+          userInfoMap.put(SecurityConsts.FULL_NAME,
+              entry.getEmail().substring(EmailParser.K_MAILTO.length()));
+        } else {
+          userInfoMap.put(SecurityConsts.FULL_NAME, user.getNickname());
+        }
+      }
+    }
+    UserRoleUtils.processRoles(grants, userInfoMap);
+    return userInfoMap;
+
+  }
 
 
 

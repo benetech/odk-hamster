@@ -5,7 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import org.benetech.boot.Application;
 import org.opendatakit.configuration.TestDataConfiguration;
-import org.opendatakit.configuration.TestSecurityConfiguration;
+import org.opendatakit.configuration.TestDigestSecurityConfiguration;
 import org.opendatakit.configuration.TestUserServiceConfiguration;
 import org.opendatakit.configuration.TestWebServiceConfiguration;
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer;
@@ -24,14 +24,13 @@ import org.springframework.test.context.ContextConfiguration;
  * 
  * @author Caden Howell <cadenh@benetech.org>
  */
-@ContextConfiguration(
-    classes = {TestDataConfiguration.class,
-        TestUserServiceConfiguration.class, TestSecurityConfiguration.class, TestWebServiceConfiguration.class, Application.class,},
+@ContextConfiguration(classes = {TestDataConfiguration.class, TestUserServiceConfiguration.class,
+    TestDigestSecurityConfiguration.class, TestWebServiceConfiguration.class, Application.class,},
     initializers = ConfigFileApplicationContextInitializer.class)
-@ActiveProfiles("integrationtest")
+@ActiveProfiles({"integrationtest", "digestauth-integration"})
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WebServiceUnitTestConfig {
+public @interface DigestWebServiceUnitTestConfig {
 
 }

@@ -16,7 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendatakit.configuration.annotations.WebServiceUnitTestConfig;
+import org.opendatakit.configuration.annotations.BasicWebServiceUnitTestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author Caden Howell <cadenh@benetech.org>
  */
 @RunWith(SpringRunner.class)
-@WebServiceUnitTestConfig
+@BasicWebServiceUnitTestConfig
 public class OdkTablesTest{
   
   private static Log logger = LogFactory.getLog(OdkTablesTest.class);

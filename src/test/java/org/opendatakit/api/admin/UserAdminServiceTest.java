@@ -19,6 +19,8 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -27,9 +29,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.offices.entity.RegionalOffice;
 import org.opendatakit.api.users.entity.UserEntity;
-import org.opendatakit.configuration.annotations.WebServiceUnitTestConfig;
+import org.opendatakit.configuration.annotations.BasicWebServiceUnitTestConfig;
 import org.opendatakit.constants.SecurityConsts;
-import org.opendatakit.test.ConstantsUtils;
+import org.opendatakit.test.util.ConstantsUtils;
+import org.opendatakit.test.util.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -45,7 +48,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@WebServiceUnitTestConfig
+@BasicWebServiceUnitTestConfig
 public class UserAdminServiceTest {
 
   @Autowired
@@ -59,8 +62,9 @@ public class UserAdminServiceTest {
   private RestTemplate restTemplate;
 
 
-  @BeforeClass
-  public static void setupStatic() {
+  // Using PostConstruct instead of @BeforeClass because it allows non-static method
+  @PostConstruct 
+  public void setup() {
     testUser1 = new UserEntity("username:manu", "Manu Benítez", "capiatá", "ROLE_USER");
     testUser2 = new UserEntity("username:antonio", "Antonio Ruíz", "capiatá", "ROLE_DATA_VIEWER",
         "ROLE_USER");
@@ -70,26 +74,23 @@ public class UserAdminServiceTest {
     testUserList.add(testUser1);
     testUserList.add(testUser2);
     testUserList.add(testUser3);
-  }
 
-  @Before
-  public void setup() {
     RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
     restTemplate = restTemplateBuilder
         .basicAuthorization(ConstantsUtils.TEST_ADMIN_USERNAME, ConstantsUtils.TEST_ADMIN_PASSWORD)
         .build();
 
     RegionalOffice testOffice = new RegionalOffice("Capiatá, Central", "capiatá");
-    putOffice(testOffice);
+    TestUtils.putOffice(restTemplate, server, testOffice);
   }
 
 
   @Test
   public void putGetDeleteOneUserTest() {
     logger.info("Create one user " + testUser1.getUserId());
-    putGetOneUser(testUser1);
+    TestUtils.putGetOneUser(restTemplate, server,testUser1);
     logger.info("Delete one user " + testUser1.getUserId());
-    deleteGetOneUser(testUser1);
+    TestUtils.deleteGetOneUser(restTemplate, server,testUser1);
   }
 
   @Test
@@ -111,7 +112,7 @@ public class UserAdminServiceTest {
     
     logger.info("Create multiple test users");
     for (UserEntity userEntity : testUserList) {
-      putGetOneUser(userEntity);
+      TestUtils.putGetOneUser(restTemplate, server,userEntity);
     }
 
     logger.info("Retrieve list of all users");
@@ -131,13 +132,13 @@ public class UserAdminServiceTest {
 
     logger.info("Delete the new users");
     for (UserEntity userEntity : testUserList) {
-      deleteGetOneUser(userEntity);
+      TestUtils.deleteGetOneUser(restTemplate, server,userEntity);
     }
   }
 
   @Test
   public void testChangePlaintextPassword() {
-    putGetOneUser(testUser3);
+    TestUtils.putGetOneUser(restTemplate, server,testUser3);
     String username = testUser3.getUserId().substring(SecurityConsts.USERNAME_COLON.length());
     String password = "mypass";
 
@@ -166,63 +167,8 @@ public class UserAdminServiceTest {
     assertThat(body.getUserId(), equalTo(testUser3.getUserId()));
     
     logger.info("Cleanup: deleting " + username);
-    deleteGetOneUser(testUser3);
-  }
-
-  private void putGetOneUser(UserEntity testUser) {
-    String postUserUrl = ConstantsUtils.url(server) + "/admin/users";
-
-    HttpEntity<UserEntity> postUserEntity = new HttpEntity<>(testUser);
-
-    // Submit a new user
-    ResponseEntity<UserEntity> postResponse =
-        restTemplate.exchange(postUserUrl, HttpMethod.POST, postUserEntity, UserEntity.class);
-    assertThat(postResponse.getStatusCode(), is(HttpStatus.CREATED));
-
-    // Retrieve the new user record
-    String getUserUrl = ConstantsUtils.url(server) + "/admin/users/" + testUser.getUserId();
-
-    ResponseEntity<UserEntity> getResponse =
-        restTemplate.exchange(getUserUrl, HttpMethod.GET, null, UserEntity.class);
-    UserEntity body = getResponse.getBody();
-    assertThat(getResponse.getStatusCode(), is(HttpStatus.OK));
-    assertThat(body.getFullName(), equalTo(testUser.getFullName()));
-    assertThat(body.getOfficeId(), equalTo(testUser.getOfficeId()));
-    assertThat(body.getUserId(), equalTo(testUser.getUserId()));
-
-    // Why wrap the second list?
-    // http://stackoverflow.com/questions/21624592/hamcrest-compare-collections#answer-21628859
-    assertThat(body.getRoles(),
-        containsInAnyOrder(testUser.getRoles().toArray(new String[testUser.getRoles().size()])));
+    TestUtils.deleteGetOneUser(restTemplate, server,testUser3);
   }
 
 
-
-  private void deleteGetOneUser(UserEntity testUser) {
-    String getUserUrl = ConstantsUtils.url(server) + "/admin/users/" + testUser.getUserId();
-
-    ResponseEntity<UserEntity> deleteResponse =
-        restTemplate.exchange(getUserUrl, HttpMethod.DELETE, null, UserEntity.class);
-    assertThat(deleteResponse.getStatusCode(), is(HttpStatus.NO_CONTENT));
-
-    try {
-      // Verify that delete was successful
-      ResponseEntity<UserEntity> getResponse =
-          restTemplate.exchange(getUserUrl, HttpMethod.GET, null, UserEntity.class);
-    } catch (HttpClientErrorException e) {
-      assertThat(e.getStatusCode(), is(HttpStatus.NOT_FOUND));
-      logger.info(e.getRawStatusCode());
-    }
-  }
-
-  private void putOffice(RegionalOffice office) {
-    String putOfficeUrl = ConstantsUtils.url(server) + "/offices/";
-
-    HttpEntity<RegionalOffice> putOfficeEntity = new HttpEntity<>(office);
-
-    // Submit a new office
-    ResponseEntity<RegionalOffice> postResponse =
-        restTemplate.exchange(putOfficeUrl, HttpMethod.POST, putOfficeEntity, RegionalOffice.class);
-    assertThat(postResponse.getStatusCode(), is(HttpStatus.CREATED));
-  }
 }

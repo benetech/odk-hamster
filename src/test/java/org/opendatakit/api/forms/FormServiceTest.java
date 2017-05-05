@@ -9,9 +9,9 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.forms.entity.FormUploadResult;
-import org.opendatakit.configuration.annotations.WebServiceUnitTestConfig;
+import org.opendatakit.configuration.annotations.BasicWebServiceUnitTestConfig;
 import org.opendatakit.constants.WebConsts;
-import org.opendatakit.test.ConstantsUtils;
+import org.opendatakit.test.util.ConstantsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -27,7 +27,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@WebServiceUnitTestConfig
+@BasicWebServiceUnitTestConfig
 public class FormServiceTest {
 
 	private static Log logger = LogFactory.getLog(FormServiceTest.class);
