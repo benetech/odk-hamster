@@ -136,6 +136,28 @@ public final class UserGrantedAuthority extends CommonFieldsBase {
     }
     return authorized;
   }
+  
+
+  /**
+   * Get a list of all available authorities (roles) that you can grant
+   * @param ds
+   * @param user
+   * @return
+   * @throws ODKDatastoreException
+   */
+  public static final Set<GrantedAuthority> getAllGrantedAuthorities(Datastore ds, User user)
+      throws ODKDatastoreException {
+    Set<GrantedAuthority> authorityList = new HashSet<GrantedAuthority>();
+
+    Query q = ds.createQuery(assertRelation(ds, user), "UserGrantedAuthority.getGrantedAuthorities",
+        user);
+    List<?> values = q.executeDistinctValueForDataField(GRANTED_AUTHORITY);
+    for (Object value : values) {
+      authorityList.add(new SimpleGrantedAuthority((String) value));
+    }
+
+    return authorityList;
+  }
 
   /**
    * Only infrequently used for group membership management.

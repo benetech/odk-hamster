@@ -133,7 +133,6 @@ public class SecurityServiceUtil {
 
     // Work-around hack for Google Earth top-level balloon image
     List<String> ianonAttachmentViewerGrants = new ArrayList<String>();
-    ianonAttachmentViewerGrants.add(GrantedAuthorityName.ROLE_ATTACHMENT_VIEWER.name());
     anonAttachmentViewerGrants = Collections.unmodifiableList(ianonAttachmentViewerGrants);
   }
 
@@ -531,8 +530,7 @@ public class SecurityServiceUtil {
             if (anonAuth.getAuthority().equals(a.name()))
               continue; // avoid circularity...
             // only allow ROLE_ATTACHMENT_VIEWER and GROUP_ assignments.
-            if (!GrantedAuthorityName.ROLE_ATTACHMENT_VIEWER.equals(a)
-                && !a.name().startsWith(GrantedAuthorityName.GROUP_PREFIX)) {
+            if (!a.name().startsWith(GrantedAuthorityName.GROUP_PREFIX)) {
               continue;
             }
             // do not allow Site Admin assignments for Anonymous --

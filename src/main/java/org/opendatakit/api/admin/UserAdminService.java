@@ -13,8 +13,14 @@ package org.opendatakit.api.admin;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -24,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -32,6 +39,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.api.users.entity.RoleDescription;
 import org.opendatakit.api.users.entity.UserEntity;
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.constants.ErrorConsts;
@@ -46,10 +54,14 @@ import org.opendatakit.security.User;
 import org.opendatakit.security.client.UserSecurityInfo;
 import org.opendatakit.security.client.exception.AccessDeniedException;
 import org.opendatakit.security.common.EmailParser;
+import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.server.SecurityServiceUtil;
 import org.opendatakit.utils.SecurityUtils;
 import org.opendatakit.utils.UserRoleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.core.GrantedAuthority;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,9 +70,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
-@Api(value = "/admin/users", description = "ODK User Admin API",
+@Api(value = "/admin", description = "ODK User Admin API",
     authorizations = {@Authorization(value = "basicAuth")})
-@Path("/admin/users")
+@Path("/admin")
+@Secured({"ROLE_SITE_ACCESS_ADMIN"})
 public class UserAdminService {
   @Autowired
   private CallingContext callingContext;
@@ -71,7 +84,7 @@ public class UserAdminService {
 
   @ApiOperation(value = "Get a list of all users with role information.")
   @GET
-  @Path("/")
+  @Path("users")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response getList() throws IOException {
@@ -80,7 +93,7 @@ public class UserAdminService {
 
   @ApiOperation(value = "Get information and roles for a single user by username.")
   @GET
-  @Path("/username:{username}")
+  @Path("users/username:{username}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response getUser(@PathParam("username") String username) {
@@ -121,9 +134,10 @@ public class UserAdminService {
   @ApiOperation(
       value = "Set a password in cleartext.  Probably a good idea to disable this endpoint in production.")
   @POST
-  @Path("username:{username}/password")
+  @Path("users/username:{username}/password")
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
   public Response setUserPassword(@PathParam("username") String username, String password)
       throws AccessDeniedException, DatastoreFailureException {
 
@@ -138,9 +152,10 @@ public class UserAdminService {
 
   @ApiOperation(value = "Set a password using digest hash.")
   @POST
-  @Path("username:{username}/password/digest")
+  @Path("users/username:{username}/password/digest")
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
   public Response setUserDigestPassword(@PathParam("username") String username, String password)
       throws AccessDeniedException, DatastoreFailureException {
 
@@ -153,13 +168,15 @@ public class UserAdminService {
   }
 
 
-  @ApiOperation(value = "Add or update user to database.  Uses user_id field as unique key which determines if user is created or updated.")
+  @ApiOperation(
+      value = "Add or update user to database.  Uses user_id field as unique key which determines if user is created or updated.")
   @POST
-  @Path("/")
+  @Path("users")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
   public Response putUser(UserEntity userEntity)
       throws AccessDeniedException, DatastoreFailureException {
 
@@ -191,8 +208,10 @@ public class UserAdminService {
           new UserSecurityInfo(user.getUsername(), user.getFullName(), user.getEmail(),
               UserSecurityInfo.UserType.REGISTERED, user.getOfficeId());
 
-      SecurityServiceUtil.setAuthenticationLists(resultUserSecurityInfo, user.getUri(), callingContext);
-      UserEntity resultUserEntity = UserRoleUtils.getEntityFromUserSecurityInfo(resultUserSecurityInfo);
+      SecurityServiceUtil.setAuthenticationLists(resultUserSecurityInfo, user.getUri(),
+          callingContext);
+      UserEntity resultUserEntity =
+          UserRoleUtils.getEntityFromUserSecurityInfo(resultUserSecurityInfo);
 
       String eTag = Integer.toHexString(resultUserEntity.hashCode());
 
@@ -212,7 +231,8 @@ public class UserAdminService {
 
   @ApiOperation(value = "Delete user by username.")
   @DELETE
-  @Path("username:{username}")
+  @Path("users/username:{username}")
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
   public Response deleteUser(@PathParam("username") String username)
       throws IOException, DatastoreFailureException {
     Datastore ds = callingContext.getDatastore();
@@ -226,7 +246,7 @@ public class UserAdminService {
         ds.deleteEntity(deleteUser.getEntityKey(), user);
       }
     } catch (ODKDatastoreException e) {
-      e.printStackTrace();
+      logger.error(e);
       throw new DatastoreFailureException(e);
     }
     return Response.status(Status.NO_CONTENT)
@@ -234,6 +254,82 @@ public class UserAdminService {
         .header("Access-Control-Allow-Origin", "*")
         .header("Access-Control-Allow-Credentials", "true").build();
   }
+
+  @GET
+  @Path("roles")
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
+  @ApiOperation(value = "Return a list of all available roles, with descriptions.  Ordered from least privileged to most privileged.")
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  /**
+   * Ideally this descriptive information would all reside in the database, but this is a quick update until we have time to dive into updating the data model.
+   * @return
+   * @throws IOException
+   * @throws DatastoreFailureException
+   */
+  public Response getRoleList() throws IOException, DatastoreFailureException {
+
+    List<RoleDescription> roles = new ArrayList<RoleDescription>();
+
+    RoleDescription roleDescription = new RoleDescription();
+       
+    roleDescription.setRole(GrantedAuthorityName.ROLE_USER.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_USER.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_USER.getDisplayText());    
+    roles.add(roleDescription);
+   
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_COLLECTOR.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_VIEWER.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_VIEWER.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_VIEWER.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_OWNER.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_OWNER.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_OWNER.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_SITE_ACCESS_ADMIN.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_SITE_ACCESS_ADMIN.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_SITE_ACCESS_ADMIN.getDisplayText());    
+    roles.add(roleDescription);
+    
+    // Need to set host header? original has
+    // resp.addHeader(HttpHeaders.HOST, cc.getServerURL());
+
+    return Response.ok(mapper.writeValueAsString(roles)).encoding(BasicConsts.UTF8_ENCODE)
+        .type(MediaType.APPLICATION_JSON)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
+  }
+
 
   public static Response internalGetList(CallingContext callingContext)
       throws JsonProcessingException {
