@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.github.benetech</groupId>
             <artifactId>odk-hamster-digest-auth-client</artifactId>
-            <version>1.0.0-RELEASE</version>
+            <version>1.0.1-RELEASE</version>
         </dependency>
         <!-- SPRING BOOT -->
         <dependency>

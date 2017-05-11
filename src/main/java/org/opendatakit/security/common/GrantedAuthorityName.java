@@ -43,7 +43,7 @@ public enum GrantedAuthorityName implements Serializable {
 
 	ROLE_USER("Basic logged in user, with minimal permissions", "User"),
 	ROLE_DATA_COLLECTOR("Required to fetch forms, manifests, multimedia, and upload submissions", "Data Collector"),
-	ROLE_DATA_VIEWER("Required to view submissions", "Data viewer"),
+	ROLE_DATA_VIEWER("Required to view submissions", "Data Viewer"),
 	ROLE_DATA_OWNER("Required to upload new xforms, upload modifications to existing xforms, and to delete xforms or their data", "Data Owner"),
    ROLE_SYNCHRONIZE_TABLES("Required to synchronize (download, upload and modify ODK Tables data)", "Tables Synchronizer"),
    ROLE_SUPER_USER_TABLES("Required to administer row-level permissions in ODK Tables", "Tables Superuser"),

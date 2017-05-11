@@ -277,17 +277,17 @@ public class UserAdminService {
     roleDescription.setName(GrantedAuthorityName.ROLE_USER.getDisplayName());
     roleDescription.setDescription(GrantedAuthorityName.ROLE_USER.getDisplayText());    
     roles.add(roleDescription);
-   
-    roleDescription = new RoleDescription();
-    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_COLLECTOR.name());
-    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayName());
-    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayText());    
-    roles.add(roleDescription);
-    
+
     roleDescription = new RoleDescription();
     roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_VIEWER.name());
     roleDescription.setName(GrantedAuthorityName.ROLE_DATA_VIEWER.getDisplayName());
     roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_VIEWER.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_COLLECTOR.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayText());    
     roles.add(roleDescription);
     
     roleDescription = new RoleDescription();
