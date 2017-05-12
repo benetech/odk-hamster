@@ -42,6 +42,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -77,20 +78,47 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     // We have a choice here; stateless OR enable sessions and use CSRF.
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.csrf().disable();
-    
+
     http.authorizeRequests().antMatchers("/").permitAll();
     http.authorizeRequests().antMatchers("/swagger.json").permitAll();
     http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
     http.authorizeRequests().antMatchers("/index.html").permitAll();
-
-
     http.authorizeRequests().antMatchers("/swagger/**").permitAll();
+    http.authorizeRequests().antMatchers("/odktables/**").hasRole("SYNCHRONIZE_TABLES");
+    http.authorizeRequests().antMatchers("/users/list").hasRole("USER"); // Backwards compatible
+                                                                         // with aggregate
+    http.authorizeRequests().antMatchers("/roles/granted").hasRole("USER"); // Backwards compatible
+                                                                            // with aggregate
+    http.authorizeRequests().antMatchers("/admin/**").hasRole("SITE_ACCESS_ADMIN");
 
     // This is where we are currently enabling a fallback to Basic Authentication.
-    // We may wish to remove this, as it is not very secure.  On the other hand, we're not requiring anyone to use it.
+    // We may wish to remove this, as it is not very secure. On the other hand, we're not requiring
+    // anyone to use it.
     http.authorizeRequests().antMatchers("/**").authenticated().and()
-    .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class).addFilter(digestAuthenticationFilter());
+        .addFilterBefore(basicAuthenticationFilter(), AnonymousAuthenticationFilter.class)
+        .addFilterAt(anonymousFilter(), AnonymousAuthenticationFilter.class)
+        .addFilter(digestAuthenticationFilter());
 
+  }
+
+  @Bean
+  public AnonymousAuthenticationFilter anonymousFilter() throws ODKEntityNotFoundException,
+      ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
+    String siteKey =
+        ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext());
+    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    authorities.add(new SimpleGrantedAuthority("USER_IS_ANONYMOUS"));
+
+    return new AnonymousAuthenticationFilter(siteKey, "anonymousUser", authorities);
+
+  }
+
+  @Bean
+  public AnonymousAuthenticationProvider anonymousProvider()
+      throws ODKDatastoreException, PropertyVetoException {
+    AnonymousAuthenticationProvider anonymousProvider = new AnonymousAuthenticationProvider(
+        ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext()));
+    return anonymousProvider;
   }
 
   @Bean
@@ -110,7 +138,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
       throws ODKDatastoreException, PropertyVetoException {
     DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
     daoAuthenticationProvider.setUserDetailsService(digestAndBasicLoginService());
-    
+
     return daoAuthenticationProvider;
   }
 
@@ -120,8 +148,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
       ODKOverQuotaException, ODKDatastoreException, PropertyVetoException {
     DigestAuthenticationEntryPoint entryPoint = new DigestAuthenticationEntryPoint();
     entryPoint.setRealmName(userServiceConfiguration.realm().getRealmString());
-    entryPoint
-        .setKey(ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext()));
+    entryPoint.setKey(
+        ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext()));
     entryPoint.setNonceValiditySeconds(1800);
     return entryPoint;
   }
@@ -171,15 +199,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     return basicAuthenticationFilter;
   }
 
-  @Bean
-  public AnonymousAuthenticationProvider anonymousProvider()
-      throws ODKDatastoreException, PropertyVetoException {
-    AnonymousAuthenticationProvider anonymousProvider = new AnonymousAuthenticationProvider(
-        ServerPreferencesPropertiesTable.getSiteKey(userServiceConfiguration.callingContext()));
 
-    return anonymousProvider;
-  }
-  
 
   @Bean
   public MessageDigestPasswordEncoder basicUsingDigestPasswordEncoder() {

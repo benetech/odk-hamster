@@ -61,11 +61,13 @@ public class OfficeService {
 
   private static final Log logger = LogFactory.getLog(OfficeService.class);
 
-  @ApiOperation(value = "Get list of all offices.")
+
   @GET
   @Path("/")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  @ApiOperation(value = "Get list of all offices.", response = RegionalOffice.class,
+  responseContainer = "List")
   public Response getList() throws IOException {
     Datastore ds = callingContext.getDatastore();
     User user = callingContext.getCurrentUser();
@@ -94,7 +96,7 @@ public class OfficeService {
         .header("Access-Control-Allow-Credentials", "true").build();
   }
 
-  @ApiOperation(value = "Get information about a particular office.")
+  @ApiOperation(value = "Get information about a particular office.", response = RegionalOffice.class)
   @GET
   @Path("{officeId}")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -131,7 +133,8 @@ public class OfficeService {
    *
    * @throws DatastoreFailureException
    */
-  @ApiOperation(value = "Add or update office to database.  Uses officeId field as unique key which determines if office is created or updated.")
+  @ApiOperation(
+      value = "Add or update office to database.  Uses officeId field as unique key which determines if office is created or updated.")
   @POST
   @Path("/")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,

@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.api.users.entity.UserEntity;
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.security.common.GrantedAuthorityName;
@@ -38,6 +39,7 @@ import org.springframework.security.core.GrantedAuthority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
 @Api(value = "/roles", description = "ODK Role API",
@@ -50,6 +52,8 @@ public class RoleService {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   @GET
+  @ApiOperation(response = String.class, responseContainer = "List",
+  value = "Returns list of roles granted to the currently authenticated (or anonymous) user.")
   @Path("granted")
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})

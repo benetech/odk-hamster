@@ -82,9 +82,7 @@ public class FormService {
   private static final Log logger = LogFactory.getLog(FormService.class);
 
   @POST
-  @ApiOperation(
-      value = "Upload a zipped form definition.",
-      response = FormUploadResult.class)
+  @ApiOperation(value = "Upload a zipped form definition.", response = FormUploadResult.class)
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
@@ -92,6 +90,7 @@ public class FormService {
   public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp,
       @PathParam("odkClientVersion") String odkClientVersion, @PathParam("appId") String appId,
       @Context UriInfo info) throws IOException {
+    logger.info("Uploading...");
     ServiceUtils.examineRequest(req.getServletContext(), req);
 
     req.getContentLength();
@@ -124,7 +123,7 @@ public class FormService {
 
         if (fieldName.equals(WebConsts.ZIP_FILE)) {
 
-          if (!(fileName.endsWith(".zip"))) {
+          if (fileName == null || !(fileName.endsWith(".zip"))) {
             throw new WebApplicationException(ErrorConsts.NO_ZIP_FILE,
                 HttpServletResponse.SC_BAD_REQUEST);
           }
@@ -180,9 +179,7 @@ public class FormService {
         FileContentInfo fi = new FileContentInfo(entry.getKey(), contentType,
             Long.valueOf(entry.getValue().length), null, entry.getValue());
 
-        ConfigFileChangeDetail outcome =
-            fm.putFile(odkClientVersion, tableId,
-                fi, userPermissions);
+        ConfigFileChangeDetail outcome = fm.putFile(odkClientVersion, tableId, fi, userPermissions);
 
         if (outcome == ConfigFileChangeDetail.FILE_NOT_CHANGED) {
           notUploadedFiles.add(entry.getKey());
@@ -191,8 +188,8 @@ public class FormService {
         }
       }
 
-      FileManifestManager manifestManager = new FileManifestManager(appId,
-          odkClientVersion, callingContext);
+      FileManifestManager manifestManager =
+          new FileManifestManager(appId, odkClientVersion, callingContext);
       OdkTablesFileManifest manifest = manifestManager.getManifestForTable(tableId);
       FileManifestService.fixDownloadUrls(info, appId, odkClientVersion, manifest);
 

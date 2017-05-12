@@ -48,6 +48,7 @@ import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.utils.WebUtils;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
 @Api(authorizations = {@Authorization(value="basicAuth")})
@@ -86,6 +87,8 @@ public class DiffService  {
    * @throws BadColumnNameException
    */
   @GET
+  @ApiOperation(value = "Get rows since ?.",
+  response = RowResourceList.class)
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response /* RowResourceList */ getRowsSince(@QueryParam(QUERY_DATA_ETAG) String dataETag,
@@ -172,6 +175,8 @@ public class DiffService  {
    */
   @GET
   @Path("changeSets")
+  @ApiOperation(value = "Get change sets since ?.",
+  response = ChangeSetList.class)
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response /* ChangeSetList */ getChangeSetsSince(
@@ -205,6 +210,8 @@ public class DiffService  {
    */
   @GET
   @Path("changeSets/{dataETag}")
+  @ApiOperation(value = "Get change set rows",
+  response = RowResourceList.class)
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response /* RowResourceList */ getChangeSetRows(@PathParam("dataETag") String dataETag,

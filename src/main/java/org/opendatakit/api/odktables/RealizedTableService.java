@@ -14,8 +14,14 @@
 
 package org.opendatakit.api.odktables;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.servlet.ServletContext;
@@ -25,23 +31,39 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
+import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
 import org.opendatakit.aggregate.odktables.rest.entity.TableDefinition;
 import org.opendatakit.aggregate.odktables.rest.entity.TableDefinitionResource;
+import org.opendatakit.constants.BasicConsts;
+import org.opendatakit.constants.WebConsts;
 import org.opendatakit.context.CallingContext;
+import org.opendatakit.datamodel.BinaryContent;
+import org.opendatakit.odktables.FileContentInfo;
+import org.opendatakit.odktables.InstanceFileManager;
 import org.opendatakit.odktables.TableManager;
+import org.opendatakit.odktables.InstanceFileManager.FetchBlobHandler;
+import org.opendatakit.odktables.InstanceFileManager.FileContentHandler;
 import org.opendatakit.odktables.exception.AppNameMismatchException;
 import org.opendatakit.odktables.exception.PermissionDeniedException;
 import org.opendatakit.odktables.exception.SchemaETagMismatchException;
 import org.opendatakit.odktables.exception.TableNotFoundException;
+import org.opendatakit.odktables.relation.DbTableInstanceFiles;
+import org.opendatakit.odktables.relation.DbTableInstanceManifestETags;
+import org.opendatakit.odktables.relation.DbTableInstanceManifestETags.DbTableInstanceManifestETagEntity;
 import org.opendatakit.odktables.security.TablesUserPermissions;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
 import org.opendatakit.persistence.exception.ODKEntityNotFoundException;
@@ -52,8 +74,8 @@ import org.opendatakit.security.server.SecurityServiceUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.Authorization;
 
-@Api(authorizations = {@Authorization(value="basicAuth")})
-public class RealizedTableService  {
+@Api(authorizations = {@Authorization(value = "basicAuth")})
+public class RealizedTableService {
   private static final Log logger = LogFactory.getLog(RealizedTableService.class);
 
   private final ServletContext sc;
@@ -190,6 +212,66 @@ public class RealizedTableService  {
   public InstanceFileService getInstanceFileService() throws PermissionDeniedException {
     throw new PermissionDeniedException("rowId is required");
   }
+
+
+  /**
+   * There is already a row-by-row manifest at attachments/{rowId}/manifest
+   * This shows the list of attachments for a table, similar to what you see in the aggregate interface
+   * This was ported from Open Data Kit Aggregate's ServerDataServiceImpl.getInstanceFileInfoContents
+   * @param httpHeaders
+   * @return
+   * @throws IOException
+   * @throws ODKTaskLockException
+   * @throws PermissionDeniedException
+   * @throws ODKDatastoreException 
+   */
+  @GET
+  @Path("attachments/manifest")
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  public Response getManifest(@Context HttpHeaders httpHeaders)
+      throws IOException, ODKTaskLockException, PermissionDeniedException, ODKDatastoreException {
+    UriBuilder ub = info.getBaseUriBuilder();
+    ub.path(OdkTables.class);
+    ub.path(OdkTables.class, "getTablesService");
+
+
+    DbTableInstanceFiles blobStore = new DbTableInstanceFiles(tableId, cc);
+    List<BinaryContent> contents = blobStore.getAllBinaryContents(cc);
+
+    ArrayList<OdkTablesFileManifestEntry> completedSummaries = new ArrayList<OdkTablesFileManifestEntry>();
+    for (BinaryContent entry : contents) {
+      if (entry.getUnrootedFilePath() == null) {
+        continue;
+      }
+      String rowId = entry.getTopLevelAuri();
+      UriBuilder tmp = ub.clone().path(TableService.class, "getRealizedTable")
+          .path(RealizedTableService.class, "getInstanceFiles")
+          .path(InstanceFileService.class, "getFile");
+      URI getFile = tmp.build(appId, tableId, schemaETag, rowId, entry.getUnrootedFilePath());
+      String downloadUrl = getFile.toASCIIString() + "?" + FileService.PARAM_AS_ATTACHMENT
+          + "=true";
+      OdkTablesFileManifestEntry manifestEntry = new OdkTablesFileManifestEntry();
+      manifestEntry.downloadUrl = downloadUrl;
+      manifestEntry.contentLength = entry.getContentLength();
+      manifestEntry.contentType = entry.getContentType();
+      manifestEntry.filename = entry.getUnrootedFilePath();
+      manifestEntry.md5hash = entry.getContentHash();
+      completedSummaries.add(manifestEntry);
+      
+    }
+
+    OdkTablesFileManifest manifest = new OdkTablesFileManifest(completedSummaries);
+    
+    ResponseBuilder rBuild = Response.ok(manifest).header(HttpHeaders.ETAG, "test")
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true");
+    return rBuild.build();
+
+  }
+
+
 
   /**
    * Instance file subresource for a realized tableId and (supplied in implementation constructor)
