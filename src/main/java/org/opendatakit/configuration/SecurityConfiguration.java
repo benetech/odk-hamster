@@ -84,6 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
     http.authorizeRequests().antMatchers("/index.html").permitAll();
     http.authorizeRequests().antMatchers("/swagger/**").permitAll();
+    http.authorizeRequests().antMatchers("/images/**").permitAll();
     http.authorizeRequests().antMatchers("/odktables/**").hasRole("SYNCHRONIZE_TABLES");
     http.authorizeRequests().antMatchers("/users/list").hasRole("USER"); // Backwards compatible
                                                                          // with aggregate
