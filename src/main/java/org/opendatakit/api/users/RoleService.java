@@ -15,6 +15,7 @@ package org.opendatakit.api.users;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -28,9 +29,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
+import org.opendatakit.api.users.entity.RoleDescription;
 import org.opendatakit.api.users.entity.UserEntity;
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.context.CallingContext;
+import org.opendatakit.persistence.client.exception.DatastoreFailureException;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -80,4 +83,77 @@ public class RoleService {
         .header("Access-Control-Allow-Credentials", "true").build();
   }
   
+  @GET
+  @Path("list")
+  @ApiOperation(value = "Return a list of all available roles, with descriptions.  Ordered from least privileged to most privileged.")
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  /**
+   * Ideally this descriptive information would all reside in the database, but this is a quick update until we have time to dive into updating the data model.
+   * @return
+   * @throws IOException
+   * @throws DatastoreFailureException
+   */
+  public Response getRoleList() throws IOException, DatastoreFailureException {
+
+    List<RoleDescription> roles = new ArrayList<RoleDescription>();
+
+    RoleDescription roleDescription = new RoleDescription();
+       
+    roleDescription.setRole(GrantedAuthorityName.ROLE_USER.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_USER.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_USER.getDisplayText());    
+    roles.add(roleDescription);
+
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_VIEWER.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_VIEWER.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_VIEWER.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_COLLECTOR.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_COLLECTOR.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_DATA_OWNER.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_DATA_OWNER.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_DATA_OWNER.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_SUPER_USER_TABLES.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_ADMINISTER_TABLES.getDisplayText());    
+    roles.add(roleDescription);
+    
+    roleDescription = new RoleDescription();
+    roleDescription.setRole(GrantedAuthorityName.ROLE_SITE_ACCESS_ADMIN.name());
+    roleDescription.setName(GrantedAuthorityName.ROLE_SITE_ACCESS_ADMIN.getDisplayName());
+    roleDescription.setDescription(GrantedAuthorityName.ROLE_SITE_ACCESS_ADMIN.getDisplayText());    
+    roles.add(roleDescription);
+    
+    // Need to set host header? original has
+    // resp.addHeader(HttpHeaders.HOST, cc.getServerURL());
+
+    return Response.ok(mapper.writeValueAsString(roles)).encoding(BasicConsts.UTF8_ENCODE)
+        .type(MediaType.APPLICATION_JSON)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
+  }
 }
