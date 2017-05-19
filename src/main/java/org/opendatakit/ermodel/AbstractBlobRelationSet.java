@@ -317,80 +317,80 @@ public class AbstractBlobRelationSet implements BlobRelationSet {
 
     @Override
     public int getAttachmentCount(CallingContext cc) throws ODKDatastoreException {
-      return m.getAttachmentCount(cc);
+      return binaryContentManipulator.getAttachmentCount(cc);
     }
 
     @Override
     public Date getCreationDate(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getCreationDate(ordinal, cc);
+      return binaryContentManipulator.getCreationDate(ordinal, cc);
     }
 
     @Override
     public String getCreatorUriUser(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getCreatorUriUser(ordinal, cc);
+      return binaryContentManipulator.getCreatorUriUser(ordinal, cc);
     }
 
     @Override
     public Date getLastUpdateDate(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getLastUpdateDate(ordinal, cc);
+      return binaryContentManipulator.getLastUpdateDate(ordinal, cc);
     }
 
     @Override
     public String getLastUpdateUriUser(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getLastUpdateUriUser(ordinal, cc);
+      return binaryContentManipulator.getLastUpdateUriUser(ordinal, cc);
     }
 
     @Override
     public byte[] getBlob(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getBlob(ordinal, cc);
+      return binaryContentManipulator.getBlob(ordinal, cc);
     }
 
     @Override
     public String getContentHash(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getContentHash(ordinal, cc);
+      return binaryContentManipulator.getContentHash(ordinal, cc);
     }
 
     @Override
     public Long getContentLength(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getContentLength(ordinal, cc);
+      return binaryContentManipulator.getContentLength(ordinal, cc);
     }
 
     @Override
     public String getContentType(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getContentType(ordinal, cc);
+      return binaryContentManipulator.getContentType(ordinal, cc);
     }
 
     @Override
     public String getUnrootedFilename(int ordinal, CallingContext cc) throws ODKDatastoreException {
-      return m.getUnrootedFilename(ordinal, cc);
+      return binaryContentManipulator.getUnrootedFilename(ordinal, cc);
     }
 
     @Override
     public void persist(CallingContext cc) throws ODKEntityPersistException, ODKOverQuotaException {
-      m.persist(cc);
+      binaryContentManipulator.persist(cc);
     }
 
     @Override
     public void remove(CallingContext cc) throws ODKDatastoreException {
-      m.deleteAll(cc);
+      binaryContentManipulator.deleteAll(cc);
     }
 
     private final String uri;
     private final String topLevelUri;
-    private final BinaryContentManipulator m;
+    private final BinaryContentManipulator binaryContentManipulator;
 
     protected BlobEntitySetImpl(String uri, String topLevelUri, BinaryContentManipulator m,
         CallingContext cc) throws ODKDatastoreException {
       this.uri = uri;
       this.topLevelUri = topLevelUri;
-      this.m = m;
+      this.binaryContentManipulator = m;
     }
 
     @Override
     public BlobSubmissionOutcome addBlob(byte[] byteArray, String contentType,
         String unrootedFilePath, boolean overwriteOK, CallingContext cc)
         throws ODKDatastoreException {
-      return m.setValueFromByteArray(byteArray, contentType, unrootedFilePath, overwriteOK, cc);
+      return binaryContentManipulator.setValueFromByteArray(byteArray, contentType, unrootedFilePath, overwriteOK, cc);
     }
   }
 
