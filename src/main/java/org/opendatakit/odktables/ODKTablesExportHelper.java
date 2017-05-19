@@ -26,8 +26,8 @@ import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.persistence.table.ServerPreferencesPropertiesTable;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -117,7 +117,7 @@ public class ODKTablesExportHelper {
     }
 
 
-    public byte[] exportData(String fileFormat, boolean showDeleted){
+    public byte[] exportData(String fileFormat, boolean showDeleted) throws JsonProcessingException{
         try {
             loadWebsafeRows(showDeleted);
             if(fileFormat.equals(WebConsts.CSV)){
@@ -219,11 +219,11 @@ public class ODKTablesExportHelper {
         return new byte[0];
     }
 
-    private byte[] prepareJSON(){
+    private byte[] prepareJSON() throws JsonProcessingException{
         // Convert the data from rows to .json
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
-        String parsedJson = gson.toJson(websafeRows);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        String parsedJson = mapper.writeValueAsString(websafeRows) ; 
 
         FileWriter writer = null;
         try {
