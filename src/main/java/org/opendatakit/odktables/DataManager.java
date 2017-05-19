@@ -221,6 +221,13 @@ public class DataManager {
     }
   }
 
+  public WebsafeRows getRows(QueryResumePoint startCursor, int fetchLimit, String sortColumn,
+      boolean ascending, String deviceId, String officeId)
+      throws ODKDatastoreException, PermissionDeniedException, ODKTaskLockException,
+      InconsistentStateException, BadColumnNameException {
+    return getRows(startCursor, fetchLimit, sortColumn, ascending, deviceId, officeId, false);
+  }
+  
   /**
    * Retrieve all current rows of the table.
    *
@@ -232,7 +239,7 @@ public class DataManager {
    * @throws BadColumnNameException
    */
   public WebsafeRows getRows(QueryResumePoint startCursor, int fetchLimit, String sortColumn,
-      boolean ascending, String deviceId, String officeId)
+      boolean ascending, String deviceId, String officeId, boolean showDeleted)
       throws ODKDatastoreException, PermissionDeniedException, ODKTaskLockException,
       InconsistentStateException, BadColumnNameException {
 
@@ -280,7 +287,7 @@ public class DataManager {
         }
       }
 
-      Query query = buildRowsQuery(table);
+      Query query = buildRowsQuery(table, showDeleted);
       query.addSort(columnSort, directionSort);
       // we need the filter to activate the sort...
       query.addFilter(table.getDataField(CommonFieldsBase.CREATION_DATE_COLUMN_NAME),
@@ -318,9 +325,11 @@ public class DataManager {
   /**
    * @return the query for current rows in the table
    */
-  private Query buildRowsQuery(DbTable table) {
+  private Query buildRowsQuery(DbTable table, boolean showDeleted) {
     Query query = table.query("DataManager.buildRowsQuery", cc);
-    query.equal(DbTable.DELETED, false);
+    if (!showDeleted) {
+      query.equal(DbTable.DELETED, false);
+    }
     return query;
   }
 

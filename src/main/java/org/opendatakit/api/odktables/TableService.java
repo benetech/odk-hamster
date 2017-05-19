@@ -33,6 +33,7 @@ import java.util.TreeSet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -94,6 +95,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 @Api(authorizations = {@Authorization(value="basicAuth")})
@@ -111,17 +113,19 @@ public class TableService {
 
   private final ServletContext sc;
   private final HttpServletRequest req;
+  private final HttpServletResponse res;
   private final HttpHeaders headers;
   private final UriInfo info;
   private final String appId;
   private final String tableId;
   private final CallingContext callingContext;
 
-  public TableService(ServletContext sc, HttpServletRequest req, HttpHeaders headers,
+  public TableService(ServletContext sc, HttpServletRequest req, HttpServletResponse res, HttpHeaders headers,
       UriInfo info, String appId, CallingContext cc) throws ODKEntityNotFoundException,
       ODKDatastoreException {
     this.sc = sc;
     this.req = req;
+    this.res = res;
     this.headers = headers;
     this.info = info;
     this.appId = appId;
@@ -129,11 +133,12 @@ public class TableService {
     this.callingContext = cc;
   }
 
-  public TableService(ServletContext sc, HttpServletRequest req, HttpHeaders headers,
+  public TableService(ServletContext sc, HttpServletRequest req, HttpServletResponse res, HttpHeaders headers,
       UriInfo info, String appId, String tableId, CallingContext cc)
       throws ODKEntityNotFoundException, ODKDatastoreException {
     this.sc = sc;
     this.req = req;
+    this.res = res;
     this.headers = headers;
     this.info = info;
     this.appId = appId;
@@ -324,6 +329,12 @@ public class TableService {
 
   }
 
+  @Path("export/{format}")
+  public ExportService getExportService(@ApiParam(value = "JSON or CSV", required = true) @PathParam("format") String exportFormat) {
+    ExportService service = new ExportService(res, appId, tableId, exportFormat.toUpperCase(), callingContext);
+    return service;    
+  }
+  
   /**
    * ACL manager for a particular tableId (supplied in implementation constructor)
    *

@@ -27,6 +27,7 @@ import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
 import org.opendatakit.api.forms.FormService;
 import org.opendatakit.api.odktables.DataService;
 import org.opendatakit.api.odktables.DiffService;
+import org.opendatakit.api.odktables.ExportService;
 import org.opendatakit.api.odktables.FileManifestService;
 import org.opendatakit.api.odktables.FileService;
 import org.opendatakit.api.odktables.InstanceFileService;
@@ -109,6 +110,7 @@ public class JerseyConfiguration extends ResourceConfig implements ServletConfig
 
     // Form management
     register(FormService.class);
+    register(ExportService.class);
 
     // (New API) User Management
     register(UserAdminService.class);

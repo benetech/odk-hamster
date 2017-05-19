@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -40,7 +41,7 @@ import io.swagger.annotations.Authorization;
 
 
 @Api(value = "/odktables", description = "ODK Tables Sync API",
-authorizations = {@Authorization(value="basicAuth")})
+    authorizations = {@Authorization(value = "basicAuth")})
 @Path("odktables")
 @Component
 public class OdkTables {
@@ -170,9 +171,27 @@ public class OdkTables {
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response /* TableResourceList */ getTables(@Context ServletContext sc,
-      @Context HttpServletRequest req, @Context HttpHeaders httpHeaders, @Context UriInfo info,
-      @PathParam("appId") String appId, @QueryParam(CURSOR_PARAMETER) String cursor,
-      @QueryParam(FETCH_LIMIT) String fetchLimit, @QueryParam(OFFICE_ID) String officeId)
+      @Context HttpServletRequest req, @Context HttpServletResponse res,
+      @Context HttpHeaders httpHeaders, @Context UriInfo info, @PathParam("appId") String appId,
+      @QueryParam(CURSOR_PARAMETER) String cursor, @QueryParam(FETCH_LIMIT) String fetchLimit,
+      @QueryParam(OFFICE_ID) String officeId) throws AppNameMismatchException,
+      PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
+
+    ServiceUtils.examineRequest(sc, req, httpHeaders);
+    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
+
+    if (!preferencesAppId.equals(appId)) {
+      throw new AppNameMismatchException("AppName (" + appId + ") differs");
+    }
+
+    TableService ts = new TableService(sc, req, res, httpHeaders, info, appId, callingContext);
+    return ts.getTables(cursor, fetchLimit, officeId);
+  }
+
+  @Path("{appId}/tables/{tableId}")
+  public TableService getTablesService(@Context ServletContext sc, @Context HttpServletRequest req,
+      @Context HttpServletResponse res, @Context HttpHeaders httpHeaders, @Context UriInfo info,
+      @PathParam("appId") String appId, @PathParam("tableId") String tableId)
       throws AppNameMismatchException, PermissionDeniedException, ODKDatastoreException,
       ODKTaskLockException {
 
@@ -182,25 +201,8 @@ public class OdkTables {
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
-
-    TableService ts = new TableService(sc, req, httpHeaders, info, appId, callingContext);
-    return ts.getTables(cursor, fetchLimit, officeId);
-  }
-
-  @Path("{appId}/tables/{tableId}")
-  public TableService getTablesService(@Context ServletContext sc, @Context HttpServletRequest req,
-      @Context HttpHeaders httpHeaders, @Context UriInfo info, @PathParam("appId") String appId,
-      @PathParam("tableId") String tableId) throws AppNameMismatchException,
-      PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
-
-    ServiceUtils.examineRequest(sc, req, httpHeaders);
-    String preferencesAppId = ContextUtils.getOdkTablesAppId(callingContext);
-
-    if (!preferencesAppId.equals(appId)) {
-      throw new AppNameMismatchException("AppName (" + appId + ") differs");
-    }
     logger.info("Retrieving table service " + appId + " " + tableId);
-    return new TableService(sc, req, httpHeaders, info, appId, tableId, callingContext);
+    return new TableService(sc, req, res, httpHeaders, info, appId, tableId, callingContext);
   }
 
 }

@@ -38,5 +38,9 @@ public final class WebConsts {
 
 
   public static final String AS_ATTACHMENT = "as_attachment";
+  
+  public static final String FILE_TYPE = "fileType";
+  public static final String CSV = "CSV";
+  public static final String JSON = "JSON";
 
 }
