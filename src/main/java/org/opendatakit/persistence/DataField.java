@@ -178,4 +178,11 @@ public final class DataField {
 	public IndexType getIndexable() {
 		return indexable;
 	}
+
+  @Override
+  public String toString() {
+    return "DataField [name=" + name + ", dataType=" + dataType + "]";
+  }
+	
+	
 }

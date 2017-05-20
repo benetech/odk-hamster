@@ -126,4 +126,11 @@ public class OdkRegionalOfficeTable extends CommonFieldsBase {
   }
 
 
+  @Override
+  public String toString() {
+    return "OdkRegionalOfficeTable [getRegionalOfficeId()=" + getRegionalOfficeId()
+        + ", getRegionalOfficeName()=" + getRegionalOfficeName() + ", getUri()=" + getUri() + "]";
+  }
+
+
 }

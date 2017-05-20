@@ -46,6 +46,7 @@ import org.opendatakit.persistence.table.OdkRegionalOfficeTable;
 import org.opendatakit.security.User;
 import org.opendatakit.security.client.exception.AccessDeniedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -137,6 +138,7 @@ public class OfficeService {
       value = "Add or update office to database.  Uses officeId field as unique key which determines if office is created or updated.")
   @POST
   @Path("/")
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
@@ -149,9 +151,12 @@ public class OfficeService {
     try {
       prototype = OdkRegionalOfficeTable.assertRelation(callingContext);
 
+      logger.info("Incoming officeId " + (office != null ?  office.toString() : "null"));
+
       OdkRegionalOfficeTable record =
           OdkRegionalOfficeTable.getRecordFromDatabase(office.getOfficeId(), callingContext);
 
+      logger.info("Looked up officeId " + (record != null ?  record.toString() : "null"));
       try {
         // when office is already exists in database it is just edited
         record = ds.getEntity(prototype, office.getUri(), user);
@@ -183,6 +188,7 @@ public class OfficeService {
 
   @ApiOperation(value = "Delete office.")
   @DELETE
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
   @Path("{officeId}")
   public Response deleteOffice(@PathParam("officeId") String officeId)
       throws IOException, DatastoreFailureException {
