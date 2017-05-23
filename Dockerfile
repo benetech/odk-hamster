@@ -12,12 +12,14 @@ ENV JAVA_OPTS -server -Xms$MIN_HEAP -Xmx$MAX_HEAP -XX:MaxMetaspaceSize=$MAX_META
 
 MAINTAINER Benetech <cadenh@benetech.org>
 
-ENV SPRING_DATASOURCE_URL='jdbc:postgresql://192.168.86.113/hamster_db?autoDeserialize=true' \
-    SPRING_DATASOURCE_USERNAME='hamster_db' \
-    SPRING_DATASOURCE_PASSWORD='hamster_db' \
-    JDBC_SCHEMA='hamster_db' 
+ENV SPRING_DATASOURCE_URL='jdbc:postgresql://192.168.86.113/hamster_dev?autoDeserialize=true' \
+    SPRING_DATASOURCE_USERNAME='hamster_dev' \
+    SPRING_DATASOURCE_PASSWORD='hamster_dev' \
+    JDBC_SCHEMA='hamster_dev' 
     
 VOLUME /tmp
+
+# Static files are necessary for the Swagger UI.
 COPY ./target/classes/static /tmp/static
 ADD ./target/odk-hamster*.jar odk-hamster.jar
 RUN sh -c 'touch /odk-hamster.jar'

@@ -2,10 +2,17 @@
 
 This project is a slimmed-down version of the ODK Tables sync web service first made available in ODK Aggregate.  This project is being developed by Benetech and incorporates code from [ODK Aggregate](https://github.com/opendatakit/aggregate) and features contributed by [SolDevelo](http://www.soldevelo.com/).
 
-ODK Hamster is a web service that sits in front of a (Postgres) database and accepts form data from the ODK Survey Android application.
+ODK Hamster is a web service that sits in front of a (Postgres) database and accepts form data from the [ODK Survey Android application.](https://github.com/benetech/ODKSurveyServices)
 
 For the original OpenDataKit project, see:
 https://github.com/opendatakit/aggregate
+
+# Get Started
+
+* [Run the Hamster web service.](RUN.md)
+* [Run the service in a Docker container.](DOCKER.md)
+* [Can I run it on Heroku?](HEROKU.md)
+* [How should I edit it in an IDE?](ECLIPSE.md)
 
 # Why "Hamster"?
 
