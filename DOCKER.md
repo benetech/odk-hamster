@@ -33,7 +33,7 @@ Install and start Docker container with:
 + Overriding the database environment variables.
 
 ```shell
-docker run -d -i -t --name odk_webservice -p 8080:8080  -e "SPRING_DATASOURCE_URL=jdbc:postgresql://192.168.1.113/odk_unit?autoDeserialize=true" -e "SPRING_DATASOURCE_USERNAME=my_db" -e "SPRING_DATASOURCE_PASSWORD=my_db" -e "JDBC_SCHEMA=my_db" pstop
+docker run -d -i -t --name odk_webservice -p 8080:8080  -e "SPRING_DATASOURCE_URL=jdbc:postgresql://192.168.1.113/odk_unit?autoDeserialize=true" -e "SPRING_DATASOURCE_USERNAME=my_db" -e "SPRING_DATASOURCE_PASSWORD=my_db" -e "JDBC_SCHEMA=my_db" odk_ws
 ```
 Tail the log:
 ```shell
