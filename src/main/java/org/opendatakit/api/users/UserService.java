@@ -156,7 +156,7 @@ public class UserService {
 
     String username = null;
     User user = callingContext.getCurrentUser();
-    logger.info("UriUser: " + user.getUriUser());
+    logger.debug("UriUser: " + user.getUriUser());
 
     RegisteredUsersTable registeredUsersTable;
 
@@ -164,7 +164,7 @@ public class UserService {
       registeredUsersTable =
           RegisteredUsersTable.getUserByUri(user.getUriUser(), callingContext.getDatastore(), user);
       username = registeredUsersTable.getUsername();
-      logger.info("Username: " + username);
+      logger.debug("Username: " + username);
     } catch (ODKDatastoreException e) {
       logger.error("Retrieving users persistence error: " + e.toString());
       throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),

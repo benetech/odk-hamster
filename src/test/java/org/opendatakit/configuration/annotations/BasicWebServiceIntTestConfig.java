@@ -32,6 +32,6 @@ import org.springframework.test.context.ContextConfiguration;
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BasicWebServiceUnitTestConfig {
+public @interface BasicWebServiceIntTestConfig {
 
 }

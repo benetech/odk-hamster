@@ -51,7 +51,7 @@ public class MultipartFormDataToMixedInterceptor implements ReaderInterceptor {
   public Object aroundReadFrom(ReaderInterceptorContext context)
       throws IOException, WebApplicationException {
     
-    logger.info("Content type: " + context.getHeaders().get(HttpHeaders.CONTENT_TYPE));
+    logger.debug("Content type: " + context.getHeaders().get(HttpHeaders.CONTENT_TYPE));
     List<String> contentTypes = context.getHeaders().get(HttpHeaders.CONTENT_TYPE);
     
     for (int i = 0; i < contentTypes.size(); i++) {
@@ -73,8 +73,6 @@ public class MultipartFormDataToMixedInterceptor implements ReaderInterceptor {
         context.getHeaders().replace(HttpHeaders.CONTENT_TYPE, Arrays.asList(newContentType));
       }
     }
-    logger.info("Content type: " + context.getHeaders().get(HttpHeaders.CONTENT_TYPE));
-
     return context.proceed();
   }
 

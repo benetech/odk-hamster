@@ -1026,7 +1026,7 @@ public class DataManager {
 
         revertPendingChanges(entry, columns, table, logTable);
 
-        logger.info("Before loop Time elpased: " + (System.currentTimeMillis() - startTime));
+        logger.info("Before loop Time elapsed: " + (System.currentTimeMillis() - startTime));
 
         DataKeyValueDeepComparator dc = new DataKeyValueDeepComparator(columns);
 
@@ -1153,7 +1153,7 @@ public class DataManager {
           rowOutcomes.add(rowWrapper.getOutcome());
         }
 
-        logger.info("End loop Time elpased: " + (System.currentTimeMillis() - startTime));
+        logger.info("End loop Time elapsed: " + (System.currentTimeMillis() - startTime));
       } finally {
         propsLock.release();
       }

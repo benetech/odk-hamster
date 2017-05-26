@@ -125,7 +125,6 @@ public class RealizedTableService {
     }
 
     tm.deleteTable(tableId);
-    logger.info("tableId: " + tableId);
 
     return Response.ok()
         .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)

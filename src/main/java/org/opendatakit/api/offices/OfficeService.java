@@ -151,12 +151,12 @@ public class OfficeService {
     try {
       prototype = OdkRegionalOfficeTable.assertRelation(callingContext);
 
-      logger.info("Incoming officeId " + (office != null ?  office.toString() : "null"));
+      logger.debug("Incoming officeId " + (office != null ?  office.toString() : "null"));
 
       OdkRegionalOfficeTable record =
           OdkRegionalOfficeTable.getRecordFromDatabase(office.getOfficeId(), callingContext);
 
-      logger.info("Looked up officeId " + (record != null ?  record.toString() : "null"));
+      logger.debug("Looked up officeId " + (record != null ?  record.toString() : "null"));
       try {
         // when office is already exists in database it is just edited
         record = ds.getEntity(prototype, office.getUri(), user);

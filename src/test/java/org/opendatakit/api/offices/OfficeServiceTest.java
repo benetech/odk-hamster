@@ -13,7 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.offices.entity.RegionalOffice;
-import org.opendatakit.configuration.annotations.BasicWebServiceUnitTestConfig;
+import org.opendatakit.configuration.annotations.BasicWebServiceIntTestConfig;
 import org.opendatakit.test.util.ConstantsUtils;
 import org.opendatakit.test.util.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@BasicWebServiceUnitTestConfig
+@BasicWebServiceIntTestConfig
 public class OfficeServiceTest {
 
   @Autowired

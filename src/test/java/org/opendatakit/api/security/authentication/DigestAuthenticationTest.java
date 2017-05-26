@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.offices.entity.RegionalOffice;
 import org.opendatakit.api.users.entity.UserEntity;
-import org.opendatakit.configuration.annotations.DigestWebServiceUnitTestConfig;
+import org.opendatakit.configuration.annotations.DigestWebServiceIntTestConfig;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.test.util.ConstantsUtils;
 import org.opendatakit.test.util.TestUtils;
@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@DigestWebServiceUnitTestConfig
+@DigestWebServiceIntTestConfig
 public class DigestAuthenticationTest {
 
   @Autowired

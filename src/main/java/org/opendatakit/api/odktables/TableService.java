@@ -322,7 +322,7 @@ public class TableService {
     if (entry.getSchemaETag() != null && !entry.getSchemaETag().equals(schemaETag)) {
       throw new SchemaETagMismatchException(ERROR_SCHEMA_DIFFERS + "\n" + entry.getSchemaETag());
     }
-    logger.info("Returning RealizedTableService " + tableId + " " + appId + " " + schemaETag );
+    logger.debug("Returning RealizedTableService " + tableId + " " + appId + " " + schemaETag );
     RealizedTableService service = new RealizedTableService(sc, req, headers, info, appId,
         tableId, schemaETag, (entry.getSchemaETag() == null), userPermissions, tm, callingContext);
     return service;

@@ -1,5 +1,10 @@
 package org.opendatakit.persistence;
 
+import static java.util.Collections.emptyList;
+import static ru.yandex.qatools.embed.postgresql.EmbeddedPostgres.cachedRuntimeConfig;
+
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -20,9 +25,14 @@ import org.opendatakit.persistence.table.UserGrantedAuthority;
 import org.opendatakit.test.db.SetupTeardownUtil;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
+
 /**
- * Creates a unique schema so that each test can be isolated while sharing the same
- * Postgres database.
+ * Creates a unique schema so that each test can be isolated while sharing the same Postgres
+ * database.
  * 
  * @author Caden Howell <cadenh@benetech.org>
  *
@@ -32,6 +42,9 @@ public class EphemeralTestDatastoreImpl extends DatastoreImpl implements Disposa
   private String ephemeralSchemaName = null;
   private DataSource dataSource;
   private String username;
+  private boolean useEmbeddedPostgres;
+  private EmbeddedPostgres postgres;
+
 
   public EphemeralTestDatastoreImpl() throws ODKDatastoreException {
     super();
@@ -53,6 +66,7 @@ public class EphemeralTestDatastoreImpl extends DatastoreImpl implements Disposa
     this.username = username;
   }
 
+
   @Override
   public void setDataSource(DataSource dataSource) {
     this.dataSource = dataSource;
@@ -61,6 +75,19 @@ public class EphemeralTestDatastoreImpl extends DatastoreImpl implements Disposa
 
   @Override
   public void afterPropertiesSet() throws Exception {
+
+    if (useEmbeddedPostgres) {
+      try {
+        postgres = new EmbeddedPostgres();
+        IRuntimeConfig runtimeConfig =
+            cachedRuntimeConfig(Paths.get(System.getProperty("java.io.tmpdir"), "pgembed"));
+        String url = postgres.start(runtimeConfig, "localhost", 15433, "hamster_unit", username,
+            "not the real password", emptyList());
+        ((ComboPooledDataSource) dataSource).setJdbcUrl(url);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
 
     // Even with @DirtiesContext, the Spring holds on to these static references because they are
     // not managed by Spring.
@@ -84,6 +111,12 @@ public class EphemeralTestDatastoreImpl extends DatastoreImpl implements Disposa
     SetupTeardownUtil.teardownDatabase(this.dataSource, getEphemeralSchemaName());
 
   }
+
+
+  public void setUseEmbeddedPostgres(boolean useEmbeddedPostgres) {
+    this.useEmbeddedPostgres = useEmbeddedPostgres;
+  }
+
 
 
 

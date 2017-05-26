@@ -35,15 +35,18 @@ public class TestDataConfiguration {
 
   @Value("${spring.datasource.driverClassName}")
   String driverClassName;
-  
+
   @Value("${spring.datasource.url}")
   String url;
-  
+
   @Value("${spring.datasource.username}")
   String username;
-  
+
   @Value("${spring.datasource.password}")
   String password;
+  
+  @Value("${use.embedded.postgres}")
+  boolean useEmbeddedPostgres;
 
   @Value("10")
   int maxIdle;
@@ -74,7 +77,9 @@ public class TestDataConfiguration {
 
   @Value("select 1")
   String validationQuery;
-  
+
+
+
 
 
   /**
@@ -91,6 +96,7 @@ public class TestDataConfiguration {
 
   @Bean
   public DataSource dataSource() throws PropertyVetoException {
+
     ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
     comboPooledDataSource.setUser(username);
     comboPooledDataSource.setPassword(password);
@@ -111,8 +117,9 @@ public class TestDataConfiguration {
   @Bean(name = "datastore")
   public Datastore datastore() throws ODKDatastoreException, PropertyVetoException {
     EphemeralTestDatastoreImpl datastoreImpl = new EphemeralTestDatastoreImpl();
-    datastoreImpl.setDataSource(dataSource());
+    datastoreImpl.setUseEmbeddedPostgres(useEmbeddedPostgres);
     datastoreImpl.setUsername(username);
+    datastoreImpl.setDataSource(dataSource());
     return datastoreImpl;
   }
 

@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendatakit.api.offices.entity.RegionalOffice;
 import org.opendatakit.api.users.entity.UserEntity;
-import org.opendatakit.configuration.annotations.BasicWebServiceUnitTestConfig;
+import org.opendatakit.configuration.annotations.BasicWebServiceIntTestConfig;
 import org.opendatakit.constants.SecurityConsts;
 import org.opendatakit.test.util.ConstantsUtils;
 import org.opendatakit.test.util.TestUtils;
@@ -48,7 +48,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@BasicWebServiceUnitTestConfig
+@BasicWebServiceIntTestConfig
 public class UserAdminServiceTest {
 
   @Autowired

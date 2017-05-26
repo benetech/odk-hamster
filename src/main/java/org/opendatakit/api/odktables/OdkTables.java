@@ -201,7 +201,7 @@ public class OdkTables {
     if (!preferencesAppId.equals(appId)) {
       throw new AppNameMismatchException("AppName (" + appId + ") differs");
     }
-    logger.info("Retrieving table service " + appId + " " + tableId);
+    logger.debug("Retrieving table service " + appId + " " + tableId);
     return new TableService(sc, req, res, httpHeaders, info, appId, tableId, callingContext);
   }
 

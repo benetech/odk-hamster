@@ -90,7 +90,7 @@ public class FormService {
   public Response doPost(@Context HttpServletRequest req, @Context HttpServletResponse resp,
       @PathParam("odkClientVersion") String odkClientVersion, @PathParam("appId") String appId,
       @Context UriInfo info) throws IOException {
-    logger.info("Uploading...");
+    logger.debug("Uploading...");
     ServiceUtils.examineRequest(req.getServletContext(), req);
 
     req.getContentLength();
@@ -115,7 +115,6 @@ public class FormService {
         // is going to be assigned to
         if (item.getFieldName().equals(WebConsts.OFFICE_ID)) {
           regionalOffices.add(item.getString());
-          logger.info("Form definition would be assigned to office with ID: " + item.getString());
         }
 
         String fieldName = item.getFieldName();
@@ -207,7 +206,7 @@ public class FormService {
 
     } catch (FileUploadException | ODKDatastoreException | ODKTaskLockException
         | PermissionDeniedException | TableAlreadyExistsException e) {
-      logger.error("error uploading zip", e);
+      logger.error("Error uploading zip", e);
       throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
           HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 

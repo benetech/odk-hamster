@@ -80,7 +80,7 @@ public class TomcatConfiguration {
     logger.info("Copying static resources to /tmp directory.");
     for (Resource resource : resources) {
 
-      logger.info(resource.getURI().toString());
+      logger.debug(resource.getURI().toString());
       String uri = resource.getURI().toString();
       if (!uri.endsWith("/")) {
         String newPath =
