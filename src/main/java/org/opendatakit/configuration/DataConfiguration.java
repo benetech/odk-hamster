@@ -31,7 +31,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
 @Profile("default")
-@ComponentScan(basePackages = {"org.opendatakit","org.benetech"})
+@ComponentScan(basePackages = {"org.opendatakit"})
 public class DataConfiguration {
   
   private static final Log logger = LogFactory.getLog(DataConfiguration.class);

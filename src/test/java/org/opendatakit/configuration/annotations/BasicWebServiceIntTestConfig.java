@@ -3,8 +3,8 @@ package org.opendatakit.configuration.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import org.benetech.boot.Application;
 import org.opendatakit.configuration.TestDataConfiguration;
+import org.opendatakit.boot.Application;
 import org.opendatakit.configuration.TestBasicSecurityConfiguration;
 import org.opendatakit.configuration.TestUserServiceConfiguration;
 import org.opendatakit.configuration.TestWebServiceConfiguration;

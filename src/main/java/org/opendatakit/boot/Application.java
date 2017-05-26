@@ -8,7 +8,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.benetech.boot;
+package org.opendatakit.boot;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;

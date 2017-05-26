@@ -35,7 +35,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  */
 @Configuration
 @Profile("default")
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
+@ComponentScan(basePackages = {"org.opendatakit"})
 public class TomcatConfiguration {
 
   private static Log logger = LogFactory.getLog(TomcatConfiguration.class);

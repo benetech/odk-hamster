@@ -57,7 +57,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @Configuration
 @Profile("default")
 @EnableWebSecurity
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
+@ComponentScan(basePackages = {"org.opendatakit"})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private static Log logger = LogFactory.getLog(SecurityConfiguration.class);

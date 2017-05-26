@@ -29,7 +29,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 
 @Configuration
 @Profile("default")
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
+@ComponentScan(basePackages = {"org.opendatakit"})
 public class UserServiceConfiguration {
 
   @Autowired

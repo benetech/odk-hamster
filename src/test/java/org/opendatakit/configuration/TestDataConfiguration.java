@@ -30,7 +30,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
 @Profile({"unittest", "integrationtest"})
-@ComponentScan(basePackages = {"org.opendatakit", "org.benetech"})
+@ComponentScan(basePackages = {"org.opendatakit"})
 public class TestDataConfiguration {
 
   @Value("${spring.datasource.driverClassName}")
