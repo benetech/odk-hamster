@@ -21,14 +21,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
- * The purpose of this configuration class is to get static files to be served and have that
- * working within a Docker container.
+ * The purpose of this configuration class is to get static files to be served and have that working
+ * within a Docker container.
  * 
- * The only things that require these static files are the Swagger UI, the friendly 
- * front page, and the favicon.  If none of these things work, the web service still functions.
+ * The only things that require these static files are the Swagger UI, the friendly front page, and
+ * the favicon. If none of these things work, the web service still functions.
  * 
- * To do this without installing Spring MVC we're creating a temporary static file directory
- * and configuring the embedded Tomcat instance to use it.
+ * To do this without installing Spring MVC we're creating a temporary static file directory and
+ * configuring the embedded Tomcat instance to use it.
  * 
  * @author Caden Howell <cadenh@benetech.org>
  *
@@ -51,20 +51,18 @@ public class TomcatConfiguration {
 
         URL staticDirUrl =
             EmbeddedServletContainerFactory.class.getClassLoader().getResource(STATIC_DIR);
-        if ("jar".equals(staticDirUrl.getProtocol())) {
-          try {
-            String staticDirPath = Files.createTempDirectory(STATIC_DIR).toAbsolutePath().toString();
-            logger.info("Setting new static file directory path " + staticDirPath);
-            copyStaticFiles(staticDirPath);
-            context.setDocBase(staticDirPath);
+        try {
+          String staticDirPath = Files.createTempDirectory(STATIC_DIR).toAbsolutePath().toString();
+          logger.info("Setting new static file directory path " + staticDirPath);
+          copyStaticFiles(staticDirPath);
+          context.setDocBase(staticDirPath);
 
-          } catch (IOException e) {
-            logger.error(
-                "Unable to create temp directory for static files.  That's ok, they're non-essential for web service operation.");
-            logger.error(
-                "Swagger UI will not be available since it relies on statically served files.");
-            logger.error(e);
-          }
+        } catch (IOException e) {
+          logger.error(
+              "Unable to create temp directory for static files.  That's ok, they're non-essential for web service operation.");
+          logger.error(
+              "Swagger UI will not be available since it relies on statically served files.");
+          logger.error(e);
         }
       }
     };

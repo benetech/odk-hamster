@@ -80,6 +80,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     http.csrf().disable();
 
     http.authorizeRequests().antMatchers("/").permitAll();
+    http.authorizeRequests().antMatchers("/healthcheck").permitAll();
     http.authorizeRequests().antMatchers("/swagger.json").permitAll();
     http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
     http.authorizeRequests().antMatchers("/index.html").permitAll();

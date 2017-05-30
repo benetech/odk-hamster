@@ -11,7 +11,6 @@
  */
 package org.opendatakit.configuration;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.ServletConfig;
 
 import org.apache.commons.logging.Log;
@@ -25,6 +24,7 @@ import org.opendatakit.api.admin.UserAdminService;
 import org.opendatakit.api.filter.GzipReaderInterceptor;
 import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
 import org.opendatakit.api.forms.FormService;
+import org.opendatakit.api.healthcheck.HealthCheckService;
 import org.opendatakit.api.odktables.DataService;
 import org.opendatakit.api.odktables.DiffService;
 import org.opendatakit.api.odktables.ExportService;
@@ -117,6 +117,9 @@ public class JerseyConfiguration extends ResourceConfig implements ServletConfig
 
     // Regional offices
     register(OfficeService.class);
+    
+    // Healthcheck 
+    register(HealthCheckService.class);
 
     // Mapper classes
     register(SimpleHTMLMessageWriter.class);
