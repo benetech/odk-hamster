@@ -8,7 +8,13 @@
     <include
         resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
-    <root level="DEBUG">
+	<logger name="org.springframework.security.web.authentication.www" level="DEBUG"
+		additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+	</logger>
+	
+    <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>
