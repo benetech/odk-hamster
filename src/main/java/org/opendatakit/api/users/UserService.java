@@ -135,10 +135,6 @@ public class UserService {
         (String) userInfoMap.get(SecurityConsts.OFFICE_ID), 
         (List<String>)userInfoMap.get(SecurityConsts.ROLES));
     
-    for (String header: httpHeaders.getRequestHeaders().keySet()) {
-      logger.info("Headers: " + header + " : " + httpHeaders.getRequestHeader(header).toString() );
-    }
-    
     // Need to set host header? original has
     // resp.addHeader(HttpHeaders.HOST, cc.getServerURL());
     return Response.ok(userEntity)
