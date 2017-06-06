@@ -36,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opendatakit.aggregate.odktables.rest.ApiConstants;
@@ -48,6 +49,7 @@ import org.opendatakit.context.CallingContext;
 import org.opendatakit.persistence.Datastore;
 import org.opendatakit.persistence.client.exception.DatastoreFailureException;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.persistence.table.GrantedAuthorityHierarchyTable;
 import org.opendatakit.persistence.table.RegisteredUsersTable;
 import org.opendatakit.persistence.table.UserGrantedAuthority;
 import org.opendatakit.security.User;
@@ -62,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -229,6 +232,56 @@ public class UserAdminService {
 
   }
 
+  @ApiOperation(
+      value = "Add or update anonymous user.  Anonymous user does not have a _registered_users entry in the database and is 'special' so we handle it separately.")
+  @POST
+  @Path("users/anonymous")
+  @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  @Consumes({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
+      ApiConstants.MEDIA_APPLICATION_XML_UTF8})
+  @Secured({"ROLE_SITE_ACCESS_ADMIN"})
+  public Response putAnonymousUser(UserEntity userEntity)
+      throws AccessDeniedException, DatastoreFailureException {
+
+    try {
+      GrantedAuthority anonAuth =
+          new SimpleGrantedAuthority(GrantedAuthorityName.USER_IS_ANONYMOUS.name());
+
+      List<String> roles = userEntity.getRoles();
+      List<String> anonGrantStrings = new ArrayList<String>();
+
+      for (String role : roles) {
+        // Whitelist only allowed roles.
+        if (GrantedAuthorityName.ROLE_USER.name().equals(role)
+            || GrantedAuthorityName.ROLE_DATA_COLLECTOR.name().equals(role)
+            || GrantedAuthorityName.ROLE_DATA_VIEWER.name().equals(role)
+            || GrantedAuthorityName.ROLE_DATA_OWNER.name().equals(role)
+            || GrantedAuthorityName.ROLE_SYNCHRONIZE_TABLES.name().equals(role)
+            || GrantedAuthorityName.ROLE_SUPER_USER_TABLES.name().equals(role)
+            || GrantedAuthorityName.ROLE_ADMINISTER_TABLES.name().equals(role)
+            ) {
+          anonGrantStrings.add(role);
+        }
+      }
+
+      GrantedAuthorityHierarchyTable.assertGrantedAuthorityHierarchy(anonAuth, anonGrantStrings,
+          callingContext);
+
+      return Response.status(Status.CREATED)
+          .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+          .header("Access-Control-Allow-Origin", "*")
+          .header("Access-Control-Allow-Credentials", "true").build();
+
+    } catch (ODKDatastoreException e) {
+      logger.error("Error updating anonymous user", e);
+      throw new WebApplicationException(ErrorConsts.PERSISTENCE_LAYER_PROBLEM + "\n" + e.toString(),
+          HttpServletResponse.SC_BAD_REQUEST);
+
+    }
+
+  }
+
   @ApiOperation(value = "Delete user by username.")
   @DELETE
   @Path("users/username:{username}")
@@ -254,7 +307,6 @@ public class UserAdminService {
         .header("Access-Control-Allow-Origin", "*")
         .header("Access-Control-Allow-Credentials", "true").build();
   }
-
 
 
 
