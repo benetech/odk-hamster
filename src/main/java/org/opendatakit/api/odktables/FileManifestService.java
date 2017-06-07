@@ -106,6 +106,8 @@ public class FileManifestService {
 
     FileManifestManager manifestManager = new FileManifestManager(appId, odkClientVersion, cc);
     OdkTablesFileManifest manifest = null;
+    Log log = LogFactory.getLog(FileManifestService.class);
+
 
     // retrieve the incoming if-none-match eTag...
     List<String> eTags = httpHeaders.getRequestHeader(HttpHeaders.IF_NONE_MATCH);
@@ -118,6 +120,7 @@ public class FileManifestService {
         // ignore...
       }
       if (eTag != null && eTagEntity != null && eTag.equals(eTagEntity.getManifestETag())) {
+        log.info("The etag about to be returned for Not Modified is " + eTag);
         return Response.status(Status.NOT_MODIFIED).header(HttpHeaders.ETAG, eTag)
             .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
             .header("Access-Control-Allow-Origin", "*")
@@ -127,7 +130,6 @@ public class FileManifestService {
       manifest = manifestManager.getManifestForAppLevelFiles();
 
     } catch (ODKDatastoreException e) {
-      Log log = LogFactory.getLog(FileManifestService.class);
       log.error("Datastore exception in getting the file manifest");
       e.printStackTrace();
     }
@@ -144,7 +146,6 @@ public class FileManifestService {
         eTagEntity.setManifestETag(newETag);
         eTagEntity.put(cc);
       } else if (!newETag.equals(eTagEntity.getManifestETag())) {
-        Log log = LogFactory.getLog(FileManifestService.class);
         log.error("App-level Manifest ETag does not match computed value!");
         eTagEntity.setManifestETag(newETag);
         eTagEntity.put(cc);
@@ -167,6 +168,7 @@ public class FileManifestService {
         }
       }
 
+      log.info("The etag about to be returned for OK is " + eTag);
       return Response.ok(manifest).header(HttpHeaders.ETAG, eTag)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
