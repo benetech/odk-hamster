@@ -47,6 +47,7 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
 
     UriInfo uriInfo = requestContext.getUriInfo();
     URI requestUri = uriInfo.getRequestUri();
+    URI baseUri = uriInfo.getBaseUri();
     int forwardedPortInt = uriInfo.getRequestUri().getPort();
 
     if (StringUtils.isNotEmpty(forwardedPort) || StringUtils.isNotEmpty(forwardedProto)) {
@@ -63,11 +64,15 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
         forwardedProto = uriInfo.getRequestUri().getScheme();
       }
       try {
-        URI uri = new URI(forwardedProto, requestUri.getUserInfo(), host, forwardedPortInt,
+        URI newRequestUri = new URI(forwardedProto, requestUri.getUserInfo(), host, forwardedPortInt,
             requestUri.getPath(), requestUri.getQuery(), requestUri.getFragment());
-        logger.info("Setting new requestUri  " + uri);
 
-        requestContext.setRequestUri(uri);
+        URI newBaseUri =
+            new URI(forwardedProto, baseUri.getUserInfo(), host, forwardedPortInt,
+                baseUri.getPath(), baseUri.getQuery(), baseUri.getFragment());
+
+        requestContext.setRequestUri(newRequestUri, newBaseUri);
+
       } catch (URISyntaxException e) {
         logger.error("Unable to update requestUri. Generated URLs in JSON responses may be wrong.");
         // Life goes on. Non-fatal.
