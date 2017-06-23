@@ -124,12 +124,6 @@ public class UserService {
   public Response getCurrent(@Context HttpHeaders httpHeaders) throws IOException {
     TreeSet<GrantedAuthorityName> grants;
     
-    MultivaluedMap<String,String> headers = httpHeaders.getRequestHeaders();
-    
-    for (String key : headers.keySet()) {
-      logger.error(key + ": " + headers.get(key));
-    }
-    
     try {
       grants = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     } catch (ODKDatastoreException e) {
