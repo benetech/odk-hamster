@@ -13,6 +13,7 @@ package org.opendatakit.api.filter;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 
@@ -33,7 +34,7 @@ import org.opendatakit.api.users.UserService;
  * @author Caden Howell
  *
  */
-@PreMatching 
+@PreMatching
 public class ProxyUrlSetFilter implements ContainerRequestFilter {
 
   private static final Log logger = LogFactory.getLog(ProxyUrlSetFilter.class);
@@ -45,6 +46,7 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
     String host = requestContext.getHeaderString("host");
 
     UriInfo uriInfo = requestContext.getUriInfo();
+    URI requestUri = uriInfo.getRequestUri();
     int forwardedPortInt = uriInfo.getRequestUri().getPort();
 
     if (StringUtils.isNotEmpty(forwardedPort) || StringUtils.isNotEmpty(forwardedProto)) {
@@ -60,10 +62,17 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
       if (StringUtils.isEmpty(forwardedProto)) {
         forwardedProto = uriInfo.getRequestUri().getScheme();
       }
-      URL url = new URL(forwardedProto, host, forwardedPortInt, "");
+      try {
+        URI uri = new URI(forwardedProto, requestUri.getUserInfo(), host, forwardedPortInt,
+            requestUri.getPath(), requestUri.getQuery(), requestUri.getFragment());
+        logger.info("Setting new requestUri  " + uri);
 
-      URI baseUri = URI.create(url.toExternalForm());
-      requestContext.setRequestUri(baseUri, uriInfo.getRequestUri());
+        requestContext.setRequestUri(uri);
+      } catch (URISyntaxException e) {
+        logger.error("Unable to update requestUri. Generated URLs in JSON responses may be wrong.");
+        // Life goes on. Non-fatal.
+      }
+
     }
   }
 }
