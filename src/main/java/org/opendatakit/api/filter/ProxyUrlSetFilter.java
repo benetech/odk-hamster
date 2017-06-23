@@ -13,12 +13,17 @@ package org.opendatakit.api.filter;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.text.ParseException;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opendatakit.api.users.UserService;
 
 /**
  * This is the brute force approach to dealing with an external proxy address that doesn't match the
@@ -28,12 +33,34 @@ import org.apache.commons.lang3.StringUtils;
  *
  */
 public class ProxyUrlSetFilter implements ContainerRequestFilter {
+
+  private static final Log logger = LogFactory.getLog(ProxyUrlSetFilter.class);
+
   @Override
   public void filter(ContainerRequestContext requestContext) throws IOException {
+    String forwardedPort = requestContext.getHeaderString("x-forwarded-port");
+    String forwardedProto = requestContext.getHeaderString("x-forwarded-proto");
+    String host = requestContext.getHeaderString("host");
+
     UriInfo uriInfo = requestContext.getUriInfo();
-    String externalRootUrl = System.getenv("EXTERNAL_ROOT_URL");
-    if (StringUtils.isNotEmpty(externalRootUrl)) {
-      URI baseUri = URI.create(externalRootUrl);
+    int forwardedPortInt = uriInfo.getRequestUri().getPort();
+
+    if (StringUtils.isNotEmpty(forwardedPort) || StringUtils.isNotEmpty(forwardedProto)) {
+      if (StringUtils.isNotEmpty(forwardedPort)) {
+        try {
+          forwardedPortInt = Integer.parseInt(forwardedPort);
+        } catch (NumberFormatException e) {
+          logger.error("Unable to parse x-forwarded-port number " + forwardedPort
+              + " Generated URLs in JSON responses may be wrong.");
+          // Life goes on. Non-fatal.
+        }
+      }
+      if (StringUtils.isEmpty(forwardedProto)) {
+        forwardedProto = uriInfo.getRequestUri().getScheme();
+      }
+      URL url = new URL(forwardedProto, host, forwardedPortInt, "");
+
+      URI baseUri = URI.create(url.toExternalForm());
       requestContext.setRequestUri(baseUri, uriInfo.getRequestUri());
     }
   }

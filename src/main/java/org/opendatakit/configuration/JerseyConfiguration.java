@@ -23,6 +23,7 @@ import org.opendatakit.api.RootRedirect;
 import org.opendatakit.api.admin.UserAdminService;
 import org.opendatakit.api.filter.GzipReaderInterceptor;
 import org.opendatakit.api.filter.MultipartFormDataToMixedInterceptor;
+import org.opendatakit.api.filter.ProxyUrlSetFilter;
 import org.opendatakit.api.forms.FormService;
 import org.opendatakit.api.healthcheck.HealthCheckService;
 import org.opendatakit.api.odktables.DataService;
@@ -86,7 +87,7 @@ public class JerseyConfiguration extends ResourceConfig implements ServletConfig
     logger.info("Registering Jersey classes.");
 
     // Uncomment to handle proxied URLs
-    // register(ProxyUrlSetFilter.class);
+    register(ProxyUrlSetFilter.class);
     register(GzipReaderInterceptor.class);
     register(MultipartFormDataToMixedInterceptor.class);
 
