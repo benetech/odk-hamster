@@ -44,6 +44,9 @@ public class TomcatConfiguration {
   @Bean
   public EmbeddedServletContainerFactory servletContainer() {
     TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
+    tomcat.addConnectorCustomizers((connector) -> {
+      connector.setMaxPostSize(250000000); // 250 MB
+    });
 
     TomcatContextCustomizer staticContentCustomizer = new TomcatContextCustomizer() {
       @Override
@@ -56,7 +59,6 @@ public class TomcatConfiguration {
           logger.info("Setting new static file directory path " + staticDirPath);
           copyStaticFiles(staticDirPath);
           context.setDocBase(staticDirPath);
-
         } catch (IOException e) {
           logger.error(
               "Unable to create temp directory for static files.  That's ok, they're non-essential for web service operation.");
