@@ -28,6 +28,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -53,6 +54,7 @@ import org.opendatakit.utils.SecurityUtils;
 import org.opendatakit.utils.UserRoleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,6 +123,13 @@ public class UserService {
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
   public Response getCurrent(@Context HttpHeaders httpHeaders) throws IOException {
     TreeSet<GrantedAuthorityName> grants;
+    
+    MultivaluedMap<String,String> headers = httpHeaders.getRequestHeaders();
+    
+    for (String key : headers.keySet()) {
+      logger.error(key + ": " + headers.get(key));
+    }
+    
     try {
       grants = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
     } catch (ODKDatastoreException e) {
@@ -223,9 +232,6 @@ public class UserService {
       }
     }
     UserRoleUtils.processRoles(grants, userInfoMap);
-
-
-
     return userInfoMap;
 
   }
