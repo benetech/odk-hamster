@@ -71,7 +71,7 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
             new URI(forwardedProto, baseUri.getUserInfo(), host, forwardedPortInt,
                 baseUri.getPath(), baseUri.getQuery(), baseUri.getFragment());
 
-        requestContext.setRequestUri(newRequestUri, newBaseUri);
+        requestContext.setRequestUri(newBaseUri, newRequestUri);
         logger.info("Setting requestUri to " + newRequestUri + " baseUri to " + newBaseUri);
 
       } catch (URISyntaxException e) {
