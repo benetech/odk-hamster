@@ -72,6 +72,7 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
                 baseUri.getPath(), baseUri.getQuery(), baseUri.getFragment());
 
         requestContext.setRequestUri(newRequestUri, newBaseUri);
+        logger.info("Setting requestUri to " + newRequestUri + " baseUri to " + newBaseUri);
 
       } catch (URISyntaxException e) {
         logger.error("Unable to update requestUri. Generated URLs in JSON responses may be wrong.");
