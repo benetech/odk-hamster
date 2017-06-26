@@ -157,7 +157,7 @@ public class FileService {
           javax.ws.rs.core.MediaType.valueOf(fileContentInfo.contentType);
       if (mediaType.equals(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE)
           || fileContentInfo.contentType.startsWith("text")) {
-        mediaType.withCharset("utf-8");
+        mediaType = mediaType.withCharset("utf-8");
       }
       
       ResponseBuilder rBuild = Response.ok(fileContentInfo.fileBlob).type(mediaType)
