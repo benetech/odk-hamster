@@ -54,6 +54,7 @@ import org.opendatakit.persistence.exception.ODKOverQuotaException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.opendatakit.security.common.GrantedAuthorityName;
 import org.opendatakit.security.server.SecurityServiceUtil;
+import org.springframework.http.MediaType;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.Authorization;
@@ -73,7 +74,7 @@ import io.swagger.annotations.Authorization;
  * @author sudar.sam@gmail.com
  *
  */
-@Api(authorizations = {@Authorization(value="basicAuth")})
+@Api(authorizations = {@Authorization(value = "basicAuth")})
 public class FileService {
 
   public static final String PARAM_AS_ATTACHMENT = "as_attachment";
@@ -124,7 +125,7 @@ public class FileService {
     String appRelativePath = constructPathFromSegments(segments);
     String tableId = FileManager.getTableIdForFilePath(appRelativePath);
 
-    FileContentInfo fi = null;
+    FileContentInfo fileContentInfo = null;
 
     // DbTableFileInfo.NO_TABLE_ID -- means that we are working with app-level
     // permissions
@@ -137,23 +138,31 @@ public class FileService {
     String eTag = (eTags == null || eTags.isEmpty()) ? null : eTags.get(0);
 
     FileManager fm = new FileManager(appId, callingContext);
-    fi = fm.getFile(odkClientVersion, tableId, appRelativePath);
+    fileContentInfo = fm.getFile(odkClientVersion, tableId, appRelativePath);
 
     // And now prepare everything to be returned to the caller.
-    if (fi.fileBlob != null && fi.contentType != null && fi.contentLength != null
-        && fi.contentLength != 0L) {
+    if (fileContentInfo.fileBlob != null && fileContentInfo.contentType != null
+        && fileContentInfo.contentLength != null && fileContentInfo.contentLength != 0L) {
 
       // test if we should return a NOT_MODIFIED response...
-      if (eTag != null && eTag.equals(fi.contentHash)) {
+      if (eTag != null && eTag.equals(fileContentInfo.contentHash)) {
         return Response.status(Status.NOT_MODIFIED).header(HttpHeaders.ETAG, eTag)
             .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
             .header("Access-Control-Allow-Origin", "*")
             .header("Access-Control-Allow-Credentials", "true").build();
       }
 
-      ResponseBuilder rBuild = Response.ok(fi.fileBlob, fi.contentType)
-          .header(HttpHeaders.CONTENT_LENGTH, fi.contentLength)
-          .header(HttpHeaders.ETAG, fi.contentHash)
+
+      javax.ws.rs.core.MediaType mediaType =
+          javax.ws.rs.core.MediaType.valueOf(fileContentInfo.contentType);
+      if (mediaType.equals(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE)
+          || fileContentInfo.contentType.startsWith("text")) {
+        mediaType.withCharset("utf-8");
+      }
+      
+      ResponseBuilder rBuild = Response.ok(fileContentInfo.fileBlob).type(mediaType)
+          .header(HttpHeaders.CONTENT_LENGTH, fileContentInfo.contentLength)
+          .header(HttpHeaders.ETAG, fileContentInfo.contentHash)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
           .header("Access-Control-Allow-Origin", "*")
           .header("Access-Control-Allow-Credentials", "true");
