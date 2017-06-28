@@ -26,6 +26,7 @@ package org.opendatakit.constants;
  */
 public final class ErrorConsts {
   
+  public static final String NO_TABLE_ID_IN_DEFINITION_FILE = "Can't get table ID from definition.csv file";
   public static final String NO_DEFINITION_FILE = "Invalid file provided, definition.csv file required";
   public static final String NO_MULTI_PART_CONTENT = "Request does not contain Multi Part Content";
   public static final String NO_ZIP_FILE = "Invalid file provided, ZIP file required";

@@ -1,16 +1,14 @@
 /*
  * Copyright (C) 2012-2013 University of Washington
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -82,9 +80,9 @@ public class TableManager {
     public final boolean hasMore;
     public final boolean hasPrior;
 
-    public WebsafeTables(List<TableEntry> tables,
-        String websafeRefetchCursor, String websafeBackwardCursor, String websafeResumeCursor,
-        boolean hasMore, boolean hasPrior) {
+    public WebsafeTables(List<TableEntry> tables, String websafeRefetchCursor,
+        String websafeBackwardCursor, String websafeResumeCursor, boolean hasMore,
+        boolean hasPrior) {
       this.tables = tables;
       this.websafeRefetchCursor = websafeRefetchCursor;
       this.websafeBackwardCursor = websafeBackwardCursor;
@@ -115,7 +113,8 @@ public class TableManager {
    * @return a list of all table entries.
    * @throws ODKDatastoreException
    */
-  public WebsafeTables getTables(QueryResumePoint startCursor, int fetchLimit, String officeId) throws ODKDatastoreException {
+  public WebsafeTables getTables(QueryResumePoint startCursor, int fetchLimit, String officeId)
+      throws ODKDatastoreException {
     List<TableEntry> filteredList = new ArrayList<TableEntry>();
 
     // TODO: properly return exactly fetchLimit results when we are paginating
@@ -123,15 +122,18 @@ public class TableManager {
     // set of tables the user is eligible to see.
 
     Query query = DbTableEntry.getRelation(cc).query("DbTableEntry.query", cc);
-    query.addSort(DbTableEntry.getRelation(cc).getDataField(CommonFieldsBase.CREATION_DATE_COLUMN_NAME),
-        (startCursor == null || startCursor.isForwardCursor()) ? Direction.ASCENDING : Direction.DESCENDING);
+    query.addSort(
+        DbTableEntry.getRelation(cc).getDataField(CommonFieldsBase.CREATION_DATE_COLUMN_NAME),
+        (startCursor == null || startCursor.isForwardCursor()) ? Direction.ASCENDING
+            : Direction.DESCENDING);
     // we need the filter to activate the sort...
-    query.addFilter(DbTableEntry.getRelation(cc).getDataField(CommonFieldsBase.CREATION_DATE_COLUMN_NAME),
+    query.addFilter(
+        DbTableEntry.getRelation(cc).getDataField(CommonFieldsBase.CREATION_DATE_COLUMN_NAME),
         org.opendatakit.persistence.Query.FilterOperation.GREATER_THAN, BasicConsts.EPOCH);
     WebsafeQueryResult result = query.execute(startCursor, fetchLimit);
     List<DbTableEntryEntity> results = new ArrayList<DbTableEntryEntity>();
     for (Entity e : result.entities) {
-      if(officeId == null || e.getString("CONNECTED_OFFICE_ID").contains(officeId))
+      if (officeId == null || e.getString("CONNECTED_OFFICE_ID").contains(officeId))
         results.add(new DbTableEntryEntity(e));
     }
     List<TableEntry> tables = converter.toTableEntries(results);
@@ -141,22 +143,19 @@ public class TableManager {
       }
     }
 
-    return new WebsafeTables(filteredList,
-        result.websafeRefetchCursor,
-        result.websafeBackwardCursor,
-        result.websafeResumeCursor, result.hasMore, result.hasPrior);
+    return new WebsafeTables(filteredList, result.websafeRefetchCursor,
+        result.websafeBackwardCursor, result.websafeResumeCursor, result.hasMore, result.hasPrior);
   }
 
   /**
-   * Retrieve a list of all table entries in the datastore that the given scopes
-   * are allowed to see.
+   * Retrieve a list of all table entries in the datastore that the given scopes are allowed to see.
    *
-   * @param scopes
-   *          the scopes
+   * @param scopes the scopes
    * @return a list of table entries which the given scopes are allowed to see
    * @throws ODKDatastoreException
    */
-  public WebsafeTables getTables(List<Scope> scopes, QueryResumePoint startCursor, int fetchLimit) throws ODKDatastoreException {
+  public WebsafeTables getTables(List<Scope> scopes, QueryResumePoint startCursor, int fetchLimit)
+      throws ODKDatastoreException {
     // TODO: rework to use getTables() to get everything, then filter out
     // the non-accessible tables. Eliminate the queryNotEqual() what we
     // want to do is get the full ACL of each table, and see if the scope
@@ -167,18 +166,17 @@ public class TableManager {
     // getting tables through this class.
     // TODO fix this to again get things to point at scopes.
     /*
-     * // get table ids for entries that the given scopes can see List<Entity>
-     * aclEntities = DbTableAcl.queryNotEqual(TableRole.NONE, cc); List<String>
-     * tableIds = new ArrayList<String>();
+     * // get table ids for entries that the given scopes can see List<Entity> aclEntities =
+     * DbTableAcl.queryNotEqual(TableRole.NONE, cc); List<String> tableIds = new
+     * ArrayList<String>();
      *
-     * for (Entity aclEntity : aclEntities) { TableAcl acl =
-     * converter.toTableAcl(aclEntity); if (scopes.contains(acl.getScope())) {
-     * tableIds.add(aclEntity.getString(DbTableAcl.TABLE_ID)); } }
+     * for (Entity aclEntity : aclEntities) { TableAcl acl = converter.toTableAcl(aclEntity); if
+     * (scopes.contains(acl.getScope())) { tableIds.add(aclEntity.getString(DbTableAcl.TABLE_ID)); }
+     * }
      *
-     * Query query =
-     * DbTableEntry.getRelation(cc).query("TableManager.getTables(List<Scope>)",
-     * cc); query.include(PersistConsts.URI_COLUMN_NAME, tableIds);
-     * List<Entity> entries = query.execute(); return getTableEntries(entries);
+     * Query query = DbTableEntry.getRelation(cc).query("TableManager.getTables(List<Scope>)", cc);
+     * query.include(PersistConsts.URI_COLUMN_NAME, tableIds); List<Entity> entries =
+     * query.execute(); return getTableEntries(entries);
      */
     // List<TableEntry> tables = getTables();
     return getTables(startCursor, fetchLimit, null);
@@ -187,14 +185,13 @@ public class TableManager {
   /**
    * Retrieve the table entry for the given tableId.
    *
-   * @param tableId
-   *          the id of a table
+   * @param tableId the id of a table
    * @return the table entry, or null if no such table exists
    * @throws ODKDatastoreException
    * @throws PermissionDeniedException
    */
-  public TableEntry getTable(String tableId) throws ODKDatastoreException,
-      PermissionDeniedException {
+  public TableEntry getTable(String tableId)
+      throws ODKDatastoreException, PermissionDeniedException {
     userPermissions.checkPermission(appId, tableId, TablePermission.READ_TABLE_ENTRY);
 
     Validate.notNull(tableId);
@@ -225,13 +222,15 @@ public class TableManager {
    * @throws PermissionDeniedException
    * @throws ODKTaskLockException
    */
-  public TableDefinition getTableDefinition(String tableId) throws ODKDatastoreException,
-      PermissionDeniedException, ODKTaskLockException {
+  public TableDefinition getTableDefinition(String tableId)
+      throws ODKDatastoreException, PermissionDeniedException, ODKTaskLockException {
     Validate.notEmpty(tableId);
     TableEntry entry = null;
     DbTableDefinitionsEntity definitionEntity = null;
     List<DbColumnDefinitionsEntity> columnEntities = null;
-    OdkTablesLockTemplate propsLock = new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES, OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
+    OdkTablesLockTemplate propsLock =
+        new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES,
+            OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
     try {
       propsLock.acquire();
 
@@ -240,7 +239,7 @@ public class TableManager {
         return null;
       }
       String schemaETag = entry.getSchemaETag();
-      if ( schemaETag == null ) {
+      if (schemaETag == null) {
         return null;
       }
       definitionEntity = DbTableDefinitions.getDefinition(tableId, schemaETag, cc);
@@ -250,7 +249,7 @@ public class TableManager {
       propsLock.release();
     }
 
-    if ( entry != null && definitionEntity != null && columnEntities != null ) {
+    if (entry != null && definitionEntity != null && columnEntities != null) {
       TableDefinition definition = converter.toTableDefinition(entry, definitionEntity);
       ArrayList<Column> columns = converter.toColumns(columnEntities);
       definition.setColumns(columns);
@@ -263,17 +262,14 @@ public class TableManager {
   /**
    * Retrieve the table entry for the given tableId.
    *
-   * @param tableId
-   *          the id of the table previously created with
-   *          {@link #createTable(String, List)}
+   * @param tableId the id of the table previously created with {@link #createTable(String, List)}
    * @return the table entry representing the table
-   * @throws ODKEntityNotFoundException
-   *           if no table with the given table id was found
+   * @throws ODKEntityNotFoundException if no table with the given table id was found
    * @throws ODKDatastoreException
    * @throws PermissionDeniedException
    */
-  public TableEntry getTableNullSafe(String tableId) throws ODKEntityNotFoundException,
-      ODKDatastoreException, PermissionDeniedException {
+  public TableEntry getTableNullSafe(String tableId)
+      throws ODKEntityNotFoundException, ODKDatastoreException, PermissionDeniedException {
     Validate.notNull(tableId);
     Validate.notEmpty(tableId);
     userPermissions.checkPermission(appId, tableId, TablePermission.READ_TABLE_ENTRY);
@@ -288,35 +284,67 @@ public class TableManager {
   }
 
   /**
-   * Creates a new table. The table has 'tableId' as its display name. It has no
-   * table type designation.
-   *
+   * Update only the regional offices. TODO: Expand this to allow updating other table metadata?
+   * 
    * @param tableId
-   *          the unique identifier for the table
-   * @param columns
-   *          the columns the table should have
    * @param regionalOffices
-   *          optional parameter - unique ID of the Regional Office to which a new table is going to be assigned to
-   * @return a table entry representing the newly created table
+   * @return TableEntry for updated table
+   * @throws ODKEntityPersistException
+   * @throws ODKDatastoreException
    * @throws TableAlreadyExistsException
-   *           if a table with the given table id already exists
+   * @throws PermissionDeniedException
+   * @throws ODKTaskLockException
+   */
+  public TableEntry updateOffices(String tableId, List<String> regionalOffices)
+      throws ODKEntityPersistException, ODKDatastoreException, TableAlreadyExistsException,
+      PermissionDeniedException, ODKTaskLockException {
+
+    DbTableEntryEntity dbTableEntryEntity = DbTableEntry.getTableIdEntry(tableId, cc);
+    String offices = joinOffices(regionalOffices);
+
+    dbTableEntryEntity.setConnectedOfficeId(offices);
+    OdkTablesLockTemplate propsLock =
+        new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES,
+            OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
+    try {
+      propsLock.acquire();
+      dbTableEntryEntity.put(cc);
+    } finally {
+      propsLock.release();
+    }
+    return getTable(tableId);
+  }
+
+  /**
+   * Creates a new table. The table has 'tableId' as its display name. It has no table type
+   * designation.
+   *
+   * @param tableId the unique identifier for the table
+   * @param columns the columns the table should have
+   * @param regionalOffices optional parameter - unique ID of the Regional Office to which a new
+   *        table is going to be assigned to
+   * @return a table entry representing the newly created table
+   * @throws TableAlreadyExistsException if a table with the given table id already exists
    * @throws ODKEntityPersistException
    * @throws ODKDatastoreException
    * @throws PermissionDeniedException
    * @throws ODKTaskLockException
    */
   public TableEntry createTable(String tableId, List<Column> columns, List<String> regionalOffices)
-      throws ODKEntityPersistException, ODKDatastoreException,
-      TableAlreadyExistsException, PermissionDeniedException, ODKTaskLockException {
+      throws ODKEntityPersistException, ODKDatastoreException, TableAlreadyExistsException,
+      PermissionDeniedException, ODKTaskLockException {
     Validate.notNull(tableId);
     Validate.notEmpty(tableId);
     Validate.noNullElements(columns);
 
-    // Idempotent action: creating a table succeeds if the table already exists with a matching schema.
+    // Idempotent action: creating a table succeeds if the table already exists with a matching
+    // schema.
 
     // lock table
     DbTableEntryEntity tableEntry = null;
-    OdkTablesLockTemplate propsLock = new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES, OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
+    OdkTablesLockTemplate propsLock =
+        new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES,
+            OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
     try {
       propsLock.acquire();
 
@@ -333,29 +361,28 @@ public class TableManager {
 
         // Table already exists -- see if schema matches
 
-        DbTableDefinitionsEntity defn = DbTableDefinitions.getDefinition(tableId,
-            existing.getSchemaETag(), cc);
+        DbTableDefinitionsEntity defn =
+            DbTableDefinitions.getDefinition(tableId, existing.getSchemaETag(), cc);
         if (defn == null) {
-          throw new TableAlreadyExistsException(
-              String
-                  .format(
-                      "Table with tableId '%s' already exists with incompatible schema (null TableDefinition).",
-                      tableId));
-        }
-        List<DbColumnDefinitionsEntity> cols = DbColumnDefinitions.query(tableId,
-            existing.getSchemaETag(), cc);
-
-        if ( cols.size() != columns.size() ) {
           throw new TableAlreadyExistsException(String.format(
-              "Table with tableId '%s' already exists with a different number of columns.", tableId));
+              "Table with tableId '%s' already exists with incompatible schema (null TableDefinition).",
+              tableId));
+        }
+        List<DbColumnDefinitionsEntity> cols =
+            DbColumnDefinitions.query(tableId, existing.getSchemaETag(), cc);
+
+        if (cols.size() != columns.size()) {
+          throw new TableAlreadyExistsException(String.format(
+              "Table with tableId '%s' already exists with a different number of columns.",
+              tableId));
         }
         for (DbColumnDefinitionsEntity cde : cols) {
           boolean found = false;
           for (Column column : columns) {
             if (column.getElementKey().equals(cde.getElementKey())) {
               found = true;
-              DbColumnDefinitionsEntity ce = creator.newColumnEntity(tableId,
-                  existing.getSchemaETag(), column, cc);
+              DbColumnDefinitionsEntity ce =
+                  creator.newColumnEntity(tableId, existing.getSchemaETag(), column, cc);
               if (!ce.matchingColumnDefinition(cde)) {
                 throw new TableAlreadyExistsException(String.format(
                     "Table with tableId '%s' already exists with incompatible schema.", tableId));
@@ -363,11 +390,9 @@ public class TableManager {
             }
           }
           if (!found) {
-            throw new TableAlreadyExistsException(
-                String
-                    .format(
-                        "Table with tableId '%s' already exists with incompatible schema (missing Column).",
-                        tableId));
+            throw new TableAlreadyExistsException(String.format(
+                "Table with tableId '%s' already exists with incompatible schema (missing Column).",
+                tableId));
           }
         }
         // Return the existing record -- schema is defined...
@@ -376,7 +401,7 @@ public class TableManager {
 
       String pendingSchemaETag = PersistenceUtils.newUri();
 
-      if ( tableEntry != null ) {
+      if (tableEntry != null) {
         // we are in some sort of intermediate state
         // of table creation. Remove everything!
         // (clean up the state of the database)
@@ -384,32 +409,29 @@ public class TableManager {
         // NOTE: removes the tableEntry from the database
         tableEntry = null;
       }
-      
+
       // create table. "entities" will store all of the things we will need to
       // persist into the datastore for the table to truly be created.
       Sequencer sequencer = new Sequencer(cc);
       String aprioriDataSequenceValue = sequencer.getNextSequenceValue();
 
-      tableEntry = creator.newTableEntryEntity(tableId, pendingSchemaETag,
-          aprioriDataSequenceValue, cc);
+      tableEntry =
+          creator.newTableEntryEntity(tableId, pendingSchemaETag, aprioriDataSequenceValue, cc);
 
       // set Regional Office Id for a table
-      String offices = "";
-      if (regionalOffices != null) {
-          for(String regionalOffice : regionalOffices)
-          {
-            offices += regionalOffice + ",";
-          }
-          offices = offices.substring(0, offices.length() - 1);
-          tableEntry.setConnectedOfficeId(offices);
-      }
+      String offices = joinOffices(regionalOffices);
+
+
+      tableEntry.setConnectedOfficeId(offices);
+
+
 
       // write it...
 
       /**
        * write out the initial ACL
        */
-      if ( tableEntry.getSchemaETag() == null ) {
+      if (tableEntry.getSchemaETag() == null) {
         QueryResumePoint start = null;
         for (;;) {
           // remove anything we already set... (late clean-up)
@@ -417,14 +439,14 @@ public class TableManager {
           for (Entity acl : result.entities) {
             acl.delete(cc);
           }
-          if ( !result.hasMore || (result.websafeResumeCursor == null)) {
+          if (!result.hasMore || (result.websafeResumeCursor == null)) {
             break;
           }
           start = QueryResumePoint.fromWebsafeCursor(result.websafeResumeCursor);
         }
         // write out the owner record
-        DbTableAclEntity ownerAcl = creator.newTableAclEntity(tableId, new Scope(Scope.Type.USER,
-            userPermissions.getOdkTablesUserId()), TableRole.OWNER, cc);
+        DbTableAclEntity ownerAcl = creator.newTableAclEntity(tableId,
+            new Scope(Scope.Type.USER, userPermissions.getOdkTablesUserId()), TableRole.OWNER, cc);
         ownerAcl.put(cc);
       }
 
@@ -436,15 +458,16 @@ public class TableManager {
        */
       String tableName = RUtil.convertIdentifier(tableId);
       int count = 1;
-      while ( cc.getDatastore().hasRelation(RUtil.NAMESPACE, tableName, cc.getCurrentUser()) ||
-              cc.getDatastore().hasRelation(RUtil.NAMESPACE, DbLogTable.getDbLogTableName(tableName), cc.getCurrentUser()) ) {
+      while (cc.getDatastore().hasRelation(RUtil.NAMESPACE, tableName, cc.getCurrentUser())
+          || cc.getDatastore().hasRelation(RUtil.NAMESPACE, DbLogTable.getDbLogTableName(tableName),
+              cc.getCurrentUser())) {
         tableName = RUtil.convertIdentifier(tableId + "_" + Integer.toString(count++));
       }
       /**
        * Write out the table definition
        */
-      DbTableDefinitionsEntity tableDefinition = creator.newTableDefinitionEntity(tableId,
-          pendingSchemaETag, tableName, cc);
+      DbTableDefinitionsEntity tableDefinition =
+          creator.newTableDefinitionEntity(tableId, pendingSchemaETag, tableName, cc);
       tableDefinition.put(cc);
 
       /**
@@ -458,11 +481,11 @@ public class TableManager {
         e.put(cc);
       }
       /**
-       * Update the isUnitOfRetention field for these so they can be used
-       * to create the data tables on the server.
+       * Update the isUnitOfRetention field for these so they can be used to create the data tables
+       * on the server.
        */
       DbColumnDefinitions.markUnitOfRetention(colDefs);
-      
+
       /**
        * Instantiate the actual tables
        */
@@ -486,8 +509,8 @@ public class TableManager {
   }
 
   /**
-   * Routine shared by the TableManager and the PropertiesManager.
-   * This cleans up the pending and stale state of the Schema and Properties of a table.
+   * Routine shared by the TableManager and the PropertiesManager. This cleans up the pending and
+   * stale state of the Schema and Properties of a table.
    *
    * @param tableEntry
    * @param deleteCurrent
@@ -495,33 +518,37 @@ public class TableManager {
    * @throws ODKEntityPersistException
    * @throws ODKOverQuotaException
    */
-  public static void deleteVersionedTable(DbTableEntryEntity tableEntry, boolean deleteCurrent, CallingContext cc) throws ODKDatastoreException, ODKEntityPersistException, ODKOverQuotaException {
+  public static void deleteVersionedTable(DbTableEntryEntity tableEntry, boolean deleteCurrent,
+      CallingContext cc)
+      throws ODKDatastoreException, ODKEntityPersistException, ODKOverQuotaException {
 
     // delete stale schema
-    if ( tableEntry.getStaleSchemaETag() != null ) {
+    if (tableEntry.getStaleSchemaETag() != null) {
       // get the column schema
-      List<DbColumnDefinitionsEntity> colDefs = DbColumnDefinitions.query(tableEntry.getId(), tableEntry.getStaleSchemaETag(), cc);
+      List<DbColumnDefinitionsEntity> colDefs =
+          DbColumnDefinitions.query(tableEntry.getId(), tableEntry.getStaleSchemaETag(), cc);
       // get the table definition
-      DbTableDefinitionsEntity definitionEntity = DbTableDefinitions.getDefinition(tableEntry.getId(), tableEntry.getStaleSchemaETag(), cc);
-      if ( definitionEntity != null ) {
+      DbTableDefinitionsEntity definitionEntity =
+          DbTableDefinitions.getDefinition(tableEntry.getId(), tableEntry.getStaleSchemaETag(), cc);
+      if (definitionEntity != null) {
         // delete the data table
         DbTable tableRelation = DbTable.getRelation(definitionEntity, colDefs, cc);
-        if ( tableRelation != null ) {
+        if (tableRelation != null) {
           tableRelation.dropRelation(cc);
         }
         // delete the data log table
         DbLogTable logTableRelation = DbLogTable.getRelation(definitionEntity, colDefs, cc);
-        if ( logTableRelation != null ) {
+        if (logTableRelation != null) {
           logTableRelation.dropRelation(cc);
         }
-        
+
         // drop the manifest ETags table for instance attachments
         DbTableInstanceManifestETags instanceManifestETagsRelation =
-          DbTableInstanceManifestETags.getRelation(tableEntry.getId(), cc);
-        if ( instanceManifestETagsRelation != null ) {
+            DbTableInstanceManifestETags.getRelation(tableEntry.getId(), cc);
+        if (instanceManifestETagsRelation != null) {
           instanceManifestETagsRelation.dropRelation(cc);
         }
-          
+
         // delete the blob store (holding the instance attachments)
         DbTableInstanceFiles blobStore = new DbTableInstanceFiles(tableEntry.getId(), cc);
         blobStore.dropBlobRelationSet(cc);
@@ -531,13 +558,14 @@ public class TableManager {
         try {
           DbManifestETagEntity entity = DbManifestETags.getTableIdEntry(tableEntry.getId(), cc);
           entity.delete(cc);
-        } catch ( ODKEntityNotFoundException e) {
+        } catch (ODKEntityNotFoundException e) {
           // ignore...
         }
-        
+
         // delete app-level files specific to this table
-        List<DbTableFileInfoEntity> entries = DbTableFileInfo.queryForAllOdkClientVersionsOfTableIdFiles(tableEntry.getId(), cc);
-        for ( DbTableFileInfoEntity entry : entries ) {
+        List<DbTableFileInfoEntity> entries =
+            DbTableFileInfo.queryForAllOdkClientVersionsOfTableIdFiles(tableEntry.getId(), cc);
+        for (DbTableFileInfoEntity entry : entries) {
           DbTableFiles tableFiles = new DbTableFiles(cc);
           BlobEntitySet set = tableFiles.getBlobEntitySet(entry.getId(), cc);
           set.remove(cc);
@@ -561,9 +589,11 @@ public class TableManager {
       // we have a pendingDataETag that needs to be cleaned up
       String schemaETag = tableEntry.getSchemaETag();
       // get changes associated with this ETag
-      List<DbColumnDefinitionsEntity> colDefs = DbColumnDefinitions.query(tableEntry.getId(), schemaETag, cc);
+      List<DbColumnDefinitionsEntity> colDefs =
+          DbColumnDefinitions.query(tableEntry.getId(), schemaETag, cc);
       // get the table definition
-      DbTableDefinitionsEntity definitionEntity = DbTableDefinitions.getDefinition(tableEntry.getId(), schemaETag, cc);
+      DbTableDefinitionsEntity definitionEntity =
+          DbTableDefinitions.getDefinition(tableEntry.getId(), schemaETag, cc);
 
       @SuppressWarnings("unused")
       DbTable tableRelation = DbTable.getRelation(definitionEntity, colDefs, cc);
@@ -586,16 +616,16 @@ public class TableManager {
     tableEntry.setStaleSchemaETag(tableEntry.getPendingSchemaETag());
     tableEntry.setPendingSchemaETag(null);
 
-    if ( tableEntry.getStaleSchemaETag() != null ) {
+    if (tableEntry.getStaleSchemaETag() != null) {
       // move the pending properties and schema to stale
       tableEntry.put(cc);
       // delete them (tail-recursive)
       deleteVersionedTable(tableEntry, deleteCurrent, cc);
-    } else if ( deleteCurrent ) {
+    } else if (deleteCurrent) {
       // in addition to deleting the non-current cruft, we also need to delete the current data.
       tableEntry.setStaleSchemaETag(tableEntry.getSchemaETag());
       tableEntry.setSchemaETag(null);
-      if ( tableEntry.getStaleSchemaETag() != null ) {
+      if (tableEntry.getStaleSchemaETag() != null) {
         // what had been the current schema, properties and row data now needs to be deleted
         tableEntry.put(cc);
         // delete them (tail-recursive)
@@ -608,16 +638,17 @@ public class TableManager {
         QueryResumePoint start = null;
         for (;;) {
           // remove anything we already set... (late clean-up)
-          WebsafeQueryResult result = DbTableAcl.queryTableIdAcls(tableEntry.getId(), start, 2000, cc);
+          WebsafeQueryResult result =
+              DbTableAcl.queryTableIdAcls(tableEntry.getId(), start, 2000, cc);
           for (Entity e : result.entities) {
             DbTableAclEntity acl = new DbTableAclEntity(e);
-            if ( TableRole.valueOf(acl.getRole()).equals(TableRole.OWNER) ) {
+            if (TableRole.valueOf(acl.getRole()).equals(TableRole.OWNER)) {
               heldBack.add(acl);
             } else {
               acl.delete(cc);
             }
           }
-          if ( !result.hasMore || (result.websafeResumeCursor == null)) {
+          if (!result.hasMore || (result.websafeResumeCursor == null)) {
             break;
           }
           start = QueryResumePoint.fromWebsafeCursor(result.websafeResumeCursor);
@@ -636,10 +667,8 @@ public class TableManager {
   /**
    * Deletes a table.
    *
-   * @param tableId
-   *          the unique identifier of the table to delete.
-   * @throws ODKEntityNotFoundException
-   *           if no table with the given table id was found
+   * @param tableId the unique identifier of the table to delete.
+   * @throws ODKEntityNotFoundException if no table with the given table id was found
    * @throws ODKDatastoreException
    * @throws ODKTaskLockException
    * @throws PermissionDeniedException
@@ -653,7 +682,9 @@ public class TableManager {
 
     DbTableEntryEntity tableEntry = DbTableEntry.getTableIdEntry(tableId, cc);
 
-    OdkTablesLockTemplate propsLock = new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES, OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
+    OdkTablesLockTemplate propsLock =
+        new OdkTablesLockTemplate(tableId, ODKTablesTaskLockType.TABLES_NON_PERMISSIONS_CHANGES,
+            OdkTablesLockTemplate.DelayStrategy.SHORT, cc);
     try {
       propsLock.acquire();
       deleteVersionedTable(tableEntry, true, cc);
@@ -662,4 +693,21 @@ public class TableManager {
     }
   }
 
+  /**
+   * Join in the sense of a string join
+   * 
+   * @param regionalOffices
+   * @return
+   */
+  private String joinOffices(List<String> regionalOffices) {
+    String offices = "";
+    if (regionalOffices != null) {
+      for (String regionalOffice : regionalOffices) {
+        offices += regionalOffice + ",";
+      }
+      offices = offices.substring(0, offices.length() - 1);
+
+    }
+    return offices;
+  }
 }

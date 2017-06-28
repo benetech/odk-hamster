@@ -64,6 +64,7 @@ import org.opendatakit.odktables.exception.TableAlreadyExistsException;
 import org.opendatakit.odktables.security.TablesUserPermissions;
 import org.opendatakit.odktables.util.ServiceUtils;
 import org.opendatakit.persistence.exception.ODKDatastoreException;
+import org.opendatakit.persistence.exception.ODKEntityPersistException;
 import org.opendatakit.persistence.exception.ODKTaskLockException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -82,7 +83,8 @@ public class FormService {
   private static final Log logger = LogFactory.getLog(FormService.class);
 
   @POST
-  @ApiOperation(value = "Upload a zipped form definition.", response = FormUploadResult.class)
+  @ApiOperation(value = "Upload a zipped form definition as multipart/form-data.",
+      response = FormUploadResult.class)
   @Consumes({MediaType.MULTIPART_FORM_DATA})
   @Produces({MediaType.APPLICATION_JSON, ApiConstants.MEDIA_TEXT_XML_UTF8,
       ApiConstants.MEDIA_APPLICATION_XML_UTF8})
@@ -102,8 +104,7 @@ public class FormService {
     try {
       TablesUserPermissions userPermissions = ContextUtils.getTablesUserPermissions(callingContext);
       List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(req);
-      Map<String, byte[]> files = new HashMap<>();
-      String definition = null;
+      Map<String, byte[]> files = null;
       String tableId = null;
       List<String> regionalOffices = new ArrayList<>();
 
@@ -121,7 +122,6 @@ public class FormService {
         String fileName = FilenameUtils.getName(item.getName());
 
         if (fieldName.equals(WebConsts.ZIP_FILE)) {
-
           if (fileName == null || !(fileName.endsWith(".zip"))) {
             throw new WebApplicationException(ErrorConsts.NO_ZIP_FILE,
                 HttpServletResponse.SC_BAD_REQUEST);
@@ -129,75 +129,25 @@ public class FormService {
 
           InputStream fileStream = item.getInputStream();
           ZipInputStream zipStream = new ZipInputStream(fileStream);
-
-          int c;
-
-          byte buffer[] = new byte[2084];
-          ByteArrayOutputStream tempBAOS;
-          ZipEntry zipEntry;
-          while ((zipEntry = zipStream.getNextEntry()) != null) {
-            if (!(zipEntry.isDirectory())) {
-              tempBAOS = new ByteArrayOutputStream();
-              while ((c = zipStream.read(buffer, 0, 2048)) > -1) {
-                tempBAOS.write(buffer, 0, c);
-              }
-              files.put("tables" + BasicConsts.FORWARDSLASH + zipEntry.getName(),
-                  tempBAOS.toByteArray());
-              if (zipEntry.getName().endsWith("definition.csv")) {
-                tableId = FileManager.getTableIdForFilePath(
-                    "tables" + BasicConsts.FORWARDSLASH + zipEntry.getName());
-                definition = new String(tempBAOS.toByteArray());
-              }
-            }
-          }
+          files = processZipInputStream(zipStream);
         }
       }
+      
+      tableId = getTableIdFromFiles(files);
 
-      if (definition == null || tableId == null || regionalOffices.isEmpty()) {
-        throw new WebApplicationException(ErrorConsts.NO_DEFINITION_FILE,
-            HttpServletResponse.SC_BAD_REQUEST);
-      }
+      FormUploadResult formUploadResult =
+          uploadFiles(odkClientVersion, appId, tableId, userPermissions, files, regionalOffices);
 
-      List<String> notUploadedFiles = new ArrayList<>();
-      List<String> uploadedFiles = new ArrayList<>();
 
-      // adding tables
-      List<Column> columns = parseColumnsFromCsv(definition);
-      TableManager tm = new TableManager(appId, userPermissions, callingContext);
-      tm.createTable(tableId, columns, regionalOffices);
-
-      // uploading files
-      for (Map.Entry<String, byte[]> entry : files.entrySet()) {
-        String contentType =
-            MimeTypes.MIME_TYPES.get(entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1));
-        if (contentType == null) {
-          contentType = "application/octet-stream";
-        }
-
-        FileManager fm = new FileManager(appId, callingContext);
-        FileContentInfo fi = new FileContentInfo(entry.getKey(), contentType,
-            Long.valueOf(entry.getValue().length), null, entry.getValue());
-
-        ConfigFileChangeDetail outcome = fm.putFile(odkClientVersion, tableId, fi, userPermissions);
-
-        if (outcome == ConfigFileChangeDetail.FILE_NOT_CHANGED) {
-          notUploadedFiles.add(entry.getKey());
-        } else {
-          uploadedFiles.add(entry.getKey());
-        }
-      }
 
       FileManifestManager manifestManager =
           new FileManifestManager(appId, odkClientVersion, callingContext);
       OdkTablesFileManifest manifest = manifestManager.getManifestForTable(tableId);
       FileManifestService.fixDownloadUrls(info, appId, odkClientVersion, manifest);
 
-      FormUploadResult formUploadResult = new FormUploadResult();
-      formUploadResult.setNotProcessedFiles(notUploadedFiles);
       formUploadResult.setManifest(manifest);
       String eTag = Integer.toHexString(manifest.hashCode()); // Is this
                                                               // right?
-
 
       return Response.status(Status.CREATED).entity(formUploadResult).header(HttpHeaders.ETAG, eTag)
           .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
@@ -213,7 +163,102 @@ public class FormService {
     }
   }
 
-  private List<Column> parseColumnsFromCsv(String definition) {
+  static Map<String, byte[]> processZipInputStream(ZipInputStream zipInputStream) throws IOException {
+    int c;
+    Map<String, byte[]> files = new HashMap<>();
+    byte buffer[] = new byte[2084];
+    ByteArrayOutputStream tempBAOS;
+    ZipEntry zipEntry;
+    while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+      if (!(zipEntry.isDirectory())) {
+        tempBAOS = new ByteArrayOutputStream();
+        while ((c = zipInputStream.read(buffer, 0, 2048)) > -1) {
+          tempBAOS.write(buffer, 0, c);
+        }
+        files.put("tables" + BasicConsts.FORWARDSLASH + zipEntry.getName(), tempBAOS.toByteArray());
+      }
+    }
+    return files;
+  }
+
+  static String getDefinitionFromFiles(Map<String, byte[]> files) {
+    String definition = null;
+    if (files != null && !files.isEmpty()) {
+      for (String filename : files.keySet()) {
+        if (filename.endsWith("definition.csv")) {
+
+          definition = new String(files.get(filename));
+          break;
+        }
+      }
+    }
+    if (definition == null) {
+      throw new WebApplicationException(ErrorConsts.NO_DEFINITION_FILE,
+          HttpServletResponse.SC_BAD_REQUEST);
+    }
+    return definition;
+  }
+
+  static String getTableIdFromFiles(Map<String, byte[]> files) {
+    String tableId = null;
+    if (files != null && !files.isEmpty()) {
+      for (String filename : files.keySet()) {
+        if (filename.endsWith("definition.csv")) {
+
+          tableId =
+              FileManager.getTableIdForFilePath(filename);
+          break;
+        }
+      }
+    }
+    if (tableId == null) {
+      throw new WebApplicationException(ErrorConsts.NO_TABLE_ID_IN_DEFINITION_FILE,
+          HttpServletResponse.SC_BAD_REQUEST);
+    }
+    return tableId;
+  }
+
+  FormUploadResult uploadFiles(String odkClientVersion, String appId, String tableId,
+      TablesUserPermissions userPermissions, Map<String, byte[]> files,
+      List<String> regionalOffices) throws ODKEntityPersistException, TableAlreadyExistsException,
+      PermissionDeniedException, ODKDatastoreException, ODKTaskLockException {
+
+    FormUploadResult formUploadResult = new FormUploadResult();
+
+    String definition = getDefinitionFromFiles(files);
+    List<Column> columns = parseColumnsFromCsv(definition);
+
+    List<String> notUploadedFiles = new ArrayList<>();
+    List<String> uploadedFiles = new ArrayList<>();
+
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
+    tm.createTable(tableId, columns, regionalOffices);
+
+    // uploading files
+    for (Map.Entry<String, byte[]> entry : files.entrySet()) {
+      String contentType =
+          MimeTypes.MIME_TYPES.get(entry.getKey().substring(entry.getKey().lastIndexOf(".") + 1));
+      if (contentType == null) {
+        contentType = "application/octet-stream";
+      }
+
+      FileManager fm = new FileManager(appId, callingContext);
+      FileContentInfo fi = new FileContentInfo(entry.getKey(), contentType,
+          Long.valueOf(entry.getValue().length), null, entry.getValue());
+
+      ConfigFileChangeDetail outcome = fm.putFile(odkClientVersion, tableId, fi, userPermissions);
+
+      if (outcome == ConfigFileChangeDetail.FILE_NOT_CHANGED) {
+        notUploadedFiles.add(entry.getKey());
+      } else {
+        uploadedFiles.add(entry.getKey());
+      }
+    }
+    formUploadResult.setNotProcessedFiles(notUploadedFiles);
+    return formUploadResult;
+  }
+
+  static List<Column> parseColumnsFromCsv(String definition) {
     List<Column> outcome = new ArrayList<>();
     String columnsStrings[] = definition.split("\\s+");
     Column temp;
