@@ -29,7 +29,7 @@ import org.opendatakit.api.users.UserService;
 
 /**
  * This is the brute force approach to dealing with an external proxy address that doesn't match the
- * address we see in the request object (i.e. pretty.external.com instead of localhost)
+ * address we see in the request object (i.e. pretty.external.com instead of localhost or https instead of http)
  * 
  * @author Caden Howell
  *
@@ -72,8 +72,6 @@ public class ProxyUrlSetFilter implements ContainerRequestFilter {
                 baseUri.getPath(), baseUri.getQuery(), baseUri.getFragment());
 
         requestContext.setRequestUri(newBaseUri, newRequestUri);
-        logger.info("Setting requestUri to " + newRequestUri + " baseUri to " + newBaseUri);
-
       } catch (URISyntaxException e) {
         logger.error("Unable to update requestUri. Generated URLs in JSON responses may be wrong.");
         // Life goes on. Non-fatal.
