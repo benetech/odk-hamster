@@ -28,6 +28,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -48,6 +49,7 @@ import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
 import org.opendatakit.aggregate.odktables.rest.entity.TableDefinition;
 import org.opendatakit.aggregate.odktables.rest.entity.TableDefinitionResource;
+import org.opendatakit.api.offices.entity.RegionalOffice;
 import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.constants.WebConsts;
 import org.opendatakit.context.CallingContext;
@@ -60,6 +62,7 @@ import org.opendatakit.odktables.InstanceFileManager.FileContentHandler;
 import org.opendatakit.odktables.exception.AppNameMismatchException;
 import org.opendatakit.odktables.exception.PermissionDeniedException;
 import org.opendatakit.odktables.exception.SchemaETagMismatchException;
+import org.opendatakit.odktables.exception.TableAlreadyExistsException;
 import org.opendatakit.odktables.exception.TableNotFoundException;
 import org.opendatakit.odktables.relation.DbTableInstanceFiles;
 import org.opendatakit.odktables.relation.DbTableInstanceManifestETags;
@@ -107,6 +110,8 @@ public class RealizedTableService {
     this.cc = cc;
   }
 
+
+
   /**
    * Delete a realized tableId and all its data (supplied in implementation constructor)
    *
@@ -131,6 +136,9 @@ public class RealizedTableService {
         .header("Access-Control-Allow-Origin", "*")
         .header("Access-Control-Allow-Credentials", "true").build();
   }
+
+
+
 
   /**
    * Data row subresource for a realized tableId (supplied in implementation constructor)
@@ -214,15 +222,16 @@ public class RealizedTableService {
 
 
   /**
-   * There is already a row-by-row manifest at attachments/{rowId}/manifest
-   * This shows the list of attachments for a table, similar to what you see in the aggregate interface
-   * This was ported from Open Data Kit Aggregate's ServerDataServiceImpl.getInstanceFileInfoContents
+   * There is already a row-by-row manifest at attachments/{rowId}/manifest This shows the list of
+   * attachments for a table, similar to what you see in the aggregate interface This was ported
+   * from Open Data Kit Aggregate's ServerDataServiceImpl.getInstanceFileInfoContents
+   * 
    * @param httpHeaders
    * @return
    * @throws IOException
    * @throws ODKTaskLockException
    * @throws PermissionDeniedException
-   * @throws ODKDatastoreException 
+   * @throws ODKDatastoreException
    */
   @GET
   @Path("attachments/manifest")
@@ -238,7 +247,8 @@ public class RealizedTableService {
     DbTableInstanceFiles blobStore = new DbTableInstanceFiles(tableId, cc);
     List<BinaryContent> contents = blobStore.getAllBinaryContents(cc);
 
-    ArrayList<OdkTablesFileManifestEntry> completedSummaries = new ArrayList<OdkTablesFileManifestEntry>();
+    ArrayList<OdkTablesFileManifestEntry> completedSummaries =
+        new ArrayList<OdkTablesFileManifestEntry>();
     for (BinaryContent entry : contents) {
       if (entry.getUnrootedFilePath() == null) {
         continue;
@@ -248,8 +258,8 @@ public class RealizedTableService {
           .path(RealizedTableService.class, "getInstanceFiles")
           .path(InstanceFileService.class, "getFile");
       URI getFile = tmp.build(appId, tableId, schemaETag, rowId, entry.getUnrootedFilePath());
-      String downloadUrl = getFile.toASCIIString() + "?" + FileService.PARAM_AS_ATTACHMENT
-          + "=true";
+      String downloadUrl =
+          getFile.toASCIIString() + "?" + FileService.PARAM_AS_ATTACHMENT + "=true";
       OdkTablesFileManifestEntry manifestEntry = new OdkTablesFileManifestEntry();
       manifestEntry.downloadUrl = downloadUrl;
       manifestEntry.contentLength = entry.getContentLength();
@@ -257,11 +267,11 @@ public class RealizedTableService {
       manifestEntry.filename = entry.getUnrootedFilePath();
       manifestEntry.md5hash = entry.getContentHash();
       completedSummaries.add(manifestEntry);
-      
+
     }
 
     OdkTablesFileManifest manifest = new OdkTablesFileManifest(completedSummaries);
-    
+
     ResponseBuilder rBuild = Response.ok(manifest).header(HttpHeaders.ETAG, "test")
         .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
         .header("Access-Control-Allow-Origin", "*")

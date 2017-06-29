@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -36,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -66,6 +68,7 @@ import org.opendatakit.aggregate.odktables.rest.entity.TableResource;
 import org.opendatakit.aggregate.odktables.rest.entity.TableResourceList;
 import org.opendatakit.aggregate.odktables.rest.entity.TableRole.TablePermission;
 import org.opendatakit.api.odktables.TableService;
+import org.opendatakit.constants.BasicConsts;
 import org.opendatakit.constants.WebConsts;
 import org.opendatakit.context.CallingContext;
 import org.opendatakit.odktables.ConfigFileChangeDetail;
@@ -767,6 +770,46 @@ public class TableService {
     @SuppressWarnings("unused")
     ConfigFileChangeDetail outcome = fm.putFile(odkClientVersion, tableId, fi, userPermissions);
     return Response.status(Status.ACCEPTED)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
+  }
+  
+  @GET
+  @Path("offices")
+  public Response getOfficeList()
+      throws ODKDatastoreException, ODKTaskLockException, PermissionDeniedException, TableAlreadyExistsException, AppNameMismatchException, TableNotFoundException {
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
+
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
+
+    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
+    if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
+      throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
+    }
+    String officeList = tm.getOffices(tableId);
+    List<String> offices = Arrays.asList(officeList.split(","));
+
+         return Response.ok().entity(offices).encoding(BasicConsts.UTF8_ENCODE)
+        .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Access-Control-Allow-Credentials", "true").build();
+  }
+  
+  @POST
+  @Path("offices")
+  public Response postOfficeList(List<String> regionalOffices)
+      throws ODKDatastoreException, ODKTaskLockException, PermissionDeniedException, TableAlreadyExistsException, AppNameMismatchException, TableNotFoundException {
+    TablesUserPermissions userPermissions = new TablesUserPermissionsImpl(callingContext);
+
+    TableManager tm = new TableManager(appId, userPermissions, callingContext);
+
+    TreeSet<GrantedAuthorityName> ui = SecurityServiceUtil.getCurrentUserSecurityInfo(callingContext);
+    if (!ui.contains(GrantedAuthorityName.ROLE_ADMINISTER_TABLES)) {
+      throw new PermissionDeniedException("User does not belong to the 'Administer Tables' group");
+    }
+    tm.updateOffices(tableId, regionalOffices);
+    return Response.ok()
         .header(ApiConstants.OPEN_DATA_KIT_VERSION_HEADER, ApiConstants.OPEN_DATA_KIT_VERSION)
         .header("Access-Control-Allow-Origin", "*")
         .header("Access-Control-Allow-Credentials", "true").build();
